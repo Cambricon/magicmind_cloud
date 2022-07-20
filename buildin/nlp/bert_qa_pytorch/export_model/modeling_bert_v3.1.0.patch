@@ -1,0 +1,39 @@
+--- src/transformers/modeling_bert.py	2021-08-20 13:44:22.872433638 +0000
++++ /opt/conda/lib/python3.7/site-packages/transformers/modeling_bert.py	2021-08-23 02:36:22.931288187 +0000
+@@ -165,11 +165,33 @@
+ def mish(x):
+     return x * torch.tanh(nn.functional.softplus(x))
+ 
++def gelu(x):
++    """Implementation of the gelu activation function.
++        For information: OpenAI GPT's gelu is slightly different (and gives slightly different results):
++        0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
++        Also see https://arxiv.org/abs/1606.08415
++    """
++    return x * 0.5 * (1.0 + torch.erf(x / math.sqrt(2.0)))
++
+ 
+ ACT2FN = {"gelu": gelu, "relu": torch.nn.functional.relu, "swish": swish, "gelu_new": gelu_new, "mish": mish}
+ 
+ 
+-BertLayerNorm = torch.nn.LayerNorm
++#BertLayerNorm = torch.nn.LayerNorm
++class BertLayerNorm(nn.Module):
++    def __init__(self, hidden_size, eps=1e-12):
++        """Construct a layernorm module in the TF style (epsilon inside the square root).
++        """
++        super(BertLayerNorm, self).__init__()
++        self.weight = nn.Parameter(torch.ones(hidden_size))
++        self.bias = nn.Parameter(torch.zeros(hidden_size))
++        self.variance_epsilon = eps
++
++    def forward(self, x):
++        u = x.mean(-1, keepdim=True)
++        s = (x - u).pow(2).mean(-1, keepdim=True)
++        x = (x - u) / torch.sqrt(s + self.variance_epsilon)
++        return self.weight * x + self.bias
+ 
+ 
+ class BertEmbeddings(nn.Module):
+
+

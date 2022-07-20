@@ -1,0 +1,113 @@
+==================== Parameter Information
+magicmind model file: /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/models/bert_qa_pytorch_force_float32_true_1bs_128_model
+input dims type: 0
+input 0:
+  input[0] dim: [8, 128]
+  input[1] dim: [8, 128]
+  input[2] dim: [8, 128]
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+input path: 
+ /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/input_8_128.bin
+ /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/input_8_128.bin
+ /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/input_8_128.bin
+[MMINFO]  CreateModel time is 2728 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       1901702777
+2022-08-15 11:38:04.887571: WARNING:  magicmind/runtime/executor/context.cc:223] Inferoutputshape return value is Unavailable, input parameter is invalid or inferring output shape is impossible because of control flow and special op. The output data of other op will be used as tensor shape in the following op to participate infer, which will cause infering fail. Special op: Unpool, reverse, slice... 
+2022-08-15 11:38:04.922046: WARNING:  magicmind/runtime/executor/context.cc:223] Inferoutputshape return value is Unavailable, input parameter is invalid or inferring output shape is impossible because of control flow and special op. The output data of other op will be used as tensor shape in the following op to participate infer, which will cause infering fail. Special op: Unpool, reverse, slice... 
+[MMINFO]  CreateEngine time is 142 ms
+[MMINFO]  Constdata Size: 416.000000 (MB)
+[MMINFO]  ContextMaxworkspace Size: UNAVAILABLE
+[MMINFO]  CreateContext time is 10 ms
+[2022-8-15 19:38:4] [CNNL] [Warning]: [cnnlDiv] is deprecated and will be removed in the future release, please use [cnnlDiv_v2] instead.
+[MMINFO]  dev_0_thread_0_warm_up time is 321 ms
+[MMINFO]  dev_0_thread_0_e2e time is 42324 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 3
+[0]: 
+  Name: main/arg-0
+  Datatype: INT32
+  Layout: NCHW
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ffb4054000
+  TensorLoc: kMLU
+[1]: 
+  Name: main/arg-1
+  Datatype: INT32
+  Layout: NONE
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ffb4056000
+  TensorLoc: kMLU
+[2]: 
+  Name: main/arg-2
+  Datatype: INT32
+  Layout: NCHW
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ffb4058000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 2
+[0]: 
+  Name: main/mm.squeeze:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ffb405c000
+  TensorLoc: kMLU
+[1]: 
+  Name: main/mm.squeeze-1:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ffb405d000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 52    max: 85    mean: 82.55 median: 84   
+dev0_mem_info(MB):            min: 1382  max: 1382  mean: 1382  median: 1382 
+dev0_power_info(W):           min: 32    max: 69    mean: 66.05 median: 68   
+dev0_temp_info(C):            min: 50    max: 55    mean: 52.9  median: 53   
+==================== Performance Summary
+Iterations:                   1000
+Host Wall Time (s):           42.3243
+MLU Compute Time (s):         42.3107
+Throughput (qps):             189.017
+Enqueue Time (ms):            min: 5.5199     max: 10.708     mean: 5.888      median: 5.686      percentile: (90%) 6.6572     (95%) 6.7386     (99%) 8.7324    
+H2D Latency (ms):             min: 0.043      max: 0.081      mean: 0.060202   median: 0.062      percentile: (90%) 0.065      (95%) 0.067      (99%) 0.071     
+MLU Compute Latency (ms):     min: 34.901     max: 61.13      mean: 42.311     median: 41.449     percentile: (90%) 49.128     (95%) 51.451     (99%) 58.398    
+D2H Latency (ms):             min: 0.025      max: 0.067      mean: 0.041551   median: 0.042      percentile: (90%) 0.05       (95%) 0.052      (99%) 0.058     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 41.729      Enqueue: 5.8761    
+  MLU Compute Latency (ms): 41.867      Enqueue: 6.0917    
+  MLU Compute Latency (ms): 42.009      Enqueue: 6.0745    
+  MLU Compute Latency (ms): 42.374      Enqueue: 5.9433    
+  MLU Compute Latency (ms): 41.698      Enqueue: 5.863     
+  MLU Compute Latency (ms): 43.001      Enqueue: 5.8438    
+  MLU Compute Latency (ms): 42.164      Enqueue: 5.716     
+  MLU Compute Latency (ms): 42.361      Enqueue: 5.8846    
+  MLU Compute Latency (ms): 43.463      Enqueue: 5.6837    
+  MLU Compute Latency (ms): 42.441      Enqueue: 5.9037    

@@ -1,0 +1,409 @@
+{
+    "author": "Fabian",
+    "description": "",
+    "id": "c3632288a172",
+    "name": "",
+    "results": {
+        "all": [
+            {
+                "1": {
+                    "Accuracy": 0.9999996995192307,
+                    "Dice": 0.9999555565431879,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 8.888296335796131e-05,
+                    "False Omission Rate": 3.014999395869496e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.999911117036642,
+                    "Negative Predictive Value": 0.9999996985000604,
+                    "Precision": 1.0,
+                    "Recall": 0.999911117036642,
+                    "Total Positives Reference": 45003,
+                    "Total Positives Test": 44999,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_003.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_003.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999991122159091,
+                    "Dice": 0.999914486061228,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 0.00017101325352719687,
+                    "False Omission Rate": 8.924161140008041e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.9998289867464728,
+                    "Negative Predictive Value": 0.999999107583886,
+                    "Precision": 1.0,
+                    "Recall": 0.9998289867464728,
+                    "Total Positives Reference": 58475,
+                    "Total Positives Test": 58465,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_004.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_004.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9996193033854167,
+                    "Dice": 0.9587281421488186,
+                    "False Discovery Rate": 0.01452797678425688,
+                    "False Negative Rate": 0.0666025321674597,
+                    "False Omission Rate": 0.00031693311419687866,
+                    "False Positive Rate": 6.549581517723002e-05,
+                    "Jaccard": 0.9207279875279604,
+                    "Negative Predictive Value": 0.9996830668858031,
+                    "Precision": 0.9854720232157431,
+                    "Recall": 0.9333974678325403,
+                    "Total Positives Reference": 58211,
+                    "Total Positives Test": 55135,
+                    "True Negative Rate": 0.9999345041848228
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_005.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_005.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9992277644230769,
+                    "Dice": 0.9027693704600485,
+                    "False Discovery Rate": 0.05091082650544909,
+                    "False Negative Rate": 0.13923959310295075,
+                    "False Omission Rate": 0.0005821267775603097,
+                    "False Positive Rate": 0.00019311199681126823,
+                    "Jaccard": 0.822770843390111,
+                    "Negative Predictive Value": 0.9994178732224397,
+                    "Precision": 0.9490891734945509,
+                    "Recall": 0.8607604068970492,
+                    "Total Positives Reference": 55444,
+                    "Total Positives Test": 50284,
+                    "True Negative Rate": 0.9998068880031887
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_007.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_007.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.99999931640625,
+                    "Dice": 0.9999257018521467,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 0.0001485852560972889,
+                    "False Omission Rate": 6.867528129395218e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.9998514147439027,
+                    "Negative Predictive Value": 0.999999313247187,
+                    "Precision": 1.0,
+                    "Recall": 0.9998514147439027,
+                    "Total Positives Reference": 47111,
+                    "Total Positives Test": 47104,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_009.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_009.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999996744791667,
+                    "Dice": 0.9999468311356869,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 0.00010633207507049214,
+                    "False Omission Rate": 3.26520323522867e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.9998936679249295,
+                    "Negative Predictive Value": 0.9999996734796764,
+                    "Precision": 1.0,
+                    "Recall": 0.9998936679249295,
+                    "Total Positives Reference": 37618,
+                    "Total Positives Test": 37614,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_010.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_010.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999996744791667,
+                    "Dice": 0.9999657844764169,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 6.842870584211624e-05,
+                    "False Omission Rate": 3.270766567107258e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.9999315712941579,
+                    "Negative Predictive Value": 0.9999996729233432,
+                    "Precision": 1.0,
+                    "Recall": 0.9999315712941579,
+                    "Total Positives Reference": 58455,
+                    "Total Positives Test": 58451,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_011.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_011.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.999999267578125,
+                    "Dice": 0.9999339638562174,
+                    "False Discovery Rate": 1.4675452370771502e-05,
+                    "False Negative Rate": 0.00011739155954682001,
+                    "False Omission Rate": 6.546720383598534e-07,
+                    "False Positive Rate": 8.183405164619018e-08,
+                    "Jaccard": 0.9998679364334033,
+                    "Negative Predictive Value": 0.9999993453279616,
+                    "Precision": 0.9999853245476292,
+                    "Recall": 0.9998826084404532,
+                    "Total Positives Reference": 68148,
+                    "Total Positives Test": 68141,
+                    "True Negative Rate": 0.9999999181659484
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_014.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_014.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9991529947916666,
+                    "Dice": 0.9139227664689147,
+                    "False Discovery Rate": 0.023332547725665842,
+                    "False Negative Rate": 0.14124668435013266,
+                    "False Omission Rate": 0.0007430040867404947,
+                    "False Positive Rate": 0.00010798730854610916,
+                    "Jaccard": 0.8414896641351581,
+                    "Negative Predictive Value": 0.9992569959132596,
+                    "Precision": 0.9766674522743342,
+                    "Recall": 0.8587533156498673,
+                    "Total Positives Reference": 48256,
+                    "Total Positives Test": 42430,
+                    "True Negative Rate": 0.9998920126914539
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_016.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_016.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999995930989584,
+                    "Dice": 0.9999338212910143,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 0.00013234865930811246,
+                    "False Omission Rate": 4.0815573524929255e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.9998676513406919,
+                    "Negative Predictive Value": 0.9999995918442648,
+                    "Precision": 1.0,
+                    "Recall": 0.9998676513406919,
+                    "Total Positives Reference": 37779,
+                    "Total Positives Test": 37774,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_017.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_017.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.999999279585041,
+                    "Dice": 0.9998884219139361,
+                    "False Discovery Rate": 4.95933346558175e-05,
+                    "False Negative Rate": 0.00017355515334838145,
+                    "False Omission Rate": 5.621373812364324e-07,
+                    "False Positive Rate": 1.606107448148819e-07,
+                    "Jaccard": 0.9997768687244328,
+                    "Negative Predictive Value": 0.9999994378626188,
+                    "Precision": 0.9999504066653442,
+                    "Recall": 0.9998264448466516,
+                    "Total Positives Reference": 40333,
+                    "Total Positives Test": 40328,
+                    "True Negative Rate": 0.9999998393892552
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_018.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_018.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.99999931640625,
+                    "Dice": 0.9999355141822738,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 0.00012896331914735715,
+                    "False Omission Rate": 6.872361013370866e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.9998710366808526,
+                    "Negative Predictive Value": 0.9999993127638986,
+                    "Precision": 1.0,
+                    "Recall": 0.9998710366808526,
+                    "Total Positives Reference": 54279,
+                    "Total Positives Test": 54272,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_019.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_019.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999992897727272,
+                    "Dice": 0.9998751404669747,
+                    "False Discovery Rate": 0.0,
+                    "False Negative Rate": 0.00024968789013735115,
+                    "False Omission Rate": 7.122527414608018e-07,
+                    "False Positive Rate": 0.0,
+                    "Jaccard": 0.9997503121098626,
+                    "Negative Predictive Value": 0.9999992877472585,
+                    "Precision": 1.0,
+                    "Recall": 0.9997503121098626,
+                    "Total Positives Reference": 32040,
+                    "Total Positives Test": 32032,
+                    "True Negative Rate": 1.0
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_020.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_020.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.99946845703125,
+                    "Dice": 0.9300628316651034,
+                    "False Discovery Rate": 0.06391123296174639,
+                    "False Negative Rate": 0.07588601777142279,
+                    "False Omission Rate": 0.00029133436136851473,
+                    "False Positive Rate": 0.00024223504818621233,
+                    "Jaccard": 0.8692686441695688,
+                    "Negative Predictive Value": 0.9997086656386315,
+                    "Precision": 0.9360887670382536,
+                    "Recall": 0.9241139822285772,
+                    "Total Positives Reference": 39164,
+                    "Total Positives Test": 38663,
+                    "True Negative Rate": 0.9997577649518138
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_021.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_021.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999969815340909,
+                    "Dice": 0.999493172738656,
+                    "False Discovery Rate": 0.00023857095994994637,
+                    "False Negative Rate": 0.0007749396441238954,
+                    "False Omission Rate": 2.3151307955403813e-06,
+                    "False Positive Rate": 7.123490788352171e-07,
+                    "Jaccard": 0.9989868589648082,
+                    "Negative Predictive Value": 0.9999976848692045,
+                    "Precision": 0.99976142904005,
+                    "Recall": 0.9992250603558761,
+                    "Total Positives Reference": 33551,
+                    "Total Positives Test": 33533,
+                    "True Negative Rate": 0.9999992876509212
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_022.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_022.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999978693181818,
+                    "Dice": 0.9997221772046396,
+                    "False Discovery Rate": 2.3157797230277666e-05,
+                    "False Negative Rate": 0.0005323581149893064,
+                    "False Omission Rate": 2.0497614345050425e-06,
+                    "False Positive Rate": 8.912023707896566e-08,
+                    "Jaccard": 0.9994445087374146,
+                    "Negative Predictive Value": 0.9999979502385655,
+                    "Precision": 0.9999768422027697,
+                    "Recall": 0.9994676418850107,
+                    "Total Positives Reference": 43204,
+                    "Total Positives Test": 43182,
+                    "True Negative Rate": 0.9999999108797629
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_023.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_023.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9993998209635416,
+                    "Dice": 0.919938773516289,
+                    "False Discovery Rate": 0.07136125539702365,
+                    "False Negative Rate": 0.08859969885996988,
+                    "False Omission Rate": 0.0003364543785751341,
+                    "False Positive Rate": 0.00026598025897128785,
+                    "Jaccard": 0.8517468741205323,
+                    "Negative Predictive Value": 0.9996635456214249,
+                    "Precision": 0.9286387446029764,
+                    "Recall": 0.9114003011400301,
+                    "Total Positives Reference": 46490,
+                    "Total Positives Test": 45627,
+                    "True Negative Rate": 0.9997340197410287
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_024.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_024.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9997171223958333,
+                    "Dice": 0.9681100917431192,
+                    "False Discovery Rate": 0.04303981137208668,
+                    "False Negative Rate": 0.020477118722732723,
+                    "False Omission Rate": 9.016693963352003e-05,
+                    "False Positive Rate": 0.00019396549081729386,
+                    "Jaccard": 0.9381912585796081,
+                    "Negative Predictive Value": 0.9999098330603665,
+                    "Precision": 0.9569601886279133,
+                    "Recall": 0.9795228812772673,
+                    "Total Positives Reference": 53865,
+                    "Total Positives Test": 55135,
+                    "True Negative Rate": 0.9998060345091827
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_026.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_026.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999983873279816,
+                    "Dice": 0.9997239263803681,
+                    "False Discovery Rate": 6.136286932778567e-05,
+                    "False Negative Rate": 0.0004906921826601796,
+                    "False Omission Rate": 1.4376844223388484e-06,
+                    "False Positive Rate": 1.7971077881373532e-07,
+                    "Jaccard": 0.9994480051519519,
+                    "Negative Predictive Value": 0.9999985623155777,
+                    "Precision": 0.9999386371306722,
+                    "Recall": 0.9995093078173398,
+                    "Total Positives Reference": 32607,
+                    "Total Positives Test": 32593,
+                    "True Negative Rate": 0.9999998202892212
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_029.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_029.nii.gz"
+            },
+            {
+                "1": {
+                    "Accuracy": 0.9999969815340909,
+                    "Dice": 0.9996219954194739,
+                    "False Discovery Rate": 0.00017792011386885687,
+                    "False Negative Rate": 0.0005780089813702816,
+                    "False Omission Rate": 2.317489666670113e-06,
+                    "False Positive Rate": 7.130748876926774e-07,
+                    "Jaccard": 0.9992442765058902,
+                    "Negative Predictive Value": 0.9999976825103333,
+                    "Precision": 0.9998220798861311,
+                    "Recall": 0.9994219910186297,
+                    "Total Positives Reference": 44982,
+                    "Total Positives Test": 44964,
+                    "True Negative Rate": 0.9999992869251123
+                },
+                "reference": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/../datasets/nnUNet_dataset/nnUNet_raw_data_base/Task02_Heart/labelsTr/la_030.nii.gz",
+                "test": "/mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/../../../../../magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/output/infer_python_output_force_float32_true_1bs_0/la_030.nii.gz"
+            }
+        ],
+        "mean": {
+            "1": {
+                "Accuracy": 0.9998284953122978,
+                "Dice": 0.9795684234762259,
+                "False Discovery Rate": 0.013382446563681599,
+                "False Negative Rate": 0.026790641636659764,
+                "False Omission Rate": 0.00011868492221191553,
+                "False Positive Rate": 5.353563091441416e-05,
+                "Jaccard": 0.9619934742159175,
+                "Negative Predictive Value": 0.9998813150777881,
+                "Precision": 0.9866175534363183,
+                "Recall": 0.9732093583633402,
+                "Total Positives Reference": 46750.75,
+                "Total Positives Test": 46036.3,
+                "True Negative Rate": 0.9999464643690859
+            }
+        }
+    },
+    "task": "",
+    "timestamp": "2022-08-10 02:40:36.988994"
+}

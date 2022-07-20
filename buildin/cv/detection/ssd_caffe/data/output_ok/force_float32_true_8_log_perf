@@ -1,0 +1,82 @@
+==================== Parameter Information
+magicmind model file: /mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/detection/ssd_caffe/../../../../../magicmind_cloud/buildin/cv/detection/ssd_caffe/data/models/ssd_caffe_model_force_float32_true_1
+input dims type: 0
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+batch: 8
+[MMINFO]  CreateModel time is 2360 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -1784839
+2022-08-10 10:38:02.075194: WARNING:  magicmind/runtime/executor/context.cc:223] Inferoutputshape return value is Unavailable, input parameter is invalid or inferring output shape is impossible because of control flow and special op. The output data of other op will be used as tensor shape in the following op to participate infer, which will cause infering fail. Special op: Unpool, reverse, slice... 
+2022-08-10 10:38:02.080669: WARNING:  magicmind/runtime/executor/context.cc:223] Inferoutputshape return value is Unavailable, input parameter is invalid or inferring output shape is impossible because of control flow and special op. The output data of other op will be used as tensor shape in the following op to participate infer, which will cause infering fail. Special op: Unpool, reverse, slice... 
+[MMINFO]  CreateEngine time is 96 ms
+[MMINFO]  Constdata Size: 25.171326 (MB)
+[MMINFO]  ContextMaxworkspace Size: UNAVAILABLE
+[MMINFO]  CreateContext time is 1 ms
+[2022-8-10 18:38:2] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v3] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[MMINFO]  dev_0_thread_0_warm_up time is 221 ms
+[MMINFO]  dev_0_thread_0_e2e time is 8213 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: data
+  Datatype: FLOAT
+  Layout: NHWC
+  Dim: [8, 300, 300, 3]
+  Size: 8640000
+  Ptr Addr: 0x30080ff64000000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 1
+[0]: 
+  Name: detection_out
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [0, 7]
+  Size: 0
+  Ptr Addr: 0
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 23    max: 55    mean: 53.4  median: 55   
+dev0_mem_info(MB):            min: 966   max: 966   mean: 966   median: 966  
+dev0_power_info(W):           min: 37    max: 56    mean: 52.5  median: 53   
+dev0_temp_info(C):            min: 52    max: 52    mean: 52    median: 52   
+==================== Performance Summary
+Iterations:                   1000
+Host Wall Time (s):           8.21397
+MLU Compute Time (s):         7.49189
+Throughput (qps):             973.951
+Enqueue Time (ms):            min: 8.0095     max: 9.64       mean: 8.1271     median: 8.0919     percentile: (90%) 8.2818     (95%) 8.3287     (99%) 8.4258    
+H2D Latency (ms):             min: 0.642      max: 0.667      mean: 0.64581    median: 0.645      percentile: (90%) 0.646      (95%) 0.647      (99%) 0.658     
+MLU Compute Latency (ms):     min: 7.38       max: 9.006      mean: 7.4919     median: 7.456      percentile: (90%) 7.642      (95%) 7.691      (99%) 7.789     
+D2H Latency (ms):             min: 0          max: 0.011      mean: 2.1e-05    median: 0          percentile: (90%) 0          (95%) 0          (99%) 0         
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 7.4813      Enqueue: 8.1166    
+  MLU Compute Latency (ms): 7.4827      Enqueue: 8.1172    
+  MLU Compute Latency (ms): 7.5018      Enqueue: 8.1378    
+  MLU Compute Latency (ms): 7.5071      Enqueue: 8.1437    
+  MLU Compute Latency (ms): 7.5236      Enqueue: 8.1591    
+  MLU Compute Latency (ms): 7.4703      Enqueue: 8.1051    
+  MLU Compute Latency (ms): 7.4838      Enqueue: 8.1188    
+  MLU Compute Latency (ms): 7.4953      Enqueue: 8.1307    
+  MLU Compute Latency (ms): 7.5009      Enqueue: 8.1355    
+  MLU Compute Latency (ms): 7.4722      Enqueue: 8.1065    

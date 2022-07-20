@@ -1,0 +1,1 @@
+g++ -std=c++11 -O2 -Werror `pkg-config opencv --cflags` src/*.cpp -I include -I $NEUWARE_HOME/include -o infer -L$NEUWARE_HOME/lib64 -lmagicmind_runtime -lcnrt -lgflags `pkg-config opencv --libs`

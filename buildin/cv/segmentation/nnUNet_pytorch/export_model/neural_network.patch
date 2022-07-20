@@ -1,0 +1,35 @@
+27d26
+< 
+50a50
+>         self.save_model = False
+61d60
+< 
+360c359
+<             
+---
+> 
+364c363
+<             
+---
+> 
+572c571
+<         
+---
+> 
+593c592,602
+< 
+---
+>         if self.save_model is False:
+>             mirror_0 = x;
+>             mirror_1 = torch.flip(x, (3, ));
+>             mirror_2 = torch.flip(x, (2, ));
+>             mirror_3 = torch.flip(x, (3, 2));
+>             data = torch.cat((mirror_0,mirror_1,mirror_2,mirror_3),0)
+>             torch.save(data, "calib_data.pt")
+>             traced_net = torch.jit.trace(self, data)
+>             torch.jit.save(traced_net, '2dunet_tmp.pt')
+>             self.save_model = True
+>         return result_torch
+698d706
+< 
+

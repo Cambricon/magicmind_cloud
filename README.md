@@ -1,39 +1,37 @@
-# magicmind_cloud
+# ModelZoo Cloud
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+## 介绍
 
-#### 软件架构
-软件架构说明
+MagicMind是面向寒武纪MLU(Machine Learning Unit,机器学习单元)的推理加速引擎。
 
+MagicMind能将深度学习框架(Tensorflow,PyTorch,ONNX,Caffe等) 训练好的算法模型转换成MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
 
-#### 安装教程
+本仓库展示如何将CV分类、检测、分割、NLP、语音等场景的前沿和经典模型，通过MagicMind转换和优化，进而运行在基于MagicMind的推理加速引擎的寒武纪加速板卡上的示例程序，为开发者提供丰富的AI应用移植参考。
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 网络支持列表和链接
+CV：
+| MODELS  | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| [Resnet50](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/v1.0/buildin/cv/classification/resnet50_onnx) | ONNX | YES | YES | NO | YES |
+| [VGG16](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/v1.0/buildin/cv/classification/vgg16_caffe) | Caffe | YES | YES | YES | YES |
+| [YOLOV5](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/v1.0/buildin/cv/detection/yolov5_v6_1_pytorch) | PyTorch | YES | YES | YES | YES |
+| [SSD](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/v1.0/buildin/cv/detection/ssd_caffe) | Caffe | YES | YES | YES | YES |
+| [Unet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/v1.0/buildin/cv/segmentation/nnUNet_pytorch) | PyTorch | YES | YES | NO | YES |
 
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+NLP:
+| MODELS  | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| [BERT](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/v1.0/buildin/nlp/bert_qa_pytorch) | PyTorch | YES | YES | NO | YES |
 
 
-#### 特技
+## issues/wiki/forum跳转链接
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## contrib指引和链接
+
+## LICENSE
+ModelZoo Cloud的License具体内容请参见[LICENSE](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/blob/v1.0/LICENSE)文件。
+
+## 免责声明
+ModelZoo仅提供公共数据集以及预训练模型的下载链接，公共数据集及预训练模型并不属于ModelZoo, ModelZoo也不对其质量或维护承担责任。请您在使用公共数据集和预训练模型的过程中，确保符合其对应的使用许可。
+
+如果您不希望您的数据集或模型公布在ModelZoo上，或者您希望更新ModelZoo中属于您的数据集或模型，请您通过Github或者Gitee中提交issue，您也可以联系ecosystem@cambricon.com告知我们。

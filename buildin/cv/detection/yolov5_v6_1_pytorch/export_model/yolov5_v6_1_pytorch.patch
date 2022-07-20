@@ -1,0 +1,58 @@
+diff --git a/export.py b/export.py
+index 15e92a7..0c7a3ac 100644
+--- a/export.py
++++ b/export.py
+@@ -93,15 +93,14 @@ def export_torchscript(model, im, file, optimize, prefix=colorstr('TorchScript:'
+     # YOLOv5 TorchScript model export
+     try:
+         LOGGER.info(f'\n{prefix} starting export with torch {torch.__version__}...')
+-        f = file.with_suffix('.torchscript')
+-
++        f = '../data/models/yolov5m_traced.pt'
+         ts = torch.jit.trace(model, im, strict=False)
+         d = {"shape": im.shape, "stride": int(max(model.stride)), "names": model.names}
+         extra_files = {'config.txt': json.dumps(d)}  # torch._C.ExtraFilesMap()
+         if optimize:  # https://pytorch.org/tutorials/recipes/mobile_interpreter.html
+             optimize_for_mobile(ts)._save_for_lite_interpreter(str(f), _extra_files=extra_files)
+         else:
+-            ts.save(str(f), _extra_files=extra_files)
++            ts.save(f)    
+ 
+         LOGGER.info(f'{prefix} export success, saved as {f} ({file_size(f):.1f} MB)')
+         return f
+diff --git a/models/experimental.py b/models/experimental.py
+index 463e551..af1f089 100644
+--- a/models/experimental.py
++++ b/models/experimental.py
+@@ -89,7 +89,7 @@ class Ensemble(nn.ModuleList):
+ 
+ def attempt_load(weights, map_location=None, inplace=True, fuse=True):
+     from models.yolo import Detect, Model
+-
++    Detect.ignore_detect_layer = True  # 去掉yolov5 Detect层
+     # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
+     model = Ensemble()
+     for w in weights if isinstance(weights, list) else [weights]:
+diff --git a/models/yolo.py b/models/yolo.py
+index f659a04..d10a41d 100644
+--- a/models/yolo.py
++++ b/models/yolo.py
+@@ -33,6 +33,7 @@ except ImportError:
+ class Detect(nn.Module):
+     stride = None  # strides computed during build
+     onnx_dynamic = False  # ONNX export parameter
++    ignore_detect_layer = False
+ 
+     def __init__(self, nc=80, anchors=(), ch=(), inplace=True):  # detection layer
+         super().__init__()
+@@ -48,6 +49,10 @@ class Detect(nn.Module):
+ 
+     def forward(self, x):
+         z = []  # inference output
++        if self.ignore_detect_layer:
++            for i in range(self.nl):
++                z.append(self.m[i](x[i]).sigmoid())
++            return tuple(z)
+         for i in range(self.nl):
+             x[i] = self.m[i](x[i])  # conv
+             bs, _, ny, nx = x[i].shape  # x(bs,255,20,20) to x(bs,3,20,20,85)
