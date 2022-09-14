@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str)
 parser.add_argument("--output_file", type=str)
 parser.add_argument("--output_ok_file", type=str)
-
+parser.add_argument("--metric", type=str, choices = ["normal", "tacotron"], default="normal")
 report_file = "%s/perf_report.csv"%ROOT_DIR
 
 # top1andtop5 compare
@@ -25,6 +25,20 @@ def compare_perf(file1, file2):
     for line2 in lines2:
         if "Throughput (qps)" in line2:
             old_qps = float(line2.split(":")[1].strip()) 
+    result = new_qps / old_qps
+    return result
+
+def compare_perf_tacotron(file1, file2):
+    with open(file1, "r") as f:
+        lines1 = f.readlines()
+    with open(file2, "r") as f:
+        lines2 = f.readlines()
+    for line1 in lines1:
+        if "tacotron2_items_per_sec average" in line1:
+            new_qps = float(line1.split("=")[1].strip())
+    for line2 in lines2:
+        if "tacotron2_items_per_sec average" in line2:
+            old_qps = float(line2.split("=")[1].strip())
     result = new_qps / old_qps
     return result
 
@@ -69,6 +83,8 @@ if __name__ == "__main__":
         result = "file: %s not exists."%output_file
     elif not os.path.exists(output_ok_file):
         result = "file: %s not exists."%output_ok_file
+    elif args.metric == "tacotron":
+        result = compare_perf_tacotron(output_file, output_ok_file)
     else:
         result = compare_perf(output_file, output_ok_file)
     summary(testcase_name, args.output_file, result)

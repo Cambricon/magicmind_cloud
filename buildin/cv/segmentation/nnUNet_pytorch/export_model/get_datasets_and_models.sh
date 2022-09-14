@@ -13,11 +13,9 @@ else
 fi
 
 cd $nnUNet_raw_data_base
-if [ -f "Task02_Heart.tar" ];
+if [ -d "Task02_Heart" ];
 then
-  echo "Task02_Heart.tar already exist."
+  echo "Task02_Heart already exist."
 else
-  echo "Downloading datasets ..."
-  wget -c https://drive.google.com/uc?id=1wEB2I6S6tQBVEPxir8cA5kFB8gTQadYY
-  tar -xf Task02_Heart.tar
+  echo "Please download Task02_Heart.tar on https://drive.google.com/uc?id=1wEB2I6S6tQBVEPxir8cA5kFB8gTQadYY to $nnUNet_raw_data_base and tar -xf Task02_Heart.tar."
 fi

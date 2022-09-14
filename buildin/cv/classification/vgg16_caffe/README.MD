@@ -103,9 +103,10 @@ top5 result:
 计算top1和top5精度:
 
 ```bash
-python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/images/output_force_float32_true_1/eval_labels.txt \
-                                            --result_1_file $PROJ_ROOT_PATH/data/images/output_force_float32_true_1/eval_result_1.txt \
-                                            --result_5_file $PROJ_ROOT_PATH/data/images/output_force_float32_true_1/eval_result_5.txt
+python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_labels.txt \
+                                            --result_1_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_result_1.txt \
+                                            --result_5_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_result_5.txt \
+                                            --top1andtop5_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_result.txt
 ```
 
 结果：
@@ -189,30 +190,29 @@ cd $PROJ_ROOT_PATH
 ```
 
 得到如下性能结果：
-@TODO:update the performance data
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| VGG16 | forced float32 | 1 | 112.941 | MLU370 S4 |
-| VGG16 | forced float32 | 4 | 226.015 | MLU370 S4 |
-| VGG16 | forced float32 | 8 | 229.632 | MLU370 S4 |
-| VGG16 | forced float16 | 1 | 247.438 | MLU370 S4 |
-| VGG16 | forced float16 | 4 | 637.497 | MLU370 S4 |
-| VGG16 | forced float16 | 8 | 716.345 | MLU370 S4 |
-| VGG16 | int8 mixed float16 | 1 | 482.073 | MLU370 S4 |
-| VGG16 | int8 mixed float16 | 4 | 1839.11 | MLU370 S4 |
-| VGG16 | int8 mixed float16 | 8 | 2410.12 | MLU370 S4 |
+| VGG16 | force_float32 | 1 | 112.941 | MLU370 S4 |
+| VGG16 | force_float32 | 4 | 226.015 | MLU370 S4 |
+| VGG16 | force_float32 | 8 | 229.632 | MLU370 S4 |
+| VGG16 | force_float16 | 1 | 247.438 | MLU370 S4 |
+| VGG16 | force_float16 | 4 | 637.497 | MLU370 S4 |
+| VGG16 | force_float16 | 8 | 716.345 | MLU370 S4 |
+| VGG16 | qint8_mixed_float16 | 1 | 482.073 | MLU370 S4 |
+| VGG16 | qint8_mixed_float16 | 4 | 1839.11 | MLU370 S4 |
+| VGG16 | qint8_mixed_float16 | 8 | 2410.12 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| VGG16 | forced float32 | 1 | 124.571 | MLU370 X4 |
-| VGG16 | forced float32 | 4 | 368.978 | MLU370 X4 |
-| VGG16 | forced float32 | 8 | 525.242 | MLU370 X4 |
-| VGG16 | forced float16 | 1 | 279.899 | MLU370 X4 |
-| VGG16 | forced float16 | 4 | 959.103 | MLU370 X4 |
-| VGG16 | forced float16 | 8 | 1655.81 | MLU370 X4 |
-| VGG16 | int8 mixed float16 | 1 | 530.366 | MLU370 X4 |
-| VGG16 | int8 mixed float16 | 4 | 1852.41 | MLU370 X4 |
-| VGG16 | int8 mixed float16 | 8 | 3566.98 | MLU370 X4 |
+| VGG16 | force_float32 | 1 | 124.571 | MLU370 X4 |
+| VGG16 | force_float32 | 4 | 368.978 | MLU370 X4 |
+| VGG16 | force_float32 | 8 | 525.242 | MLU370 X4 |
+| VGG16 | force_float16 | 1 | 279.899 | MLU370 X4 |
+| VGG16 | force_float16 | 4 | 959.103 | MLU370 X4 |
+| VGG16 | force_float16 | 8 | 1655.81 | MLU370 X4 |
+| VGG16 | qint8_mixed_float16 | 1 | 530.366 | MLU370 X4 |
+| VGG16 | qint8_mixed_float16 | 4 | 1852.41 | MLU370 X4 |
+| VGG16 | qint8_mixed_float16 | 8 | 3566.98 | MLU370 X4 |
 
 ### 5.2精度benchmark结果
 一键运行benchmark里的脚本跑出VGG16在IMAGENET2012数据集上的TOP1和TOP5如下：
@@ -223,15 +223,15 @@ cd $PROJ_ROOT_PATH
 ```
 | Model  | Quant_Mode | Batch_Size | TOP1 | TOP5 |MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| VGG16 | forced float32 | 1 | 0.534535 | 0.786787 | MLU370 S4 |
-| VGG16 | forced float16 | 1 | 0.535536 | 0.786787 | MLU370 S4 |
-| VGG16 | int8 mixed float16 | 1 | 0.531532  | 0.774775 | MLU370 S4 |
+| VGG16 | force_float32 | 1 | 0.534535 | 0.786787 | MLU370 S4 |
+| VGG16 | force_float16 | 1 | 0.535536 | 0.786787 | MLU370 S4 |
+| VGG16 | qint8_mixed_float16 | 1 | 0.531532  | 0.774775 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | TOP1 | TOP5 |MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| VGG16 | forced float32 | 1 | 0.534535 | 0.786787 | MLU370 X4 |
-| VGG16 | forced float16 | 1 | 0.535536 | 0.786787 | MLU370 X4 |
-| VGG16 | int8 mixed float16 | 1 | 0.531532 | 0.774775 | MLU370 X4 |
+| VGG16 | force_float32 | 1 | 0.534535 | 0.786787 | MLU370 X4 |
+| VGG16 | force_float16 | 1 | 0.535536 | 0.786787 | MLU370 X4 |
+| VGG16 | qint8_mixed_float16 | 1 | 0.531532 | 0.774775 | MLU370 X4 |
 
 ## 6.免责声明
 您明确了解并同意，以下链接中的软件、数据或者模型由第三方提供并负责维护。在以下链接中出现的任何第三方的名称、商标、标识、产品或服务并不构成明示或暗示与该第三方或其软件、数据或模型的相关背书、担保或推荐行为。您进一步了解并同意，使用任何第三方软件、数据或者模型，包括您提供的任何信息或个人数据（不论是有意或无意地），应受相关使用条款、许可协议、隐私政策或其他此类协议的约束。因此，使用链接中的软件、数据或者模型可能导致的所有风险将由您自行承担。

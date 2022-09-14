@@ -244,27 +244,27 @@ cd $PROJ_ROOT_PATH/benchmark
 
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| YoloV5 | forced float32 | 1 | 28.1165 | MLU370 S4 |
-| YoloV5 | forced float32 | 4 | 96.5386 | MLU370 S4 |
-| YoloV5 | forced float32 | 8 | 96.7644 | MLU370 S4 |
-| YoloV5 | forced float16 | 1 | 56.5703 | MLU370 S4 |
-| YoloV5 | forced float16 | 4 | 210.995 | MLU370 S4 |
-| YoloV5 | forced float16 | 8 | 218.893 | MLU370 S4 |
-| YoloV5 | int8 mixed float16 | 1 | 77.6011 | MLU370 S4 |
-| YoloV5 | int8 mixed float16 | 4 | 306.278 | MLU370 S4 |
-| YoloV5 | int8 mixed float16 | 8 | 313.798 | MLU370 S4 |
+| YoloV5 | force_float32 | 1 | 28.1165 | MLU370 S4 |
+| YoloV5 | force_float32 | 4 | 96.5386 | MLU370 S4 |
+| YoloV5 | force_float32 | 8 | 96.7644 | MLU370 S4 |
+| YoloV5 | force_float16 | 1 | 56.5703 | MLU370 S4 |
+| YoloV5 | force_float16 | 4 | 210.995 | MLU370 S4 |
+| YoloV5 | force_float16 | 8 | 218.893 | MLU370 S4 |
+| YoloV5 | qint8_mixed_float16 | 1 | 77.6011 | MLU370 S4 |
+| YoloV5 | qint8_mixed_float16 | 4 | 306.278 | MLU370 S4 |
+| YoloV5 | qint8_mixed_float16 | 8 | 313.798 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| YoloV5 | forced float32 | 1 | 28.7968 | MLU370 X4 |
-| YoloV5 | forced float32 | 4 | 104.895 | MLU370 X4 |
-| YoloV5 | forced float32 | 8 | 193.116 | MLU370 X4 |
-| YoloV5 | forced float16 | 1 | 57.2007 | MLU370 X4 |
-| YoloV5 | forced float16 | 4 | 215.304 | MLU370 X4 |
-| YoloV5 | forced float16 | 8 | 420.021 | MLU370 X4 |
-| YoloV5 | int8 mixed float16 | 1 | 77.5678 | MLU370 X4 |
-| YoloV5 | int8 mixed float16 | 4 | 297.881 | MLU370 X4 |
-| YoloV5 | int8 mixed float16 | 8 | 588.423 | MLU370 X4 |
+| YoloV5 | force_float32 | 1 | 28.7968 | MLU370 X4 |
+| YoloV5 | force_float32 | 4 | 104.895 | MLU370 X4 |
+| YoloV5 | force_float32 | 8 | 193.116 | MLU370 X4 |
+| YoloV5 | force_float16 | 1 | 57.2007 | MLU370 X4 |
+| YoloV5 | force_float16 | 4 | 215.304 | MLU370 X4 |
+| YoloV5 | force_float16 | 8 | 420.021 | MLU370 X4 |
+| YoloV5 | qint8_mixed_float16 | 1 | 77.5678 | MLU370 X4 |
+| YoloV5 | qint8_mixed_float16 | 4 | 297.881 | MLU370 X4 |
+| YoloV5 | qint8_mixed_float16 | 8 | 588.423 | MLU370 X4 |
 
 ### 5.2精度benchmark结果
 一键运行benchmark里的脚本：
@@ -276,15 +276,15 @@ cd $PROJ_ROOT_PATH/benchmark
 通过快速使用中3.6的脚本跑出yolov5s在COCO2017数据集上的mAP如下：
 | Model  | Quant_Mode | Batch_Size | mAP (0.5:0.95) | mAP (0.5) |MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| YoloV5 | forced float32 | 1 | 0.363 | 0.529 | MLU370 S4 |
-| YoloV5 | forced float16 | 1 | 0.366 | 0.530 | MLU370 S4 |
-| YoloV5 | int8 mixed float16 | 1 | 0.348 | 0.520 | MLU370 S4 |
+| YoloV5 | force_float32 | 1 | 0.363 | 0.529 | MLU370 S4 |
+| YoloV5 | force_float16 | 1 | 0.366 | 0.530 | MLU370 S4 |
+| YoloV5 | qint8_mixed_float16 | 1 | 0.348 | 0.520 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | mAP (0.5:0.95) | mAP (0.5) |MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| YoloV5 | forced float32 | 1 | 0.363 | 0.529 | MLU370 X4 |
-| YoloV5 | forced float16 | 1 | 0.366 | 0.530 | MLU370 X4 |
-| YoloV5 | int8 mixed float16 | 1 | 0.348 | 0.520 | MLU370 X4 |
+| YoloV5 | force_float32 | 1 | 0.363 | 0.529 | MLU370 X4 |
+| YoloV5 | force_float16 | 1 | 0.366 | 0.530 | MLU370 X4 |
+| YoloV5 | qint8_mixed_float16 | 1 | 0.348 | 0.520 | MLU370 X4 |
 
 ## 6.免责声明
 您明确了解并同意，以下链接中的软件、数据或者模型由第三方提供并负责维护。在以下链接中出现的任何第三方的名称、商标、标识、产品或服务并不构成明示或暗示与该第三方或其软件、数据或模型的相关背书、担保或推荐行为。您进一步了解并同意，使用任何第三方软件、数据或者模型，包括您提供的任何信息或个人数据（不论是有意或无意地），应受相关使用条款、许可协议、隐私政策或其他此类协议的约束。因此，使用链接中的软件、数据或者模型可能导致的所有风险将由您自行承担。

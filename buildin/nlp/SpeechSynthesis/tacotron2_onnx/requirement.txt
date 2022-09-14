@@ -1,0 +1,7 @@
+inflect
+scipy
+Unidecode
+
+librosa
+git+https://github.com/NVIDIA/dllogger#egg=dllogger
+onnx-graphsurgeon

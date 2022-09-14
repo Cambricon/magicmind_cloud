@@ -14,6 +14,8 @@
 #include "../include/post_process.hpp"
 #include "../include/utils.hpp"
 
+#define max_box 100
+
 using namespace magicmind;
 using namespace std;
 using namespace cv;
@@ -68,17 +70,38 @@ int main(int argc, char **argv){
     CHECK_MM(context->CreateInputTensors, &input_tensors);
     CHECK_MM(context->CreateOutputTensors, &output_tensors);
 
-    // 5. input tensor memory alloc
-    void *mlu_addr_ptr;
+    // 5. memory alloc
+    // input tensor mlu ptrs
+    void *input_mlu_addr_ptr;
     auto input_dim_vec = model->GetInputDimension(0).GetDims();
     if (input_dim_vec[0] == -1) {
       input_dim_vec[0] = FLAGS_batch;
     }
     magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
-
     input_tensors[0]->SetDimensions(input_dim);
-    CNRT_CHECK(cnrtMalloc(&mlu_addr_ptr, input_tensors[0]->GetSize()));
-    MM_CHECK(input_tensors[0]->SetData(mlu_addr_ptr));
+    CNRT_CHECK(cnrtMalloc(&input_mlu_addr_ptr, input_tensors[0]->GetSize()));
+    MM_CHECK(input_tensors[0]->SetData(input_mlu_addr_ptr));
+
+    // output tensor mlu ptrs
+    void *output_mlu_addr_ptr = nullptr;
+    if (magicmind::Status::OK() == context->InferOutputShape(input_tensors, output_tensors)) {
+      for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
+        CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, output_tensors[output_id]->GetSize()));
+        MM_CHECK(output_tensors[output_id]->SetData(output_mlu_addr_ptr));
+      }
+    }
+    //else {
+    //  output_tensors.clear();
+    //  CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, max_box * 7 * sizeof(output_tensors[0]->GetDataType())));
+    //  MM_CHECK(output_tensors[0]->SetData(output_mlu_addr_ptr));
+    //  std::cout<<"!!!"<<output_tensors[0]->GetSize()<<std::endl;
+    //}
+
+    //output_tensor cpu ptrs
+    float *data_ptr = nullptr;
+    data_ptr = new float[max_box * 7];
+    int detection_num;
+    vector<vector<float>> results;
 
     // 6. load image
     std::cout << "================== Load Images ====================" << std::endl;
@@ -89,10 +112,7 @@ int main(int argc, char **argv){
     }
     size_t image_num = image_paths.size();
     std::cout << "Total images : " << image_num << std::endl; 
-
     std::cout << "Start run..." << std::endl; 
-    auto start_time = std::chrono::steady_clock::now();
-    
     for (int i = 0 ; i < image_num ; i ++) {
       auto begin = image_paths[i].find_last_of('/');
       auto end = image_paths[i].find_last_of('.');
@@ -104,16 +124,11 @@ int main(int argc, char **argv){
       CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(), img_pro.data, input_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_HOST2DEV));
 
       // 8. compute
-      output_tensors.clear();
       MM_CHECK(context->Enqueue(input_tensors, &output_tensors, queue));
       CNRT_CHECK(cnrtQueueSync(queue));
 
       // 9. copy out
-      vector<vector<float>> results;
-
-      int detection_num = output_tensors[0]->GetSize() / 7 / 4;
-      float *data_ptr = nullptr;
-      data_ptr = (float *)malloc(output_tensors[0]->GetSize());
+      detection_num = output_tensors[0]->GetSize() / 7 / 4;
       CNRT_CHECK(cnrtMemcpy((void *)data_ptr, output_tensors[0]->GetMutableData(), output_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST));
       for(int i = 0 ; i < detection_num ; ++i){
           std::vector<float> result;
@@ -133,7 +148,6 @@ int main(int argc, char **argv){
           result.push_back(ymax);
           results.push_back(result);
       }
-      // free(data_ptr);
       std::vector<std::string> voc_preds_files;
       for (int t = 0 ; t < glabels.size() ; t ++) {
           std::string voc_preds_file = FLAGS_output_dir + "/" + "voc_preds/comp3_det_val_" + glabels[t] + ".txt";
@@ -143,11 +157,15 @@ int main(int argc, char **argv){
     }
 
     // 10. destroy resource
+    delete[] data_ptr;
     for (auto tensor : input_tensors) {
         cnrtFree(tensor->GetMutableData());
         tensor->Destroy();
     }
     for (auto tensor : output_tensors) {
+	if (output_mlu_addr_ptr != nullptr){
+	    cnrtFree(tensor->GetMutableData());
+	}
         tensor->Destroy();
     }
     context->Destroy();

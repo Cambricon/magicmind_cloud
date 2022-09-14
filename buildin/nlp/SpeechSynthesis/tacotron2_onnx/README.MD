@@ -1,0 +1,202 @@
+#  基于Magicmind适配部署Tacotron2+Waveglow语音合成
+
+Tacotron2和WaveGlow模型构成了一个文本语音(TTS)系统，使用户能够合成自然语音。
+MagicMind是寒武纪的推理引擎，用于在寒武纪硬件产品上加速神经网络推理任务。下面我们使用MagicMind来实现基于Tacotron2和WaveGlow模型的高性能语音合成任务。
+ 
+ 本sample探讨如何使用MagicMind来在寒武纪MLU370板卡上适配和部署Tacotron2+Waveglow模型。
+
+## 目录
+
+* [模型概述](#1.模型概述)
+* [前提条件](#2.前提条件)
+* [快速使用](#3.快速使用)
+  * [环境准备](#3.1环境准备)
+  * [下载仓库](#3.2下载仓库)
+  * [下载数据集，模型](#3.3下载数据集,模型)
+  * [模型转换](#3.4模型转换)
+  * [编译MagicMind模型](#3.5编译MagicMind模型)
+  * [执行推理](#3.6执行推理)
+  * [一键运行](#3.7一键运行)
+* [高级说明](#4.高级说明)
+  * [export_model细节说明](#4.1export_model细节说明)
+  * [gen_model细节说明](#4.2gen_model细节说明)
+  * [infer_python细节说明](#4.3infer_python细节说明)
+* [精度和性能benchmark](#5.精度和性能benchmark)
+  * [性能benchmark结果](#5.1性能benchmark结果)
+* [免责声明](#6.免责声明)
+* [Release notes](#7.Release_Notes)
+
+## 1.模型概述
+本示例中的tacotron2模型基于 [tacotron2 checkpoint](https://api.ngc.nvidia.com/v2/models/nvidia/tacotron2_pyt_ckpt_amp/versions/19.09.0/files/nvidia_tacotron2pyt_fp16_20190427) 和  [waveglow checkpoint](https://api.ngc.nvidia.com/v2/models/nvidia/waveglow_ckpt_amp_256/versions/19.10.0/files/nvidia_waveglow256pyt_fp16)
+
+## 2.前提条件
+
+* Linux常见操作系统版本(如Ubuntu16.04，Ubuntu18.04，CentOS7.x等)，安装docker(>=v18.00.0)应用程序；
+* 服务器装配好寒武纪计算版本 MLU370 S4或 MLU370 X4，并安装好驱动(>=v4.20.6)；
+* 若不具备以上软硬件条件，可前往寒武纪云平台注册并试用@TODO
+
+## 3.快速使用
+
+### 3.1环境准备@TODO
+将magicmind_0.13.0-1_ubuntu18.04.tar.gz镜像载入本机。
+加载镜像前，请确认当前docker环境就绪，且版本为v19.03及以上。参考以下命令加载镜像:
+```bash
+docker load -i magicmind_0.13.0-1_ubuntu18.04.tar.gz
+```
+运行镜像：
+```bash
+docker run -it --name=dockername --network=host --cap-add=sys_ptrace -v /your/host/path/magicmind:/magicmind -v /usr/bin/cnmon:/usr/bin/cnmon --device=/dev/cambricon_dev0:/dev/cambricon_dev0 --device=/dev/cambricon_ctl -w /magicmind/ <image name> /bin/bash
+```
+
+### 3.2下载仓库
+
+```bash
+# 下载仓库
+git clone http://gitlab.software.cambricon.com/neuware/software/ae/ecosystem/modelzoo/magicmind_cloud.git
+```
+在开始运行代码前需要先检查env.sh里的环境变量，并且执行以下命令：
+```bash
+source env.sh
+```
+
+### 3.3下载数据集,模型
+```bash
+cd $PROJ_ROOT_PATH/export_model 
+bash get_datasets_and_models.sh
+```
+
+### 3.4模型转换
+```bash
+cd $PROJ_ROOT_PATH/export_model 
+bash run.sh
+```
+
+### 3.5编译MagicMind模型
+
+```bash
+cd $PROJ_ROOT_PATH/gen_model
+bash run.sh force_float16 1 4 8
+```
+
+### 3.6执行推理
+```bash
+cd $PROJ_ROOT_PATH/infer_python
+bash run.sh force_float16 1 128
+```
+
+结果：
+```bash
+================dev[0]================
+Preprocessing average (seconds) = 0.000557
+Number of mels per audio average = 608.0
+Encoder latency average (seconds) = 0.001629
+Decoder latency average (seconds) = 0.075394
+Postnet latency average (seconds) = 0.000968
+Latency average (seconds) = 0.078930
+Latency std (seconds) = 0.002831
+Latency cl 50 (seconds) = 0.078364
+Latency cl 90 (seconds) = 0.082755
+Latency cl 95 (seconds) = 0.082755
+Latency cl 99 (seconds) = 0.082755
+Latency cl 100 (seconds) = 0.084231
+tacotron2_items_per_sec average = 7706.340271
+```
+### 3.7一键运行
+以上3.3~3.6的步骤也可以通过运行./run.sh来实现一键执行
+
+## 4.高级说明
+### 4.1export_model细节说明
+本例使用PyTorch训练好的模型，通过将PyTorch模型转换为ONNX模型再转换为MagicMind模型进行部署。
+首先将以下tacotron2和waveglow模型文件下载至`$MODEL_PATH`目录：
+```bash 
+cd $MODEL_PATH
+wget -c https://api.ngc.nvidia.com/v2/models/nvidia/tacotron2_pyt_ckpt_amp/versions/19.09.0/files/nvidia_tacotron2pyt_fp16_20190427
+wget -c https://api.ngc.nvidia.com/v2/models/nvidia/waveglow_ckpt_amp_256/versions/19.10.0/files/nvidia_waveglow256pyt_fp16
+```
+然后下载tensorrt源码将pytorch模型转换成onnx模型:
+```bash
+# install tensorrt for convert torch to ONNX IRs
+pushd /tmp
+if [ ! -f tensorrt.tar.gz ];
+then
+    wget -c https://github.com/NVIDIA/TensorRT/archive/refs/tags/22.03.tar.gz -O tensorrt.tar.gz
+    if [ $? -ne 0 ]; then
+        echo 'download tensorrt failed, check your network connection please!!!'
+        exit 1
+    fi
+    tar -zxf tensorrt.tar.gz
+    mv TensorRT-22.03 TensorRT
+    patch /tmp/TensorRT/demo/Tacotron2/tensorrt/convert_tacotron22onnx.py $PROJ_ROOT_PATH/export_model/patchs/convert_tacotron22onnx.diff
+    patch /tmp/TensorRT/demo/Tacotron2/tensorrt/convert_waveglow2onnx.py $PROJ_ROOT_PATH/export_model/patchs/convert_waveglow22onnx.diff
+fi
+popd
+
+### pytorch models convert to onnx models
+# tacotron2
+python /tmp/TensorRT/demo/Tacotron2/tensorrt/convert_tacotron22onnx.py --tacotron2 $PROJ_ROOT_PATH/data/models/nvidia_tacotron2pyt_fp16_20190427 -o $PROJ_ROOT_PATH/data/models/
+# waveglow
+python /tmp/TensorRT/demo/Tacotron2/tensorrt/convert_waveglow2onnx.py --waveglow $PROJ_ROOT_PATH/data/models/nvidia_waveglow256pyt_fp16 --config-file /tmp/TensorRT/demo/Tacotron2/config.json --wn-channels 256 -o $PROJ_ROOT_PATH/data/models/
+```
+
+### 4.2gen_model细节说明
+参数说明:
+* `json`: build_config的json文件。
+* `o`: 保存MagicMind模型路径。
+* `encoder`: encoder MagicMind模型。
+* `decoder`: decoder MagicMind模型。
+* `postnet`: postnet MagicMind模型。
+* `waveglow`: waveglow MagicMind模型。
+* `quant_mode`: 量化模式，如force_float32，force_float16。
+* `bs`: batch_size_min, batch_size, batch_size_max
+
+### 4.3infer_python细节说明
+参数说明：
+* `devices`: 指定使用的MLU设备id，默认为0。支持多卡，以空格或逗号分隔，如使用0卡和1卡[--devices 0,1]
+* `log_file`: 指定性能数据日志文件保存的目录，若设置为空字符串则性能数据打印到当前终端窗口。
+* `models_dir`: magicmind模型文件目录。
+* `bs`: batchsize, 当未设置--all参数时生效。
+* `il`: input length, 指定测试的输入文本长度。
+* `quant_mode`: 量化模式，如force_float32，force_float16。
+* `no-waveglow`: 不运行waveglow网络片段。
+* `warmup_iters`:
+* `num_iters`:
+  
+## 5.精度和性能benchmark
+
+### 5.1性能benchmark结果
+本sample通过一键运行benchmark里的脚本得到性能benchmark结果：
+
+```bash
+cd $PROJ_ROOT_PATH/benchmark
+./perf.sh
+```
+
+得到如下性能结果：
+| Model  | Input_Len | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| tacotron2 | 128 | force_float32 | 1 | 7899.959065 | MLU370 S4 |
+| tacotron2 | 128 | force_float32 | 4 | 30201.790878 | MLU370 S4 |
+| tacotron2 | 128 | force_float32 | 8 | 56773.467227 | MLU370 S4 |
+| tacotron2 | 128 | force_float16 | 1 | 7892.716437 | MLU370 S4 |
+| tacotron2 | 128 | force_float16 | 4 | 30100.443918 | MLU370 S4 |
+| tacotron2 | 128 | force_float16 | 8 | 56664.059620 | MLU370 S4 |
+
+| Model  | Max_Seq_Length | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| tacotron2 | 128 | force_float32 | 1 | 84.9537 | MLU370 X4 |
+| tacotron2 | 128 | force_float32 | 4 | 213.327 | MLU370 X4 |
+| tacotron2 | 128 | force_float32 | 8 | 300.279 | MLU370 X4 |
+| tacotron2 | 128 | force_float16 | 1 | 513.283 | MLU370 X4 |
+| tacotron2 | 128 | force_float16 | 4 | 1102.05 | MLU370 X4 |
+| tacotron2 | 128 | force_float16 | 8 | 1561.42 | MLU370 X4 |
+
+
+## 6.免责声明
+您明确了解并同意，以下链接中的软件、数据或者模型由第三方提供并负责维护。在以下链接中出现的任何第三方的名称、商标、标识、产品或服务并不构成明示或暗示与该第三方或其软件、数据或模型的相关背书、担保或推荐行为。您进一步了解并同意，使用任何第三方软件、数据或者模型，包括您提供的任何信息或个人数据（不论是有意或无意地），应受相关使用条款、许可协议、隐私政策或其他此类协议的约束。因此，使用链接中的软件、数据或者模型可能导致的所有风险将由您自行承担。
+* checkpoint:nvidia_tacotron2pyt_fp16_20190427下载链接: https://api.ngc.nvidia.com/v2/models/nvidia/tacotron2_pyt_ckpt_amp/versions/19.09.0/files/nvidia_tacotron2pyt_fp16_20190427
+* checkpoint:nvidia_waveglow256pyt_fp16下载链接：https://api.ngc.nvidia.com/v2/models/nvidia/waveglow_ckpt_amp_256/versions/19.10.0/files/nvidia_waveglow256pyt_fp16
+* tensorrt实现源码下载链接：https://github.com/NVIDIA/TensorRT/archive/refs/tags/22.03.tar.gz
+
+## 7.Release_Notes
+@TODO
+

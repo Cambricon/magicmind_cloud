@@ -61,23 +61,34 @@ int main(int argc, char **argv) {
     CHECK_MM(context->CreateInputTensors, &input_tensors);
     CHECK_MM(context->CreateOutputTensors, &output_tensors);
 
-    // 6. input tensor memory alloc
+    // 6. memory alloc
+    // input tensors mlu ptrs
     void *mlu_addr_ptr;
     auto input_dim_vec = model->GetInputDimension(0).GetDims();
-    auto output_dim_vec = model->GetOutputDimension(0).GetDims();
     if (input_dim_vec[0] == -1) {
       input_dim_vec[0] = FLAGS_batch;
     }
-    if (output_dim_vec[0] == -1) {
-      output_dim_vec[0] = FLAGS_batch;
-    }
     magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
-    magicmind::Dims output_dim = magicmind::Dims(output_dim_vec);
     input_tensors[0]->SetDimensions(input_dim);
     CNRT_CHECK(cnrtMalloc(&mlu_addr_ptr, input_tensors[0]->GetSize()));
     MM_CHECK(input_tensors[0]->SetData(mlu_addr_ptr));
+    // output tensor mlu ptrs
+    void *output_mlu_addr_ptr;
+    if (magicmind::Status::OK() == context->InferOutputShape(input_tensors, output_tensors)) {
+      for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
+        CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, output_tensors[output_id]->GetSize()));
+        MM_CHECK(output_tensors[output_id]->SetData(output_mlu_addr_ptr));
+      }
+    }
+    else {
+      std::cout << "context->InferOutputShape failed" << std::endl;
+    }
+    
+    // output tensor cpu ptrs
+    magicmind::Dims output_dim = model->GetOutputDimension(0);
     const int classes = output_dim[1];
-    const int elem_data_count = output_dim.GetElementCount() / FLAGS_batch;
+    float *classification_output = nullptr;
+    classification_output = new float[output_tensors[0]->GetSize()/sizeof(output_tensors[0]->GetDataType())];
 
     // 7. load image
     std::cout << "================== Load Images ====================" << std::endl;
@@ -104,14 +115,11 @@ int main(int argc, char **argv) {
         CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(), dst_img.data, input_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_HOST2DEV));
 
         // 8. compute
-        output_tensors.clear();
-        MM_CHECK(context->Enqueue(input_tensors, &output_tensors, queue));
+        MM_CHECK(context->Enqueue(input_tensors, output_tensors, queue));
         CNRT_CHECK(cnrtQueueSync(queue));
         
 	// 9. copy out
-        float *classification_output = nullptr;
-        classification_output = (float *)malloc(output_tensors[0]->GetSize());
-        CNRT_CHECK(cnrtMemcpy((void *)classification_output, output_tensors[0]->GetMutableData(), elem_data_count * 4 , CNRT_MEM_TRANS_DIR_DEV2HOST));
+        CNRT_CHECK(cnrtMemcpy((void *)classification_output, output_tensors[0]->GetMutableData(), output_tensors[0]->GetSize() , CNRT_MEM_TRANS_DIR_DEV2HOST));
         
         // get FLAGS_result_label_file
         if (!FLAGS_result_label_file.empty()) {
@@ -137,11 +145,15 @@ int main(int argc, char **argv) {
     }   
 
     // 10. destroy resource
+    delete[] classification_output;
     for (auto tensor : input_tensors) {
         cnrtFree(tensor->GetMutableData());
         tensor->Destroy();
     }
     for (auto tensor : output_tensors) {
+	if (output_mlu_addr_ptr != nullptr) {
+	    cnrtFree(tensor->GetMutableData());
+	}
         tensor->Destroy();
     }
     context->Destroy();

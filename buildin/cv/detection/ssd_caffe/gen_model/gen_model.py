@@ -97,7 +97,7 @@ def main():
     print('build model...')
     builder = mm.Builder()
     assert builder is not None
-    model = builder.build_model("vgg16_caffe_model", network, config)
+    model = builder.build_model("ssd_caffe_model", network, config)
     assert model is not None
     # 将模型序列化为离线文件
     assert model.serialize_to_file(args.output_model).ok()

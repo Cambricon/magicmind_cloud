@@ -5,7 +5,9 @@ import os
 import argparse
 import json
 import time
-
+import sys
+sys.path.append(os.path.join(os.getenv("MAGICMIND_CLOUD"), "test"))
+from record_result import write_result
 class_dict = { 'person':1,'bicycle':2,'car':3,
                'motorbike':4,'aeroplane':5,'bus':6,
                'train':7,'truck':8,'boat':9,
@@ -59,7 +61,7 @@ def get_args():
                         default = 'results',type = str)
     parser.add_argument("--img_dir", dest = "img_dir", help = "coco datasets path", default = "../datasets/", type = str)
     parser.add_argument("--image_num", dest = "image_num", help = "image number", default = 10, type = int)
-
+    parser.add_argument("--language", dest = "language", help = "language which used to infer model", default = "infer_python", type = str)
     return parser.parse_args()
 
 def parse_output(input):
@@ -167,7 +169,7 @@ if __name__ == "__main__":
     coco_eval.evaluate()
     coco_eval.accumulate()
     coco_eval.summarize()
-
+    write_result(**{"language": args.language, "dataset": "coco", "metric":"map", "eval": coco_eval.stats[1]})
     input_json_file = os.getenv('OUTPUT_JSON_FILE','')
     if os.path.isfile(input_json_file):
         r = redirect()

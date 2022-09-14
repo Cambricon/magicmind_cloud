@@ -22,6 +22,9 @@ MM_RUN(){
 			  --batch ${BATCH} \
 			  --threads ${THREADS} \
 			  --devices 0 2>&1 |tee $PROJ_ROOT_PATH/data/output/${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}_log_perf
+    fps=`cat "$PROJ_ROOT_PATH/data/output/${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}_log_perf" | grep "Throughput (qps):"`
+    fps=`eval echo "${fps:18}"`
+    python $MAGICMIND_CLOUD/test/record_result.py --fps ${fps}
 }
 
 ###dynamic

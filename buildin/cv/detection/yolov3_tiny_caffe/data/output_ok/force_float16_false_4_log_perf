@@ -1,0 +1,88 @@
+==================== Parameter Information
+magicmind model file: /home/xiaoqi/prjs/magicmind_cloud/buildin/cv/detection/yolov3_tiny_caffe/data/mm_model/force_float16_false_4
+input dims type: 0
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+batch: 4
+[MMINFO]  CreateModel time is 1921 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -658050055
+[MMINFO]  CreateEngine time is 79 ms
+[MMINFO]  Constdata Size: 16.901794 (MB)
+[2022-8-23 22:35:31] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v4] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[MMINFO]  ContextMaxworkspace Size: 15.644684 (MB)
+[MMINFO]  CreateContext time is 0 ms
+[MMINFO]  dev_0_thread_0_warm_up time is 202 ms
+[MMINFO]  dev_0_thread_0_e2e time is 2800 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: data
+  Datatype: UINT8
+  Layout: NHWC
+  Dim: [4, 416, 416, 3]
+  Size: 2076672
+  Ptr Addr: 0x30080fb75732000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 2
+[0]: 
+  Name: main/mm.detection_output:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [4, 256, 7]
+  Size: 28672
+  Ptr Addr: 0x30080fb7592e000
+  TensorLoc: kMLU
+[1]: 
+  Name: main/mm.detection_output:1
+  Datatype: INT32
+  Layout: NONE
+  Dim: [4]
+  Size: 16
+  Ptr Addr: 0x30080fb75936000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 21    max: 64    mean: 60.333 median: 64   
+dev0_mem_info(MB):            min: 7387  max: 7387  mean: 7387  median: 7387 
+dev0_power_info(W):           min: 27    max: 67    mean: 58.286 median: 66   
+dev0_temp_info(C):            min: 37    max: 37    mean: 37    median: 37   
+==================== Performance Summary
+Iterations:                   2082
+Host Wall Time (s):           2.80024
+MLU Compute Time (s):         2.77653
+Throughput (qps):             2974.03
+Enqueue Time (ms):            min: 0.051422   max: 0.19898    mean: 0.053698   median: 0.05318    percentile: (90%) 0.054447   (95%) 0.055426   (99%) 0.061632  
+H2D Latency (ms):             min: 0.167      max: 0.215      mean: 0.17491    median: 0.175      percentile: (90%) 0.176      (95%) 0.176      (99%) 0.178     
+MLU Compute Latency (ms):     min: 1.164      max: 1.783      mean: 1.3336     median: 1.328      percentile: (90%) 1.472      (95%) 1.517      (99%) 1.694     
+D2H Latency (ms):             min: 0.024      max: 0.04       mean: 0.02626    median: 0.025      percentile: (90%) 0.029      (95%) 0.031      (99%) 0.033     
+Trace averages of 208 runs:
+  MLU Compute Latency (ms): 1.3057      Enqueue: 0.055256  
+  MLU Compute Latency (ms): 1.3371      Enqueue: 0.053249  
+  MLU Compute Latency (ms): 1.3275      Enqueue: 0.054333  
+  MLU Compute Latency (ms): 1.3604      Enqueue: 0.054132  
+  MLU Compute Latency (ms): 1.4397      Enqueue: 0.053286  
+  MLU Compute Latency (ms): 1.2846      Enqueue: 0.053147  
+  MLU Compute Latency (ms): 1.3018      Enqueue: 0.053118  
+  MLU Compute Latency (ms): 1.3115      Enqueue: 0.053305  
+  MLU Compute Latency (ms): 1.3168      Enqueue: 0.053857  
+  MLU Compute Latency (ms): 1.3502      Enqueue: 0.053301  

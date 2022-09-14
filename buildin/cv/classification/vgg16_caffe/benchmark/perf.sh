@@ -40,22 +40,8 @@ else
         for thread in 1  
         do
           MM_RUN $quant_mode true 1 $batch $thread
-	  python $MAGICMIND_CLOUD/test/compare_perf.py --output_file $PROJ_ROOT_PATH/data/output/${quant_mode}_true_${batch}_log_perf --output_ok_file $PROJ_ROOT_PATH/data/output_ok/${quant_mode}_true_${batch}_log_perf --model vgg16_caffe
+          python $MAGICMIND_CLOUD/test/compare_perf.py --output_file $PROJ_ROOT_PATH/data/output/${quant_mode}_true_${batch}_log_perf --output_ok_file $PROJ_ROOT_PATH/data/output_ok/${quant_mode}_true_${batch}_log_perf --model vgg16_caffe
         done
       done
     done
 fi
-####static
-#for quant_mode in force_float32 force_float16 qint8_mixed_float16
-#do
-#  for batch in 1 4 8
-#  do
-#    cd $PROJ_ROOT_PATH/gen_model
-#    bash run.sh $quant_mode false $batch
-#    for thread in 1
-#    do
-#      MM_RUN $quant_mode false $batch $batch $thread
-#    done
-#  done
-#done
-#

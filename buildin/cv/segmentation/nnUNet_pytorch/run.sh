@@ -16,6 +16,9 @@ bash run.sh 0 force_float32 true 1
 cd $PROJ_ROOT_PATH/infer_python
 #bash run.sh parameter_id quant_mode shape_mutable batch_size batch
 bash run.sh 0 force_float32 true 1 1
+cd $PROJ_ROOT_PATH/infer_cpp
+#bash run.sh parameter_id quant_mode shape_mutable batch_size batch
+bash run.sh 0 force_float32 true 1 1
 
 ### 3.perf
 #bash $PROJ_ROOT_PATH/benchmark/perf.sh parameter_id quant_mode shape_mutable batch_size batch threads

@@ -1,8 +1,8 @@
 # resnet50_onnx
 
- MagicMind是面向寒武纪MLU(Machine Learning Unit,机器学习单元)的推理加速引擎。MagicMind能将深度学习框架(Tensorflow,PyTorch,ONNX 等) 训练好的算法模型转换成MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
- 
- 本sample探讨如何使用将resnet50网络的ONNX实现转换为MagicMind模型，进而部署在寒武纪MLU板卡上。
+MagicMind是面向寒武纪MLU(Machine Learning Unit,机器学习单元)的推理加速引擎。MagicMind能将深度学习框架(Tensorflow,PyTorch,ONNX 等) 训练好的算法模型转换成MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
+
+本sample探讨如何使用将resnet50网络的ONNX实现转换为MagicMind模型，进而部署在寒武纪MLU板卡上。
 
 ## 目录
 * [模型概述](#1.模型概述)
@@ -97,9 +97,10 @@ top5 result:
 计算top1和top5精度:
 
 ```bash
-python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/images/output_force_float32_true_1/eval_labels.txt \
-                                            --result_1_file $PROJ_ROOT_PATH/data/images/output_force_float32_true_1/eval_result_1.txt \
-                                            --result_5_file $PROJ_ROOT_PATH/data/images/output_force_float32_true_1/eval_result_5.txt
+python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_labels.txt \
+                                            --result_1_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_result_1.txt \
+                                            --result_5_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_result_5.txt \
+                                            --top1andtop5_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/eval_result.txt
 ```
 
 结果：
@@ -167,30 +168,29 @@ cd $PROJ_ROOT_PATH
 ```
 
 得到如下性能结果：
-@TODO:update the performance data
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| ResNet50 | forced float32 | 1 | 193.47 | MLU370 S4 |
-| ResNet50 | forced float32 | 4 | 640.334 | MLU370 S4 |
-| ResNet50 | forced float32 | 8 | 786.004 | MLU370 S4 |
-| ResNet50 | forced float16 | 1 | 587.342 | MLU370 S4 |
-| ResNet50 | forced float16 | 4 | 1947.97 | MLU370 S4 |
-| ResNet50 | forced float16 | 8 | 2404.88 | MLU370 S4 |
-| ResNet50 | int8 mixed float16 | 1 | 1125.71 | MLU370 S4 |
-| ResNet50 | int8 mixed float16 | 4 | 4189.73 | MLU370 S4 |
-| ResNet50 | int8 mixed float16 | 8 | 5782.66 | MLU370 S4 |
+| ResNet50 | force_float32 | 1 | 193.47 | MLU370 S4 |
+| ResNet50 | force_float32 | 4 | 640.334 | MLU370 S4 |
+| ResNet50 | force_float32 | 8 | 786.004 | MLU370 S4 |
+| ResNet50 | force_float16 | 1 | 587.342 | MLU370 S4 |
+| ResNet50 | force_float16 | 4 | 1947.97 | MLU370 S4 |
+| ResNet50 | force_float16 | 8 | 2404.88 | MLU370 S4 |
+| ResNet50 | qint8_mixed_float16 | 1 | 1125.71 | MLU370 S4 |
+| ResNet50 | qint8_mixed_float16 | 4 | 4189.73 | MLU370 S4 |
+| ResNet50 | qint8_mixed_float16 | 8 | 5782.66 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| ResNet50 | forced float32 | 1 | 194.266 | MLU370 X4 |
-| ResNet50 | forced float32 | 4 | 590.223 | MLU370 X4 |
-| ResNet50 | forced float32 | 8 | 1026.66 | MLU370 X4 |
-| ResNet50 | forced float16 | 1 | 573.044 | MLU370 X4 |
-| ResNet50 | forced float16 | 4 | 1762.06 | MLU370 X4 |
-| ResNet50 | forced float16 | 8 | 3253.08 | MLU370 X4 |
-| ResNet50 | int8 mixed float16 | 1 | 1267.76 | MLU370 X4 |
-| ResNet50 | int8 mixed float16 | 4 | 3747.53 | MLU370 X4 |
-| ResNet50 | int8 mixed float16 | 8 | 6966.43 | MLU370 X4 |
+| ResNet50 | force_float32 | 1 | 194.266 | MLU370 X4 |
+| ResNet50 | force_float32 | 4 | 590.223 | MLU370 X4 |
+| ResNet50 | force_float32 | 8 | 1026.66 | MLU370 X4 |
+| ResNet50 | force_float16 | 1 | 573.044 | MLU370 X4 |
+| ResNet50 | force_float16 | 4 | 1762.06 | MLU370 X4 |
+| ResNet50 | force_float16 | 8 | 3253.08 | MLU370 X4 |
+| ResNet50 | qint8_mixed_float16 | 1 | 1267.76 | MLU370 X4 |
+| ResNet50 | qint8_mixed_float16 | 4 | 3747.53 | MLU370 X4 |
+| ResNet50 | qint8_mixed_float16 | 8 | 6966.43 | MLU370 X4 |
 
 ### 5.2精度benchmark结果
 一键运行benchmark里的脚本跑出ResNet50在IMAGENET2012数据集上的TOP1和TOP5如下：
@@ -201,15 +201,15 @@ cd $PROJ_ROOT_PATH
 ```
 | Model  | Quant_Mode | Batch_Size | TOP1 | TOP5 |MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| ResNet50 | forced float32 | 1 | 0.755756 | 0.926927 | MLU370 S4 |
-| ResNet50 | forced float16 | 1 | 0.755756 | 0.926927 | MLU370 S4 |
-| ResNet50 | int8 mixed float16 | 1 | 0.740741 | 0.921922 | MLU370 S4 |
+| ResNet50 | force_float32 | 1 | 0.755756 | 0.926927 | MLU370 S4 |
+| ResNet50 | force_float16 | 1 | 0.755756 | 0.926927 | MLU370 S4 |
+| ResNet50 | qint8_mixed_float16 | 1 | 0.740741 | 0.921922 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | TOP1 | TOP5 |MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| ResNet50 | forced float32 | 1 | 0.755756 | 0.926927 | MLU370 X4 |
-| ResNet50 | forced float16 | 1 | 0.755756 | 0.926927 | MLU370 X4 |
-| ResNet50 | int8 mixed float16 | 1 | 0.740741 | 0.921922 | MLU370 X4 |
+| ResNet50 | force_float32 | 1 | 0.755756 | 0.926927 | MLU370 X4 |
+| ResNet50 | force_float16 | 1 | 0.755756 | 0.926927 | MLU370 X4 |
+| ResNet50 | qint8_mixed_float16 | 1 | 0.740741 | 0.921922 | MLU370 X4 |
 
 ## 6.免责声明
 您明确了解并同意，以下链接中的软件、数据或者模型由第三方提供并负责维护。在以下链接中出现的任何第三方的名称、商标、标识、产品或服务并不构成明示或暗示与该第三方或其软件、数据或模型的相关背书、担保或推荐行为。您进一步了解并同意，使用任何第三方软件、数据或者模型，包括您提供的任何信息或个人数据（不论是有意或无意地），应受相关使用条款、许可协议、隐私政策或其他此类协议的约束。因此，使用链接中的软件、数据或者模型可能导致的所有风险将由您自行承担。

@@ -1,0 +1,42 @@
+image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:0.13.0-x86_64-ubuntu18.04-py_3_7
+
+report-result:
+    stage: .post
+    tags: 
+        - ci-test
+    script:
+        - pip install -r test/requirement.txt
+        - python test/merge_table.py
+        - python test/check_result.py benchmark.csv benchmark_ok.csv
+        - python test/show_table.py
+    artifacts:
+        paths:
+            - ${CI_PROJECT_DIR}/benchmark.csv
+
+.network_test:
+    stage: test
+    tags: 
+        - ci-test
+    retry: 2
+    script:
+        # pip install 
+        - pip install --upgrade pip
+        - pip install nvidia-pyindex
+        - pip install -r test/requirement.txt
+        # start test
+        - cd ${TEST_PROJ_DIR}
+        - source env.sh
+        - mkdir -p data/models
+        - mkdir -p ${DATASETS_PATH}
+        # ln models/datasets/codes
+        - ln -sf /zoo_ci/models/${TEST_PROJ_DIR##*/}/* data/models
+        - ln -sf /zoo_ci/datasets/${DATASETS_PATH##*/}/* ${DATASETS_PATH}
+        - ln -sf /zoo_ci/codes/${TEST_PROJ_DIR##*/}/* export_model
+        - if [ -f requirement.txt ]; then pip install -r requirement.txt; fi
+        - if [ -f benchmark/perf.sh ]; then bash benchmark/perf.sh; fi
+        - if [ -f benchmark/eval.sh ]; then bash benchmark/eval.sh; fi
+        - bash run.sh
+    artifacts:
+        paths:
+            - ${TEST_PROJ_DIR}/benchmark/benchmark.csv
+            - ${CI_PROJECT_DIR}/test/*.csv

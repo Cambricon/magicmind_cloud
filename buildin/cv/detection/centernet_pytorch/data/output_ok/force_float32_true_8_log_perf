@@ -1,0 +1,104 @@
+==================== Parameter Information
+magicmind model file: /mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/detection/centernet_pytorch/../../../../../magicmind_cloud/buildin/cv/detection/centernet_pytorch/data/models/centernet_pytorch_model_force_float32_true_1
+input dims type: 0
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+batch: 8
+[MMINFO]  CreateModel time is 2354 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -786693127
+[MMINFO]  CreateEngine time is 201 ms
+[MMINFO]  Constdata Size: 71.343262 (MB)
+[2022-8-17 10:4:54] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v3] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[MMINFO]  ContextMaxworkspace Size: 256.000000 (MB)
+[MMINFO]  CreateContext time is 1 ms
+[MMINFO]  dev_0_thread_0_warm_up time is 384 ms
+[MMINFO]  dev_0_thread_0_e2e time is 82820 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: main/arg-0
+  Datatype: UINT8
+  Layout: NHWC
+  Dim: [8, 512, 512, 3]
+  Size: 6291456
+  Ptr Addr: 0x30080ff88054000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 4
+[0]: 
+  Name: main/mm.max_pool2d-6:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 80, 128, 128]
+  Size: 41943040
+  Ptr Addr: 0x30080ffb0000000
+  TensorLoc: kMLU
+[1]: 
+  Name: main/mm.sigmoid:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 80, 128, 128]
+  Size: 41943040
+  Ptr Addr: 0x30080ff80000000
+  TensorLoc: kMLU
+[2]: 
+  Name: main/mm.conv2d-52:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 2, 128, 128]
+  Size: 1048576
+  Ptr Addr: 0x30080ff88654000
+  TensorLoc: kMLU
+[3]: 
+  Name: main/mm.conv2d-54:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 2, 128, 128]
+  Size: 1048576
+  Ptr Addr: 0x30080ff88754000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 49    max: 71    mean: 69.45 median: 70.5 
+dev0_mem_info(MB):            min: 1309  max: 1309  mean: 1309  median: 1309 
+dev0_power_info(W):           min: 41    max: 69    mean: 67.6  median: 69   
+dev0_temp_info(C):            min: 50    max: 56    mean: 53.85 median: 54.5 
+==================== Performance Summary
+Iterations:                   1000
+Host Wall Time (s):           82.8209
+MLU Compute Time (s):         82.8006
+Throughput (qps):             96.5939
+Enqueue Time (ms):            min: 0.49307    max: 1.4646     mean: 0.55872    median: 0.538      percentile: (90%) 0.62341    (95%) 0.63963    (99%) 0.74917   
+H2D Latency (ms):             min: 0.475      max: 0.494      mean: 0.48011    median: 0.48       percentile: (90%) 0.483      (95%) 0.483      (99%) 0.488     
+MLU Compute Latency (ms):     min: 70.904     max: 93.025     mean: 82.801     median: 82.68      percentile: (90%) 87.228     (95%) 88.192     (99%) 90.287    
+D2H Latency (ms):             min: 6.397      max: 6.695      mean: 6.4106     median: 6.41       percentile: (90%) 6.416      (95%) 6.418      (99%) 6.425     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 80.004      Enqueue: 0.57701   
+  MLU Compute Latency (ms): 81.789      Enqueue: 0.55016   
+  MLU Compute Latency (ms): 82.622      Enqueue: 0.56125   
+  MLU Compute Latency (ms): 82.665      Enqueue: 0.54229   
+  MLU Compute Latency (ms): 83.612      Enqueue: 0.55145   
+  MLU Compute Latency (ms): 84.156      Enqueue: 0.60511   
+  MLU Compute Latency (ms): 84.255      Enqueue: 0.56333   
+  MLU Compute Latency (ms): 83.685      Enqueue: 0.54243   
+  MLU Compute Latency (ms): 82.96       Enqueue: 0.54485   
+  MLU Compute Latency (ms): 82.258      Enqueue: 0.54933   

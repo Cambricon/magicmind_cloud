@@ -1,0 +1,40 @@
+--- TensorRT/demo/Tacotron2/tensorrt/convert_waveglow2onnx.py	2022-03-24 05:20:03.000000000 +0000
++++ convert_waveglow2onnx.py	2022-03-26 15:55:51.168918919 +0000
+@@ -78,7 +78,7 @@
+                                         stride=(glow.upsample.stride[0], 1))
+     upsample.weight.data[:,:,:,0] = glow.upsample.weight.data
+     upsample.bias.data = glow.upsample.bias.data
+-    glow.upsample = upsample.cuda()
++    glow.upsample = upsample
+ 
+     # Convert WN to 2d
+     for WN in glow.WN:
+@@ -88,7 +88,7 @@
+     for i in range(len(glow.convinv)):
+         glow.convinv[i] = convert_convinv_1d_to_2d(glow.convinv[i])
+ 
+-    glow.cuda()
++    glow
+ 
+ def parse_args(parser):
+     """
+@@ -111,15 +111,15 @@
+ def export_onnx(parser, args):
+ 
+     waveglow = load_and_setup_model('WaveGlow', parser, args.waveglow,
+-                                    fp16_run=args.fp16, cpu_run=False,
++                                    fp16_run=args.fp16, cpu_run=True,
+                                     forward_is_infer=False)
+ 
+     # 80 mel channels, 620 mel spectrograms ~ 7 seconds of speech
+-    mel = torch.randn(1, 80, 620).cuda()
++    mel = torch.randn(1, 80, 620)
+     stride = 256 # value from waveglow upsample
+     n_group = 8
+     z_size2 = (mel.size(2)*stride)//n_group
+-    z = torch.randn(1, n_group, z_size2, 1).cuda()
++    z = torch.randn(1, n_group, z_size2, 1)
+ 
+     if args.fp16:
+         mel = mel.half()
+

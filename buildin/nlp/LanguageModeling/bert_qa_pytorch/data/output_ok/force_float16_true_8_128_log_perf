@@ -1,0 +1,112 @@
+==================== Parameter Information
+magicmind model file: /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/models/bert_qa_pytorch_force_float16_true_1bs_128_model
+input dims type: 0
+input 0:
+  input[0] dim: [8, 128]
+  input[1] dim: [8, 128]
+  input[2] dim: [8, 128]
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+input path: 
+ /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/input_8_128.bin
+ /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/input_8_128.bin
+ /mm_ws/proj/modelzoo/magicmind_cloud/buildin/nlp/bert_qa_pytorch/../../../../magicmind_cloud/buildin/nlp/bert_qa_pytorch/data/input_8_128.bin
+[MMINFO]  CreateModel time is 2485 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       12062329
+[MMINFO]  CreateEngine time is 1324 ms
+[MMINFO]  Constdata Size: 320.000000 (MB)
+[MMINFO]  ContextMaxworkspace Size: 24.000000 (MB)
+[MMINFO]  CreateContext time is 3 ms
+[2022-8-15 19:39:10] [CNNL] [Warning]: [cnnlSqrt] is deprecated and will be removed in the future release, please use [cnnlSqrt_v2] instead.
+[2022-8-15 19:39:10] [CNNL] [Warning]: [cnnlDiv] is deprecated and will be removed in the future release, please use [cnnlDiv_v2] instead.
+[MMINFO]  dev_0_thread_0_warm_up time is 233 ms
+[MMINFO]  dev_0_thread_0_e2e time is 12667 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 3
+[0]: 
+  Name: main/arg-0
+  Datatype: INT32
+  Layout: NCHW
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ff5c054000
+  TensorLoc: kMLU
+[1]: 
+  Name: main/arg-1
+  Datatype: INT32
+  Layout: NONE
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ff5c056000
+  TensorLoc: kMLU
+[2]: 
+  Name: main/arg-2
+  Datatype: INT32
+  Layout: NCHW
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ff5c058000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 2
+[0]: 
+  Name: main/mm.squeeze:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ff5c05a000
+  TensorLoc: kMLU
+[1]: 
+  Name: main/mm.squeeze-1:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 128]
+  Size: 4096
+  Ptr Addr: 0x30080ff5c05c000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 26    max: 66    mean: 63.55 median: 65.5 
+dev0_mem_info(MB):            min: 1222  max: 1222  mean: 1222  median: 1222 
+dev0_power_info(W):           min: 29    max: 70    mean: 65.85 median: 69   
+dev0_temp_info(C):            min: 55    max: 56    mean: 55.35 median: 55   
+==================== Performance Summary
+Iterations:                   1000
+Host Wall Time (s):           12.6673
+MLU Compute Time (s):         12.6549
+Throughput (qps):             631.545
+Enqueue Time (ms):            min: 0.73413    max: 5.4326     mean: 0.8015     median: 0.76994    percentile: (90%) 0.91726    (95%) 0.92712    (99%) 1.141     
+H2D Latency (ms):             min: 0.045      max: 0.08       mean: 0.057614   median: 0.058      percentile: (90%) 0.063      (95%) 0.065      (99%) 0.068     
+MLU Compute Latency (ms):     min: 10.459     max: 17.198     mean: 12.655     median: 12.596     percentile: (90%) 13.853     (95%) 14.246     (99%) 15.097    
+D2H Latency (ms):             min: 0.025      max: 0.066      mean: 0.050316   median: 0.052      percentile: (90%) 0.053      (95%) 0.053      (99%) 0.055     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 12.392      Enqueue: 0.77205   
+  MLU Compute Latency (ms): 12.511      Enqueue: 0.77898   
+  MLU Compute Latency (ms): 13.342      Enqueue: 0.81371   
+  MLU Compute Latency (ms): 12.648      Enqueue: 0.78771   
+  MLU Compute Latency (ms): 12.708      Enqueue: 0.8252    
+  MLU Compute Latency (ms): 12.672      Enqueue: 0.92647   
+  MLU Compute Latency (ms): 12.587      Enqueue: 0.7545    
+  MLU Compute Latency (ms): 12.592      Enqueue: 0.75518   
+  MLU Compute Latency (ms): 12.625      Enqueue: 0.83206   
+  MLU Compute Latency (ms): 12.473      Enqueue: 0.76912   

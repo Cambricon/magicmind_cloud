@@ -1,0 +1,22 @@
+--- CenterNet/CenterNet-2b7692c377c6686fb35e473dac2de6105eed62c6/src/lib/models/networks/dlav0.py	2020-06-22 00:53:44.000000000 +0000
++++ dlav0.py	2021-11-22 08:11:37.881339965 +0000
+@@ -602,10 +602,15 @@
+         x = self.dla_up(x[self.first_level:])
+         # x = self.fc(x)
+         # y = self.softmax(self.up(x))
+-        ret = {}
++        ret = []
+         for head in self.heads:
+-            ret[head] = self.__getattr__(head)(x)
+-        return [ret]
++            t = self.__getattr__(head)(x)
++            if head == 'hm':
++                t = t.sigmoid_()
++                hmax = nn.functional.max_pool2d(t, (3, 3), stride=1, padding=1)
++                ret.append(hmax)
++            ret.append(t)
++        return tuple(ret)
+ 
+     '''
+     def optim_parameters(self, memo=None):
+

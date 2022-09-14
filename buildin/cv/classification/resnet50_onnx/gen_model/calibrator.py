@@ -32,5 +32,3 @@ class CalibData(mm.CalibDataInterface):
     def reset(self):
         self._cur_idx = 0
         return mm.Status()
-
-        

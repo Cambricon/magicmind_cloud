@@ -196,27 +196,27 @@ cd $PROJ_ROOT_PATH
 
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| SSD | forced float32 | 1 | 230.954 | MLU370 S4 |
-| SSD | forced float32 | 4 | 821.972 | MLU370 S4 |
-| SSD | forced float32 | 8 | 973.951 | MLU370 S4 |
-| SSD | forced float16 | 1 | 458.753 | MLU370 S4 |
-| SSD | forced float16 | 4 | 1592.56 | MLU370 S4 |
-| SSD | forced float16 | 8 | 2062.2 | MLU370 S4 |
-| SSD | int8 mixed float16 | 1 | 517.399 | MLU370 S4 |
-| SSD | int8 mixed float16 | 4 | 1726.82 | MLU370 S4 |
-| SSD | int8 mixed float16 | 8 | 2274.38 | MLU370 S4 |
+| SSD | force_float32 | 1 | 230.954 | MLU370 S4 |
+| SSD | force_float32 | 4 | 821.972 | MLU370 S4 |
+| SSD | force_float32 | 8 | 973.951 | MLU370 S4 |
+| SSD | force_float16 | 1 | 458.753 | MLU370 S4 |
+| SSD | force_float16 | 4 | 1592.56 | MLU370 S4 |
+| SSD | force_float16 | 8 | 2062.2 | MLU370 S4 |
+| SSD | qint8_mixed_float16 | 1 | 517.399 | MLU370 S4 |
+| SSD | qint8_mixed_float16 | 4 | 1726.82 | MLU370 S4 |
+| SSD | qint8_mixed_float16 | 8 | 2274.38 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | Throughput (qps) | MLU compute Latency Avg (ms) | 95% (ms) | 99% (ms) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| SSD | forced float32 | 1 | 217.242 | MLU370 X4 |
-| SSD | forced float32 | 4 | 780.498 | MLU370 X4 |
-| SSD | forced float32 | 8 | 1476.48 | MLU370 X4 |
-| SSD | forced float16 | 1 | 522.667 | MLU370 X4 |
-| SSD | forced float16 | 4 | 1611.88 | MLU370 X4 |
-| SSD | forced float16 | 8 | 2914.96 | MLU370 X4 |
-| SSD | int8 mixed float16 | 1 | 586.582 | MLU370 X4 |
-| SSD | int8 mixed float16 | 4 | 1762.95 | MLU370 X4 |
-| SSD | int8 mixed float16 | 8 | 3065.42 | MLU370 X4 |
+| SSD | force_float32 | 1 | 217.242 | MLU370 X4 |
+| SSD | force_float32 | 4 | 780.498 | MLU370 X4 |
+| SSD | force_float32 | 8 | 1476.48 | MLU370 X4 |
+| SSD | force_float16 | 1 | 522.667 | MLU370 X4 |
+| SSD | force_float16 | 4 | 1611.88 | MLU370 X4 |
+| SSD | force_float16 | 8 | 2914.96 | MLU370 X4 |
+| SSD | qint8_mixed_float16 | 1 | 586.582 | MLU370 X4 |
+| SSD | qint8_mixed_float16 | 4 | 1762.95 | MLU370 X4 |
+| SSD | qint8_mixed_float16 | 8 | 3065.42 | MLU370 X4 |
 
 ### 5.2精度benchmark结果
 一键运行benchmark里的脚本：
@@ -228,15 +228,15 @@ cd $PROJ_ROOT_PATH/benchmark
 通过快速使用中3.6的脚本跑出SSD在VOC2012数据集上的mAP如下：
 | Model  | Quant_Mode | Batch_Size | mAP (0.5) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| SSD | forced float32 | 1 | 0.8307 | MLU370 S4 |
-| SSD | forced float16 | 1 | 0.8313 | MLU370 S4 |
-| SSD | int8 mixed float16 | 1 | 0.8287 | MLU370 S4 |
+| SSD | force_float32 | 1 | 0.8307 | MLU370 S4 |
+| SSD | force_float16 | 1 | 0.8313 | MLU370 S4 |
+| SSD | qint8_mixed_float16 | 1 | 0.8287 | MLU370 S4 |
 
 | Model  | Quant_Mode | Batch_Size | mAP (0.5) | MLU板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| SSD | forced float32 | 1 | 0.8307 | MLU370 X4 |
-| SSD | forced float16 | 1 | 0.8313 |MLU370 X4 |
-| SSD | int8 mixed float16 | 1 | 0.8287 |MLU370 X4 |
+| SSD | force_float32 | 1 | 0.8307 | MLU370 X4 |
+| SSD | force_float16 | 1 | 0.8313 |MLU370 X4 |
+| SSD | qint8_mixed_float16 | 1 | 0.8287 |MLU370 X4 |
 
 
 ## 6.免责声明

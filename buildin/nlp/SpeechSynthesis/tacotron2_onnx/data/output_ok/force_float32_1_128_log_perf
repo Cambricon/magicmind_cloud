@@ -1,0 +1,14 @@
+================dev[0]================
+Preprocessing average (seconds) = 0.000483
+Number of mels per audio average = 604.0
+Encoder latency average (seconds) = 0.001099
+Decoder latency average (seconds) = 0.073827
+Postnet latency average (seconds) = 0.000683
+Latency average (seconds) = 0.076452
+Latency std (seconds) = 0.002637
+Latency cl 50 (seconds) = 0.075218
+Latency cl 90 (seconds) = 0.080346
+Latency cl 95 (seconds) = 0.080346
+Latency cl 99 (seconds) = 0.080346
+Latency cl 100 (seconds) = 0.080708
+tacotron2_items_per_sec average = 7899.959065

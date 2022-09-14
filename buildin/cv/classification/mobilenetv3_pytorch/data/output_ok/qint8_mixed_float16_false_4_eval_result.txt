@@ -1,0 +1,2 @@
+top1 accuracy: 0.646586
+top5 accuracy: 0.862450

@@ -1,0 +1,1 @@
+SQUAD results: OrderedDict([('exact', 74.15326395458845), ('f1', 81.89706779198319), ('total', 10570), ('HasAns_exact', 74.15326395458845), ('HasAns_f1', 81.89706779198319), ('HasAns_total', 10570), ('best_exact', 74.15326395458845), ('best_exact_thresh', 0.0), ('best_f1', 81.89706779198319), ('best_f1_thresh', 0.0)])

@@ -5,7 +5,7 @@ export MM_RUN_PATH=$NEUWARE_HOME/bin
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/segmentation/nnUNet_pytorch
 #数据集路径
-export DATASETS_PATH=$MAGICMIND_CLOUD/../datasets/nnUNet_dataset
+export DATASETS_PATH=/nfsdata/modelzoo/datasets/nnUNet_dataset
 export nnUNet_raw_data_base=$DATASETS_PATH/nnUNet_raw_data_base
 export nnUNet_preprocessed=$DATASETS_PATH/nnUNet_preprocessed
 # nnUNet模型保存路径
