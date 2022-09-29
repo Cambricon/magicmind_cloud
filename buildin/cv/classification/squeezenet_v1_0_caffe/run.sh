@@ -4,7 +4,7 @@ set -x
 
 ### 0.download datasets and models
 cd $PROJ_ROOT_PATH/export_model
-bash get_datasets_and_models.sh
+bash run.sh
 
 ### 1.build magicmind model
 cd $PROJ_ROOT_PATH/gen_model

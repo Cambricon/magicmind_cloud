@@ -1,5 +1,5 @@
 #!/bin/bash
-QUANT_MODE=$1 #forced_float32/forced_float16
+QUANT_MODE=$1 #force_float32/force_float16
 SHAPE_MUTABLE=$2 #true/false
 BATCH_SIZE=$3
 BATCH=$4

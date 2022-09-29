@@ -1,0 +1,79 @@
+==================== Parameter Information
+magicmind model file: /mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/classification/senet50_caffe/../../../../../magicmind_cloud/buildin/cv/classification/senet50_caffe/data/models/senet50_caffe_model_qint8_mixed_float16_true_1
+input dims type: 0
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+batch: 8
+[MMINFO]  CreateModel time is 2346 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -1611140103
+[MMINFO]  CreateEngine time is 490 ms
+[MMINFO]  Constdata Size: 27.052124 (MB)
+[MMINFO]  ContextMaxworkspace Size: 10.000000 (MB)
+[MMINFO]  CreateContext time is 2 ms
+[MMINFO]  dev_0_thread_0_warm_up time is 206 ms
+[MMINFO]  dev_0_thread_0_e2e time is 2797 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: data
+  Datatype: UINT8
+  Layout: NHWC
+  Dim: [8, 224, 224, 3]
+  Size: 1204224
+  Ptr Addr: 0x30080feedb62000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 1
+[0]: 
+  Name: prob
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 1000]
+  Size: 32000
+  Ptr Addr: 0x30080feedc88000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 20    max: 66    mean: 62.6  median: 66   
+dev0_mem_info(MB):            min: 934   max: 934   mean: 934   median: 934  
+dev0_power_info(W):           min: 39    max: 43    mean: 42.4  median: 43   
+dev0_temp_info(C):            min: 45    max: 45    mean: 45    median: 45   
+==================== Performance Summary
+Iterations:                   1224
+Host Wall Time (s):           2.79791
+MLU Compute Time (s):         2.78346
+Throughput (qps):             3499.75
+Enqueue Time (ms):            min: 0.15205    max: 0.72624    mean: 0.15819    median: 0.15715    percentile: (90%) 0.16052    (95%) 0.16221    (99%) 0.20143   
+H2D Latency (ms):             min: 0.103      max: 0.123      mean: 0.10771    median: 0.107      percentile: (90%) 0.11       (95%) 0.11       (99%) 0.119     
+MLU Compute Latency (ms):     min: 2.26       max: 2.389      mean: 2.2741     median: 2.273      percentile: (90%) 2.279      (95%) 2.28       (99%) 2.328     
+D2H Latency (ms):             min: 0.016      max: 0.049      mean: 0.021554   median: 0.023      percentile: (90%) 0.023      (95%) 0.024      (99%) 0.044     
+Trace averages of 122 runs:
+  MLU Compute Latency (ms): 2.2726      Enqueue: 0.15974   
+  MLU Compute Latency (ms): 2.2751      Enqueue: 0.15948   
+  MLU Compute Latency (ms): 2.273       Enqueue: 0.15976   
+  MLU Compute Latency (ms): 2.2747      Enqueue: 0.15906   
+  MLU Compute Latency (ms): 2.2754      Enqueue: 0.15741   
+  MLU Compute Latency (ms): 2.2727      Enqueue: 0.15587   
+  MLU Compute Latency (ms): 2.2751      Enqueue: 0.15526   
+  MLU Compute Latency (ms): 2.2735      Enqueue: 0.16299   
+  MLU Compute Latency (ms): 2.2754      Enqueue: 0.15754   
+  MLU Compute Latency (ms): 2.273       Enqueue: 0.1546    

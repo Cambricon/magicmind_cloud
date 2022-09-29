@@ -24,7 +24,7 @@ then
 else  
     echo "Parm doesn't exist, run benchmark"
     cd $PROJ_ROOT_PATH/export_model
-    bash get_datasets_and_models.sh
+    bash run.sh
     for quant_mode in force_float32 force_float16 qint8_mixed_float16
     do
 	cd $PROJ_ROOT_PATH/gen_model

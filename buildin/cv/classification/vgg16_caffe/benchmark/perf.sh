@@ -18,7 +18,7 @@ MM_RUN(){
     then
         mkdir "$PROJ_ROOT_PATH/data/output"
     fi
-    ${MM_RUN_PATH}/mm_run --magicmind_model $PROJ_ROOT_PATH/data/models/vgg16_caffe_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+    ${MM_RUN_PATH}/mm_run --magicmind_model $MODEL_PATH/vgg16_caffe_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
                           --iterations 1000 \
                           --batch ${BATCH} \
                           --threads ${THREADS} \
@@ -33,6 +33,8 @@ else
     echo "Parm Doesn't exist, run benchmark"
     for quant_mode in force_float32 force_float16 qint8_mixed_float16
     do
+      cd $PROJ_ROOT_PATH/export_model
+      bash run.sh
       cd $PROJ_ROOT_PATH/gen_model
       bash run.sh $quant_mode true 1
       for batch in 1 4 8

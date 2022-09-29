@@ -9,23 +9,18 @@ IMAGE_NUM=$5
 if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
 then
   mkdir "$PROJ_ROOT_PATH/data/output"
-  echo "mkdir sucessed!!!"
-else
-  echo "output dir exits!!! no need to mkdir again!!!"
 fi
-if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ]; 
+if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ];
 then
   mkdir "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}"
   echo "mkdir sucessed!!!"
-else
-  echo "output dir exits!!! no need to mkdir again!!!"
 fi
 bash build.sh
-$PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model $PROJ_ROOT_PATH/data/models/squeezenet_v1_0_caffe_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-                                  --image_dir $DATASETS_PATH/images \
+$PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model $MODEL_PATH/squeezenet_v1_0_caffe_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+                                  --image_dir $DATASETS_PATH \
                                   --image_num ${IMAGE_NUM} \
-                                  --name_file $DATASETS_PATH/names.txt \
-                                  --label_file $DATASETS_PATH/imagenet_1000.txt \
+                                  --name_file $UTILS_PATH/imagenet_name.txt \
+				  --label_file $UTILS_PATH/imagenet_1000.txt \
                                   --result_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}/infer_result.txt \
                                   --result_label_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}/eval_labels.txt \
                                   --result_top1_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}/eval_result_1.txt \

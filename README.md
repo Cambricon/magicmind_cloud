@@ -2,45 +2,53 @@
 
 ## 介绍
 
-MagicMind是面向寒武纪MLU(Machine Learning Unit,机器学习单元)的推理加速引擎。
+MagicMind 是面向寒武纪 MLU(Machine Learning Unit,机器学习单元)的推理加速引擎。
 
-MagicMind能将深度学习框架(Tensorflow,PyTorch,ONNX,Caffe等) 训练好的算法模型转换成MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
+MagicMind 能将深度学习框架(Tensorflow,PyTorch,ONNX,Caffe 等) 训练好的算法模型转换成 MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
 
-本仓库展示如何将CV分类、检测、分割、NLP、语音等场景的前沿和经典模型，通过MagicMind转换和优化，进而运行在基于MagicMind的推理加速引擎的寒武纪加速板卡上的示例程序，为开发者提供丰富的AI应用移植参考。
+本仓库展示如何将 CV 分类、检测、分割、NLP、语音等场景的前沿和经典模型，通过 MagicMind 转换和优化，进而运行在基于 MagicMind 的推理加速引擎的寒武纪加速板卡上的示例程序，为开发者提供丰富的 AI 应用移植参考。
 
 ## 网络支持列表和链接
+
 CV：
-| MODELS  | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON
+| MODELS | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| [Alexnet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/alexnet_bn_caffe) | Caffe | YES | YES | YES | NO |
+| [MobilenetV2](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/mobilenetv2_caffe) | Caffe | YES | YES | YES | NO |
+| [MobilenetV3](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/mobilenetv3_pytorch) | Pytorch | YES | YES | YES | NO |
 | [Resnet50](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/resnet50_onnx) | ONNX | YES | YES | NO | YES |
 | [Resnext50](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/resnext50_caffe) | Caffe | YES | YES | YES | YES |
-| [Squeezenet_v1_1](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe | YES | YES | YES | NO |
+| [SENet50](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/senet50_caffe) | Caffe | YES | YES | YES | NO |
 | [Squeezenet_v1_0](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe | YES | YES | YES | NO |
+| [Squeezenet_v1_1_caffe](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe | YES | YES | YES | NO |
 | [VGG16](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/vgg16_caffe) | Caffe | YES | YES | YES | YES |
-| [YOLOV5](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov5_v6.1_pytorch) | PyTorch | YES | YES | YES | YES |
-| [SSD](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/ssd_caffe) | Caffe | YES | YES | YES | YES |
-| [Centernet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/centernet_pytorch) | PyTorch | YES | YES | YES | NO |
-| [Unet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/segmentation/nnUNet_pytorch) | PyTorch | YES | YES | NO | YES |
-| [YOLOV3 Tiny](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov3_tiny_caffe) | Caffe | YES | YES | YES | NO |
 | [C3D](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/c3d_caffe) | Caffe | YES | YES | YES | NO |
+| [Centernet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/centernet_pytorch) | PyTorch | YES | YES | YES | NO |
+| [MaskRCNN](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/maskrcnn_pytorch) | Caffe | YES | YES | NO | YES |
+| [SSD](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/ssd_caffe) | Caffe | YES | YES | YES | YES |
 | [YOLOV3](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov3_caffe) | Caffe | YES | YES | YES | NO |
-| [MobilenetV3](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/mobilenetv3_pytorch) | Pytorch | YES | YES | YES | NO |
-| [MobilenetV2](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/mobilenetv2_caffe) | Caffe | YES | YES | YES | NO |
+| [YOLOV3 Tiny](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov3_tiny_caffe) | Caffe | YES | YES | YES | NO |
+| [YOLOV5](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov5_v6.1_pytorch) | PyTorch | YES | YES | YES | YES |
+| [Unet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/segmentation/nnUNet_pytorch) | PyTorch | YES | YES | NO | YES |
+| [SEGnet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/segmentation/segnet_caffe) | Caffe | YES | YES | YES | NO |
 
 NLP:
-| MODELS  | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
+| MODELS | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | [BERT](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/nlp/nlp/LanguageModeling/bert_qa_pytorch) | PyTorch | YES | YES | NO | YES |
+| [Transformers](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/nlp/LanguageModeling/transformers_pytorch) | PyTorch | YES | YES | NO | YES |
 | [TACOTRON2](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/nlp/SpeechSynthesis/tacotron2_onnx) | ONNX | YES | YES | NO | YES |
 
-## issues/wiki/forum跳转链接
+## issues/wiki/forum 跳转链接
 
-## contrib指引和链接
+## contrib 指引和链接
 
 ## LICENSE
-ModelZoo Cloud的License具体内容请参见[LICENSE](http://gitlab.software.cambricon.com/neuware/software/ae/ecosystem/modelzoo/magicmind_cloud/-/blob/main/LICENSE)文件。
+
+ModelZoo Cloud 的 License 具体内容请参见[LICENSE](http://gitlab.software.cambricon.com/neuware/software/ae/ecosystem/modelzoo/magicmind_cloud/-/blob/main/LICENSE)文件。
 
 ## 免责声明
-ModelZoo仅提供公共数据集以及预训练模型的下载链接，公共数据集及预训练模型并不属于ModelZoo, ModelZoo也不对其质量或维护承担责任。请您在使用公共数据集和预训练模型的过程中，确保符合其对应的使用许可。
 
-如果您不希望您的数据集或模型公布在ModelZoo上，或者您希望更新ModelZoo中属于您的数据集或模型，请您通过Github或者Gitee中提交issue，您也可以联系ecosystem@cambricon.com告知我们。
+ModelZoo 仅提供公共数据集以及预训练模型的下载链接，公共数据集及预训练模型并不属于 ModelZoo, ModelZoo 也不对其质量或维护承担责任。请您在使用公共数据集和预训练模型的过程中，确保符合其对应的使用许可。
+
+如果您不希望您的数据集或模型公布在 ModelZoo 上，或者您希望更新 ModelZoo 中属于您的数据集或模型，请您通过 Gitee 中提交 issue，您也可以联系ecosystem@cambricon.com告知我们。

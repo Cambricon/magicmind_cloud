@@ -18,8 +18,8 @@ bash run.sh force_float32 true 1 1 1
 
 ### 2.2 infer_cpp
 cd $PROJ_ROOT_PATH/infer_cpp
-#bash run.sh quant_mode shape_mutable batch_size batch save_img
-bash run.sh force_float32 true 1 1 1
+#bash run.sh quant_mode shape_mutable batch_size save_img
+bash run.sh force_float32 true 1 1
 
 ### 3.eval and perf
 #bash $PROJ_ROOT_PATH/benchmark/eval.sh quant_mode shape_mutable batch ways

@@ -6,7 +6,7 @@ export MM_RUN_PATH=$NEUWARE_HOME/bin
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/classification/resnet50_onnx
 #数据集路径
-export DATASETS_PATH=/nfsdata/modelzoo/datasets/imagenet1000
+export DATASETS_PATH=/nfsdata/modelzoo/datasets/ILSVRC2012
 #模型路径
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
 #cv类网络通用文件路径

@@ -3,8 +3,9 @@ set -e
 set -x
 
 ORIGIN_PT='mobilenetv3_small_67.4.pth.tar'
-mkdir -p $MODEL_PATH
-
+if [ ! -d $MODEL_PATH ];then
+    mkdir -p $MODEL_PATH
+fi
 cd $MODEL_PATH
 if [ ! -f $ORIGIN_PT ];then
   echo "mobilenetv3_small_67.4.pth.tar"
@@ -17,7 +18,13 @@ if [ ! -f "pytorch-mobilenet-v3.zip" ];then
   unzip -o pytorch-mobilenet-v3.zip -d $PROJ_ROOT_PATH/export_model
 fi
 
-if [ ! -f $DATASETS_PATH/names.txt ];then
-  echo "names.txt"
-  wget -c https://raw.githubusercontent.com/ageron/handson-ml/master/datasets/inception/imagenet_class_names.txt --no-check-certificate -O $DATASETS_PATH/names.txt
-fi 
+if [ ! -d $DATASETS_PATH ];then
+    mkdir -p $DATASETS_PATH
+fi
+cd $DATASETS_PATH
+echo "Downloading LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/ to $DATASETS_PATH "
+if [ ! -f ILSVRC2012_val_00000001.JPEG ];
+then
+    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/"
+    exit 1
+fi

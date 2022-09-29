@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str)
 parser.add_argument("--output_file", type=str)
 parser.add_argument("--output_ok_file", type=str)
-parser.add_argument("--metric", type=str, choices = ["top1andtop5", "cocomAP", "vocmAP", "unet", "squad"])
+parser.add_argument("--metric", type=str, choices = ["top1andtop5", "cocomAP", "vocmAP", "unet", "squad", "voc_miou", "mrpc"])
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.split(__file__)[0], ""))
 report_file = "%s/eval_report.csv"%ROOT_DIR
@@ -100,6 +100,37 @@ def compute_squad(file1, file2):
     exact_diff = new_exact - old_exact
     f1_diff = new_f1 - old_f1
     return status, exact_diff, f1_diff
+
+def compute_mrpc(file1, file2):
+    with open(file1, "r") as f:
+        lines1 = f.readlines()
+    with open(file2, "r") as f:
+        lines2 = f.readlines()
+        
+    new_acc = float(lines1[0].split(":")[-1])
+    new_f1 =  float(lines1[1].split(":")[-1])
+    old_acc = float(lines2[0].split(":")[-1])
+    old_f1 =  float(lines2[1].split(":")[-1])
+    
+    status = new_acc >= old_acc and new_f1 >= old_f1
+    acc_diff = new_acc - old_acc
+    f1_diff = new_f1 - old_f1
+    return status, acc_diff, f1_diff
+    
+def compute_voc_miou(file1, file2):
+    with open(file1, "r") as f:
+        lines1 = f.readlines()
+    with open(file2, "r") as f:
+        lines2 = f.readlines()
+    for l1 in lines1:
+        if "miou" in l1:
+            new_voc_miou = float(l1.split(",")[4])
+    for l2 in lines2:
+        if "miou" in l2:
+            old_voc_miou = float(l2.split(",")[4])
+    voc_miou_diff = new_voc_miou - old_voc_miou
+    status = new_voc_miou >= old_voc_miou
+    return status, voc_miou_diff
 
 def summary_top1andtop5(testcase_name, file, metric, result, top1_diff, top5_diff):
     header = ["testcase", "file", "metric", "status", "top1_diff", "top5_diff"]
@@ -236,6 +267,60 @@ def summary_squad(testcase_name, file, metric, result, exact_diff, f1_diff):
     with open(report_file, "w") as f:
         f.write(tb.get_csv_string())
 
+def summary_mrpc(testcase_name, file, metric, result, acc_diff, f1_diff):
+    header = ["testcase", "file", "metric", "status", "acc_diff", "f1_diff"]
+    show_tb = prettytable.PrettyTable()
+    show_tb.align = "l"
+    show_tb.field_names = header
+    report_file = "%s/eval_squad_report.csv"%ROOT_DIR
+    if os.path.exists(report_file):
+        with open(report_file, "r") as f:
+            tb = prettytable.from_csv(f)
+            tb.align = "l"
+    else:
+        tb = prettytable.PrettyTable()
+        tb.field_names = header
+        tb.align = "l"
+
+    if result:
+        status = "pass"
+    else:
+        status = "fail"
+
+    show_tb.add_row ([testcase_name, file.split("/")[-2], metric, status, acc_diff, f1_diff])
+    tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, acc_diff, f1_diff])
+
+    print(show_tb)
+    with open(report_file, "w") as f:
+        f.write(tb.get_csv_string())
+
+def summary_voc_miou(testcase_name, file, metric, result, voc_miou_diff):
+    header = ["testcase", "file", "metric", "status", "voc_miou_diff"]
+    show_tb = prettytable.PrettyTable()
+    show_tb.align = "l"
+    show_tb.field_names = header
+    report_file = "%s/eval_voc_miou_report.csv"%ROOT_DIR
+    if os.path.exists(report_file):
+        with open(report_file, "r") as f:
+            tb = prettytable.from_csv(f)
+            tb.align = "l"
+    else:
+        tb = prettytable.PrettyTable()
+        tb.field_names = header
+        tb.align = "l"
+
+    if result:
+        status = "pass"
+    else:
+        status = "fail"
+
+    show_tb.add_row ([testcase_name, file.split("/")[-2], metric, status, voc_miou_diff])
+    tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, voc_miou_diff])
+
+    print(show_tb)
+    with open(report_file, "w") as f:
+        f.write(tb.get_csv_string())
+
 def summary(testcase_name, file, metric, result):
     header = [ "testcase" , "file" , "metric", "similar", "status"]
     show_tb = prettytable.PrettyTable()
@@ -284,6 +369,12 @@ if __name__ == "__main__":
         elif args.metric == "squad":
             result, exact_diff, f1_diff = compute_squad(output_file, output_ok_file)
             summary_squad(testcase_name, args.output_file, args.metric, result, exact_diff, f1_diff)
+        elif args.metric == "voc_miou":
+            result, voc_miou_diff = compute_voc_miou(output_file, output_ok_file)
+            summary_voc_miou(testcase_name, args.output_file, args.metric, result, voc_miou_diff)
+        elif args.metric == "mrpc":
+            result, acc_diff, f1_diff = compute_mrpc(output_file, output_ok_file)
+            summary_mrpc(testcase_name, args.output_file, args.metric, result, acc_diff, f1_diff)
         else:
             result = "metric: %s not support."%args.metric
             summary(testcase_name, args.output_file, args.metric, result)

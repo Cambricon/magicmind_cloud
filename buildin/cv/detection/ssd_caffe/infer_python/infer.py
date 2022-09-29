@@ -18,7 +18,6 @@ def parse_args():
     parser.add_argument('--magicmind_model', type=str, required=True)
     parser.add_argument('--result_path', help='The result data path', type=str)
     parser.add_argument('--devkit_path', help='VOCdevkit path', type=str)
-    parser.add_argument('--batch', help='input_batch', type=int, default=1)
     parser.add_argument('--save_img', type=bool, default=False)
     args = parser.parse_args()
 

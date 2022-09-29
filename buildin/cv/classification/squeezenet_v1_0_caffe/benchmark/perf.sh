@@ -18,7 +18,7 @@ MM_RUN(){
     then
         mkdir "$PROJ_ROOT_PATH/data/output"
     fi
-    ${MM_RUN_PATH}/mm_run --magicmind_model $PROJ_ROOT_PATH/data/models/squeezenet_v1_0_caffe_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+    ${MM_RUN_PATH}/mm_run --magicmind_model $MODEL_PATH/squeezenet_v1_0_caffe_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
                           --iterations 1000 \
                           --batch ${BATCH} \
                           --threads ${THREADS} \
@@ -32,7 +32,7 @@ then
 else
     echo "Parm Doesn't exist, run benchmark"
     cd $PROJ_ROOT_PATH/export_model
-    bash get_datasets_and_models.sh
+    bash run.sh
     for quant_mode in force_float32 force_float16 qint8_mixed_float16
     do
       cd $PROJ_ROOT_PATH/gen_model
@@ -47,17 +47,3 @@ else
       done
     done
 fi
-####static
-#for quant_mode in force_float32 force_float16 qint8_mixed_float16
-#do
-#  for batch in 1 4 8
-#  do
-#    cd $PROJ_ROOT_PATH/gen_model
-#    bash run.sh $quant_mode false $batch
-#    for thread in 1
-#    do
-#      MM_RUN $quant_mode false $batch $batch $thread
-#    done
-#  done
-#done
-#

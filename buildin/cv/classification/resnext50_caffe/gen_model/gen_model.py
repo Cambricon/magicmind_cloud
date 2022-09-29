@@ -95,7 +95,7 @@ def main():
     args.add_argument("--prototxt", "--prototxt", type=str, default="../data/models/"+PROTOTXT, help="original prototxt")
     args.add_argument("--output_model", "--output_model", type=str, default="mm_model", help="save mm model to this path")
     args.add_argument("--image_dir", "--image_dir",  type=str, default="/nfsdata/datasets/imageNet2012/", help="imagenet val datasets")
-    args.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, forced_float32, forced_float16")
+    args.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
     args.add_argument("--shape_mutable", "--shape_mutable", type=str, default="false", help="whether the mm model is dynamic or static or not")
     args.add_argument('--batch_size', dest = 'batch_size', default = 1,
             type = int, help = 'batch_size')

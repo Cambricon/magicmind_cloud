@@ -5,18 +5,11 @@ set -x
 QUANT_MODE=$1  
 SHAPE_MUTABLE=$2
 BATCH_SIZE=$3
-BATCH=$4
-SAVE_IMG=$5
+SAVE_IMG=$4
+BATCH=1
 if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ]; 
 then
     mkdir "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}"
-    echo "mkdir sucessed!!!"
-else
-    echo "output dir exits!!! no need to mkdir again!!!"
-fi
-
-if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}/voc_preds" ];
-then
     mkdir "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}/voc_preds"
     echo "mkdir sucessed!!!"
 else

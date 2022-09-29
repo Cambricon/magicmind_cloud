@@ -6,10 +6,9 @@ QUANT_MODE=$1
 SHAPE_MUTABLE=$2
 BATCH_SIZE=$3
 
-cd $PROJ_ROOT_PATH/export_model/
-bash run.sh
-
-mkdir -p $PROJ_ROOT_PATH/data/mm_model
+if [ ! -d $PROJ_ROOT_PATH/data/mm_model ];then
+    mkdir -p $PROJ_ROOT_PATH/data/mm_model
+fi
 
 cd $PROJ_ROOT_PATH/gen_model/
 if [ -f $PROJ_ROOT_PATH/data/mm_model/${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} ];

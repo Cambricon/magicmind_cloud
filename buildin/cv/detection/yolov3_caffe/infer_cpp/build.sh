@@ -1,4 +1,3 @@
-# 编译c++代码，在当前目录输出x86可执行文件video_action_recognize_x86.bin
 set -e 
 set -x
 g++ -std=c++11 -O2 `pkg-config opencv --cflags` -I./include \

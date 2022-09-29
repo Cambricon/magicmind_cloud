@@ -4,8 +4,6 @@ set -x
 QUANT_MODE=$1
 SHAPE_MUTABLE=$2
 BATCH_SIZE=$3
-cd $PROJ_ROOT_PATH/export_model/
-bash run.sh
 
 #example<<bash run.sh force_float16 false 4
 mkdir -p $PROJ_ROOT_PATH/data/mm_model

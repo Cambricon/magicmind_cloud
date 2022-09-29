@@ -77,7 +77,7 @@ def main():
     parser.add_argument("--pt_model", "--pt_model", type=str, default="../data/models/yolov5m_traced.pt", help="modified yolov5s pt")
     parser.add_argument("--output_model", "--output_model", type=str, default="../data/models/yolov5_pytorch_model", help="save mm model to this path")
     parser.add_argument("--image_dir", "--image_dir",  type=str, default="../../datasets/coco/val2017", help="coco2017 datasets")
-    parser.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, forced_float32, forced_float16")
+    parser.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
     parser.add_argument("--shape_mutable", "--shape_mutable", type=str, default="false", help="whether the mm model is dynamic or static or not")
     parser.add_argument("--batch_size", "--batch_size", type=int, default=1, help="batch_size")
     parser.add_argument('--input_width', dest = 'input_width', default = 640, type = int, help = 'model input width')

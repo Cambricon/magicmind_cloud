@@ -18,7 +18,6 @@ def imagenet_dataset(
         image_name, label = line.split(" ")
         image_path = os.path.join(image_file_path, image_name)
         img = cv2.imread(image_path)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         yield img, label.strip()
         current_count += 1
         if current_count > count and count != -1:

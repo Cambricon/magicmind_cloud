@@ -1,0 +1,96 @@
+==================== Parameter Information
+magicmind model file: /builds/neuware/software/ae/ecosystem/modelzoo/magicmind_cloud/buildin/nlp/transformers_pytorch/../../../../magicmind_cloud/buildin/nlp/transformers_pytorch/data/mm_model/force_float32_false_4
+input dims type: 0
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+batch: 4
+[MMINFO]  CreateModel time is 2612 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -1999154183
+[MMINFO]  CreateEngine time is 146 ms
+[MMINFO]  Constdata Size: 448.000000 (MB)
+[MMINFO]  ContextMaxworkspace Size: 18.001953 (MB)
+[MMINFO]  CreateContext time is 7 ms
+[2022-9-6 18:11:28] [CNNL] [Warning]: [cnnlDiv] is deprecated and will be removed in the future release, please use [cnnlDiv_v2] instead.
+[MMINFO]  dev_0_thread_0_warm_up time is 239 ms
+[MMINFO]  dev_0_thread_0_e2e time is 31817 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 3
+[0]: 
+  Name: main/arg-0
+  Datatype: INT32
+  Layout: NCHW
+  Dim: [4, 128]
+  Size: 2048
+  Ptr Addr: 0x30080ff51656000
+  TensorLoc: kMLU
+[1]: 
+  Name: main/arg-1
+  Datatype: INT32
+  Layout: NONE
+  Dim: [4, 128]
+  Size: 2048
+  Ptr Addr: 0x30080ff51658000
+  TensorLoc: kMLU
+[2]: 
+  Name: main/arg-2
+  Datatype: INT32
+  Layout: NCHW
+  Dim: [4, 128]
+  Size: 2048
+  Ptr Addr: 0x30080ff5165a000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 1
+[0]: 
+  Name: main/mm.matmul-97:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [4, 2]
+  Size: 32
+  Ptr Addr: 0x30080ff5165c000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 76    max: 96    mean: 90.8  median: 91.5 
+dev0_mem_info(MB):            min: 6246  max: 6246  mean: 6246  median: 6246 
+dev0_power_info(W):           min: 51    max: 70    mean: 64.4  median: 64.5 
+dev0_temp_info(C):            min: 50    max: 53    mean: 51.35 median: 51   
+==================== Performance Summary
+Iterations:                   1000
+Host Wall Time (s):           31.8173
+MLU Compute Time (s):         31.8025
+Throughput (qps):             125.718
+Enqueue Time (ms):            min: 2.2811     max: 7.7675     mean: 2.6013     median: 2.4953     percentile: (90%) 2.9145     (95%) 3.0457     (99%) 3.7443    
+H2D Latency (ms):             min: 0.045      max: 0.279      mean: 0.066774   median: 0.064      percentile: (90%) 0.076      (95%) 0.083      (99%) 0.132     
+MLU Compute Latency (ms):     min: 16.169     max: 154.46     mean: 31.802     median: 24.211     percentile: (90%) 53.35      (95%) 64.327     (99%) 113.5     
+D2H Latency (ms):             min: 0.015      max: 0.066      mean: 0.031766   median: 0.03       percentile: (90%) 0.042      (95%) 0.048      (99%) 0.052     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 35.36       Enqueue: 2.4783    
+  MLU Compute Latency (ms): 28.183      Enqueue: 2.592     
+  MLU Compute Latency (ms): 30.979      Enqueue: 2.5604    
+  MLU Compute Latency (ms): 32.862      Enqueue: 2.6827    
+  MLU Compute Latency (ms): 26.4        Enqueue: 2.747     
+  MLU Compute Latency (ms): 30.121      Enqueue: 2.6526    
+  MLU Compute Latency (ms): 36.242      Enqueue: 2.5863    
+  MLU Compute Latency (ms): 34.267      Enqueue: 2.66      
+  MLU Compute Latency (ms): 27.305      Enqueue: 2.5492    
+  MLU Compute Latency (ms): 36.307      Enqueue: 2.5047  

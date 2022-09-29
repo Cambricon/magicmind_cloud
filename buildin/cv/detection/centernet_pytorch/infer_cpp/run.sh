@@ -5,15 +5,15 @@ set -x
 QUANT_MODE=$1  
 SHAPE_MUTABLE=$2
 BATCH_SIZE=$3
-BATCH=$4
-IMAGE_NUM=$5
+IMAGE_NUM=$4
+
 if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
 then
     mkdir "$PROJ_ROOT_PATH/data/output"
 fi
-if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ]; 
+if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_1" ]; 
 then
-    mkdir "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}"
+    mkdir "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_1"
 fi
 bash $PROJ_ROOT_PATH/infer_cpp/build.sh
 $PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model $PROJ_ROOT_PATH/data/models/centernet_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
@@ -23,7 +23,6 @@ $PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model $PROJ_ROOT_PATH/data/models/
                                   --label_path $DATASETS_PATH/coco.names \
                                   --max_bbox_num 100 \
                                   --confidence_thresholds 0.001 \
-                                  --output_dir $PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH} \
+                                  --output_dir $PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_1 \
                                   --save_img true \
-                                  --batch ${BATCH}
 

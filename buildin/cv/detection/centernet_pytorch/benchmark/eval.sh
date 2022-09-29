@@ -39,7 +39,7 @@ else
         for batch in 1
         do
             cd $PROJ_ROOT_PATH/infer_cpp
-            bash run.sh $quant_mode true 1 $batch 1000
+            bash run.sh $quant_mode true $batch 1000
             COMPUTE_COCO $quant_mode true $batch 1000
             python $MAGICMIND_CLOUD/test/compare_eval.py --metric cocomAP --output_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_${quant_mode}_true_${batch}/log_eval --output_ok_file $PROJ_ROOT_PATH/data/output_ok/infer_cpp_output_${quant_mode}_true_${batch}_log_eval --model centernet_pytorch
         done

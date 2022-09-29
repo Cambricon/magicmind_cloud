@@ -1,5 +1,5 @@
 #!/bin/bash
-QUANT_MODE=$1 #forced_float32/forced_float16/qint8_mixed_float16
+QUANT_MODE=$1 #force_float32/force_float16/qint8_mixed_float16
 SHAPE_MUTABLE=$2 #true/false
 BATCH_SIZE=$3
 BATCH=$4
@@ -12,7 +12,7 @@ else
     echo "mkdir sucessed!!!"
 fi
 echo "infer Magicmind model..."
-python infer.py --magicmind_model $PROJ_ROOT_PATH/data/models/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+python infer.py --magicmind_model $MODEL_PATH/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
                 --image_dir $DATASETS_PATH/val2017 \
                 --image_num ${IMAGE_NUM} \
                 --file_list $DATASETS_PATH/file_list_5000.txt \

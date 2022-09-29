@@ -2,11 +2,11 @@
 set -e
 set -x
 
-if [ -d $PROJ_ROOT_PATH/data/models ];
+if [ -d $MODEL_PATH ];
 then
-    echo "folder $PROJ_ROOT_PATH/data/models already exists"
+    echo "folder $MODEL_PATH already exists"
 else
-    mkdir $PROJ_ROOT_PATH/data/models
+    mkdir $MODEL_PATH
 fi
 
 cd $MODEL_PATH
@@ -28,8 +28,9 @@ else
 fi
 
 cd $DATASETS_PATH
-if [ ! -d images ];
+if [ ! -f ILSVRC2012_val_00000001.JPEG ];
 then
-    echo "Downloading LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/ to $DATASETS_PATH"
+    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/"
     exit 1
 fi
+

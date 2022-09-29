@@ -3,11 +3,11 @@ set -e
 set -x
 BATCH_SIZE=$1
 
-if [ -d $PROJ_ROOT_PATH/data/models ];
+if [ -d $MODEL_PATH ];
 then
-    echo "folder $PROJ_ROOT_PATH/data/models already exist!!!"
+    echo "folder $MODEL_PATH already exist!!!"
 else
-    mkdir "$PROJ_ROOT_PATH/data/models"
+    mkdir "$MODEL_PATH"
 fi
 
 # 1.下载数据集和模型

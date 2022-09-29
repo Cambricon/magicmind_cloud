@@ -14,7 +14,7 @@ cd $PROJ_ROOT_PATH/gen_model
 bash run.sh force_float32 false 1
 echo "GENERATE MODEL SUCCESS!"
 
-#3.infer_python
+#3.infer_cpp
 cd $PROJ_ROOT_PATH/infer_cpp
 #Parms 1:quant_mode 2:shape_mutable 3:batch size
 bash run.sh force_float32 false 1

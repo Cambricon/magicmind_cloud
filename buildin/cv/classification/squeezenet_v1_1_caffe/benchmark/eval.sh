@@ -38,15 +38,3 @@ else
         done
     done
 fi
-## static
-#for quant_mode in force_float32 force_float16 qint8_mixed_float16
-#do
-#  for batch in 1 #4 8
-#  do
-#    cd $PROJ_ROOT_PATH/gen_model
-#    bash run.sh $quant_mode false $batch
-#    cd $PROJ_ROOT_PATH/infer_python
-#    bash run.sh $quant_mode false $batch 50000
-#    COMPUTE_TOP1_AND_TOP5 $quant_mode false $batch infer_python
-#  done
-#done

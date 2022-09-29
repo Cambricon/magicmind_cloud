@@ -32,7 +32,9 @@ do
                                               --img_dir $DATASETS_PATH/val2017 \
                                               --image_num 5000 2>&1 | tee $PROJ_ROOT_PATH/data/output/${quant_mode}_${shape_mutable}_${batch}_log_eval
       #compare_eval
-      mkdir -p $PROJ_ROOT_PATH/data/output_ok/
+      if [ ! -d $PROJ_ROOT_PATH/data/output_ok/ ];then
+          mkdir -p $PROJ_ROOT_PATH/data/output_ok/
+      fi 
       python $MAGICMIND_CLOUD/test/compare_eval.py  --metric cocomAP \
                                                     --output_file $PROJ_ROOT_PATH/data/output/${quant_mode}_${shape_mutable}_${batch}_log_eval \
                                                     --output_ok_file $PROJ_ROOT_PATH/data/output_ok/${quant_mode}_${shape_mutable}_${batch}_log_eval \

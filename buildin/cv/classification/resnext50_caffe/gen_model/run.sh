@@ -1,5 +1,5 @@
 #!/bin/bash
-QUANT_MODE=$1 #forced_float32/forced_float16/qint8_mixed_float16
+QUANT_MODE=$1 #force_float32/force_float16/qint8_mixed_float16
 SHAPE_MUTABLE=$2 #true/false
 BATCH_SIZE=$3
 PROTOTXT=deploy_resnext50-32x4d.prototxt
@@ -9,7 +9,7 @@ then
     python gen_model.py  --caffe_model $MODEL_PATH/$CAFFEMODEL \
                          --prototxt $MODEL_PATH/$PROTOTXT \
                          --output_model $PROJ_ROOT_PATH/data/models/${MODEL_NAME}_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-                         --image_dir $DATASETS_PATH/images \
+                         --image_dir $DATASETS_PATH \
                          --quant_mode ${QUANT_MODE} \
                          --shape_mutable ${SHAPE_MUTABLE} \
                          --batch_size ${BATCH_SIZE} \

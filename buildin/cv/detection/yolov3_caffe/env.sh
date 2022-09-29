@@ -3,10 +3,10 @@ echo "check below paths before run the sample!!!"
 export NEUWARE_HOME=/usr/local/neuware/
 ##MM_RUN路径
 export MM_RUN_PATH=$NEUWARE_HOME/bin
-#本sample工作路径 
+#本sample工作路径  
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/detection/yolov3_caffe
-#数据集路径
+#数据集路径 /
 export DATASETS_PATH=/nfsdata/modelzoo/datasets/coco
 #cv类网络通用文件路径
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils

@@ -18,7 +18,11 @@ MM_RUN(){
 cd $PROJ_ROOT_PATH/export_model/
 bash run.sh
 cd $PROJ_ROOT_PATH/gen_model/
-mkdir -p "$PROJ_ROOT_PATH/data/output/"
+
+if [ ! -d $PROJ_ROOT_PATH/data/output/ ];then
+    mkdir -p $PROJ_ROOT_PATH/data/output/
+fi
+
 for quant_mode in force_float32 force_float16 qint8_mixed_float16
 do
   for batch in 1 4 8

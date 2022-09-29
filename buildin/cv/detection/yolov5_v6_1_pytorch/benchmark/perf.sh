@@ -17,7 +17,7 @@ MM_RUN(){
     then
         mkdir "$PROJ_ROOT_PATH/data/output"
     fi
-    ${MM_RUN_PATH}/mm_run --magicmind_model $PROJ_ROOT_PATH/data/models/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+    ${MM_RUN_PATH}/mm_run --magicmind_model $MODEL_PATH/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
 	                  --iterations 1000 \
 			  --batch ${BATCH} \
 			  --threads ${THREADS} \

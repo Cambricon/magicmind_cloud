@@ -2,20 +2,28 @@
 set -e
 set -x
 
-FILE3="mobilenet_v2.caffemodel"
-FILE4="mobilenet_v2_deploy.prototxt"
-mkdir -p $MODEL_PATH
+FILE1="mobilenet_v2.caffemodel"
+FILE2="mobilenet_v2_deploy.prototxt"
+
+if [ ! -d $MODEL_PATH ];then
+    mkdir -p $MODEL_PATH
+fi
 cd $MODEL_PATH
-if [ ! -f $FILE3 ];then
+if [ ! -f $FILE1 ];then
   echo "mobilenet_v2.caffemodel"
   wget -c https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2.caffemodel --no-check-certificate -O mobilenet_v2.caffemodel
 fi 
-if [ ! -f $FILE4 ];then
+if [ ! -f $FILE2 ];then
   echo "mobilenet_v2_deploy.prototxt"
   wget -c https://raw.githubusercontent.com/shicai/MobileNet-Caffe/master/mobilenet_v2_deploy.prototxt --no-check-certificate -O mobilenet_v2_deploy.prototxt
 fi 
-FILE1='names.txt'
-if [ ! -f $DATASETS_PATH/$FILE1 ];then
-  echo "names.txt"
-  wget -c https://raw.githubusercontent.com/ageron/handson-ml/master/datasets/inception/imagenet_class_names.txt --no-check-certificate -O $DATASETS_PATH/names.txt
-fi 
+
+if [ ! -d $DATASETS_PATH ];then
+    mkdir -p $DATASETS_PATH
+fi
+cd $DATASETS_PATH
+if [ ! -f ILSVRC2012_val_00000001.JPEG ];
+then
+    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/ to $DATASETS_PATH"
+    exit 1
+fi

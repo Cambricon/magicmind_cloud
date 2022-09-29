@@ -6,8 +6,6 @@ report-result:
         - ci-test
     script:
         - pip install -r test/requirement.txt
-        - python test/merge_table.py
-        - python test/check_result.py benchmark.csv benchmark_ok.csv
         - python test/show_table.py
     artifacts:
         paths:

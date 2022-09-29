@@ -13,10 +13,9 @@ cd $PROJ_ROOT_PATH/gen_model
 bash run.sh force_float32 true 1 0.001 0.65 1000
 
 # 2.1 build infer_cpp and infer
-mkdir -p $PROJ_ROOT_PATH/data/output
 cd $PROJ_ROOT_PATH/infer_cpp
-#bash run.sh quant_mode shape_mutable batch_size batch image_num
-bash run.sh force_float32 true 1 1 1000
+#bash run.sh quant_mode shape_mutable batch_size image_num
+bash run.sh force_float32 true 1 1000
 # 2.2 infer_python
 cd $PROJ_ROOT_PATH/infer_python
 #bash run.sh quant_mode shape_mutable batch_size batch image_num

@@ -1,15 +1,15 @@
 #!/bin/bash
 
-QUANT_MODE=$1 #forced_float32/forced_float16/qint8_mixed_float16
+QUANT_MODE=$1 #force_float32/force_float16/qint8_mixed_float16
 SHAPE_MUTABLE=$2 #true/false
 BATCH_SIZE=$3
 CONF_THRES=$4
 IOU_THRES=$5
 MAX_DET=$6
-if [ ! -f $PROJ_ROOT_PATH/data/models/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} ];
+if [ ! -f $MODEL_PATH/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} ];
 then
-    python $PROJ_ROOT_PATH/gen_model/gen_model.py --pt_model $PROJ_ROOT_PATH/data/models/yolov5m_traced.pt \
-                                                  --output_model $PROJ_ROOT_PATH/data/models/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+    python $PROJ_ROOT_PATH/gen_model/gen_model.py --pt_model $MODEL_PATH/yolov5m_traced.pt \
+                                                  --output_model $MODEL_PATH/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
                                                   --image_dir $DATASETS_PATH/val2017 \
                                                   --quant_mode ${QUANT_MODE} \
                                                   --shape_mutable ${SHAPE_MUTABLE} \

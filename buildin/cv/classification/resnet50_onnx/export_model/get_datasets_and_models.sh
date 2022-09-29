@@ -2,18 +2,12 @@
 set -e
 set -x
 
-if [ -d $PROJ_ROOT_PATH/data ];
-then 
-    echo "folder $PROJ_ROOT_PATH/data already exists"
-else
-    mkdir $PROJ_ROOT_PATH/data
-fi
 
-if [ -d $PROJ_ROOT_PATH/data/models ];
+if [ -d $PMODEL_PATH ];
 then
-    echo "folder $PROJ_ROOT_PATH/data/models already exists"
+    echo "folder $PMODEL_PATH already exists"
 else
-    mkdir $PROJ_ROOT_PATH/data/models
+    mkdir $MODEL_PATH
 fi
 
 cd $MODEL_PATH
@@ -23,4 +17,11 @@ then
 else
   echo "Downloading resnet50-v1-7.onnx file"
   wget https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet50-v1-7.onnx
+fi
+
+cd $DATASETS_PATH
+if [ ! -f ILSVRC2012_val_00000001.JPEG ];
+then
+    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/"
+    exit 1
 fi

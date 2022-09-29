@@ -2,11 +2,11 @@
 set -e
 set -x
 
-if [ -d $PROJ_ROOT_PATH/data/models ];
+if [ -d $MODEL_PATH ];
 then
-    echo "folder $PROJ_ROOT_PATH/data/models already exists"
+    echo "folder $MODEL_PATH already exists"
 else
-    mkdir $PROJ_ROOT_PATH/data/models
+    mkdir $MODEL_PATH
 fi
 
 cd $MODEL_PATH
@@ -27,3 +27,11 @@ else
   wget -c https://gist.githubusercontent.com/ksimonyan/211839e770f7b538e2d8/raw/0067c9b32f60362c74f4c445a080beed06b07eb3/VGG_ILSVRC_16_layers_deploy.prototxt \
     -O deploy.prototxt
 fi
+
+cd $DATASETS_PATH
+if [ ! -f ILSVRC2012_val_00000001.JPEG ];
+then
+    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/"
+    exit 1
+fi
+
