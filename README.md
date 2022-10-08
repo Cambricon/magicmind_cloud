@@ -45,7 +45,7 @@ NLP:
 
 ## LICENSE
 
-ModelZoo Cloud 的 License 具体内容请参见[LICENSE](http://gitlab.software.cambricon.com/neuware/software/ae/ecosystem/modelzoo/magicmind_cloud/-/blob/main/LICENSE)文件。
+ModelZoo Cloud 的 License 具体内容请参见[LICENSE](https://e.gitee.com/cambricon/repos/cambricon/magicmind_cloud/blob/master/LICENSE)文件。
 
 ## 免责声明
 
