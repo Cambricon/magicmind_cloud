@@ -13,31 +13,31 @@ MagicMind 能将深度学习框架(Tensorflow,PyTorch,ONNX,Caffe 等) 训练好�
 CV：
 | MODELS | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| [Alexnet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/alexnet_bn_caffe) | Caffe | YES | YES | YES | NO |
-| [MobilenetV2](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/mobilenetv2_caffe) | Caffe | YES | YES | YES | NO |
-| [MobilenetV3](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/mobilenetv3_pytorch) | Pytorch | YES | YES | YES | NO |
-| [Resnet50](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/resnet50_onnx) | ONNX | YES | YES | NO | YES |
-| [Resnext50](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/resnext50_caffe) | Caffe | YES | YES | YES | YES |
-| [SENet50](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/senet50_caffe) | Caffe | YES | YES | YES | NO |
-| [Squeezenet_v1_0](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe | YES | YES | YES | NO |
-| [Squeezenet_v1_1_caffe](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe | YES | YES | YES | NO |
-| [VGG16](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/classification/vgg16_caffe) | Caffe | YES | YES | YES | YES |
-| [C3D](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/c3d_caffe) | Caffe | YES | YES | YES | NO |
-| [Centernet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/centernet_pytorch) | PyTorch | YES | YES | YES | NO |
-| [MaskRCNN](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/maskrcnn_pytorch) | Caffe | YES | YES | NO | YES |
-| [SSD](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/ssd_caffe) | Caffe | YES | YES | YES | YES |
-| [YOLOV3](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov3_caffe) | Caffe | YES | YES | YES | NO |
-| [YOLOV3 Tiny](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov3_tiny_caffe) | Caffe | YES | YES | YES | NO |
-| [YOLOV5](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/detection/yolov5_v6.1_pytorch) | PyTorch | YES | YES | YES | YES |
-| [Unet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/segmentation/nnUNet_pytorch) | PyTorch | YES | YES | NO | YES |
-| [SEGnet](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/cv/segmentation/segnet_caffe) | Caffe | YES | YES | YES | NO |
+| [Alexnet](buildin/cv/classification/alexnet_bn_caffe) | Caffe | YES | YES | YES | NO |
+| [MobilenetV2](buildin/cv/classification/mobilenetv2_caffe) | Caffe | YES | YES | YES | NO |
+| [MobilenetV3](buildin/cv/classification/mobilenetv3_pytorch) | Pytorch | YES | YES | YES | NO |
+| [Resnet50](buildin/cv/classification/resnet50_onnx) | ONNX | YES | YES | NO | YES |
+| [Resnext50](buildin/cv/classification/resnext50_caffe) | Caffe | YES | YES | YES | YES |
+| [SENet50](buildin/cv/classification/senet50_caffe) | Caffe | YES | YES | YES | NO |
+| [Squeezenet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe | YES | YES | YES | NO |
+| [Squeezenet_v1_1_caffe](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe | YES | YES | YES | NO |
+| [VGG16](buildin/cv/classification/vgg16_caffe) | Caffe | YES | YES | YES | YES |
+| [C3D](buildin/cv/detection/c3d_caffe) | Caffe | YES | YES | YES | NO |
+| [Centernet](buildin/cv/detection/centernet_pytorch) | PyTorch | YES | YES | YES | NO |
+| [MaskRCNN](buildin/cv/detection/maskrcnn_pytorch) | Caffe | YES | YES | NO | YES |
+| [SSD](buildin/cv/detection/ssd_caffe) | Caffe | YES | YES | YES | YES |
+| [YOLOV3](buildin/cv/detection/yolov3_caffe) | Caffe | YES | YES | YES | NO |
+| [YOLOV3 Tiny](buildin/cv/detection/yolov3_tiny_caffe) | Caffe | YES | YES | YES | NO |
+| [YOLOV5](buildin/cv/detection/yolov5_v6.1_pytorch) | PyTorch | YES | YES | YES | YES |
+| [Unet](buildin/cv/segmentation/nnUNet_pytorch) | PyTorch | YES | YES | NO | YES |
+| [SEGnet](buildin/cv/segmentation/segnet_caffe) | Caffe | YES | YES | YES | NO |
 
 NLP:
 | MODELS | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| [BERT](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/nlp/nlp/LanguageModeling/bert_qa_pytorch) | PyTorch | YES | YES | NO | YES |
-| [Transformers](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/nlp/LanguageModeling/transformers_pytorch) | PyTorch | YES | YES | NO | YES |
-| [TACOTRON2](https://e.gitee.com/cambricon/repos/cambricon/magicmind-cloud/tree/master/buildin/nlp/SpeechSynthesis/tacotron2_onnx) | ONNX | YES | YES | NO | YES |
+| [BERT](buildin/nlp/nlp/LanguageModeling/bert_qa_pytorch) | PyTorch | YES | YES | NO | YES |
+| [Transformers](buildin/nlp/LanguageModeling/transformers_pytorch) | PyTorch | YES | YES | NO | YES |
+| [TACOTRON2](buildin/nlp/SpeechSynthesis/tacotron2_onnx) | ONNX | YES | YES | NO | YES |
 
 ## issues/wiki/forum 跳转链接
 
@@ -45,7 +45,7 @@ NLP:
 
 ## LICENSE
 
-ModelZoo Cloud 的 License 具体内容请参见[LICENSE](https://e.gitee.com/cambricon/repos/cambricon/magicmind_cloud/blob/master/LICENSE)文件。
+ModelZoo Cloud 的 License 具体内容请参见[LICENSE](LICENSE)文件。
 
 ## 免责声明
 
