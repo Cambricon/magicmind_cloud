@@ -64,7 +64,7 @@ docker run -it --name=dockername --network=host --cap-add=sys_ptrace -v /your/ho
 
 ```bash
 # 下载仓库
-git clone http://gitlab.software.cambricon.com/neuware/software/ae/ecosystem/modelzoo/magicmind_cloud.git
+git clone https://gitee.com/cambricon/magicmind_cloud.git
 ```
 
 在开始运行代码前需要执行以下命令安装必要的库：
