@@ -20,7 +20,7 @@ CV：
 | [Resnext50](buildin/cv/classification/resnext50_caffe) | Caffe | YES | YES | YES | YES |
 | [SENet50](buildin/cv/classification/senet50_caffe) | Caffe | YES | YES | YES | NO |
 | [Squeezenet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe | YES | YES | YES | NO |
-| [Squeezenet_v1_1_caffe](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe | YES | YES | YES | NO |
+| [Squeezenet_v1_1](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe | YES | YES | YES | NO |
 | [VGG16](buildin/cv/classification/vgg16_caffe) | Caffe | YES | YES | YES | YES |
 | [C3D](buildin/cv/detection/c3d_caffe) | Caffe | YES | YES | YES | NO |
 | [Centernet](buildin/cv/detection/centernet_pytorch) | PyTorch | YES | YES | YES | NO |
