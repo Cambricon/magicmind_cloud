@@ -28,7 +28,7 @@ CV：
 | [SSD](buildin/cv/detection/ssd_caffe) | Caffe | YES | YES | YES | YES |
 | [YOLOV3](buildin/cv/detection/yolov3_caffe) | Caffe | YES | YES | YES | NO |
 | [YOLOV3 Tiny](buildin/cv/detection/yolov3_tiny_caffe) | Caffe | YES | YES | YES | NO |
-| [YOLOV5](buildin/cv/detection/yolov5_v6.1_pytorch) | PyTorch | YES | YES | YES | YES |
+| [YOLOV5](buildin/cv/detection/yolov5_v6_1_pytorch) | PyTorch | YES | YES | YES | YES |
 | [Unet](buildin/cv/segmentation/nnUNet_pytorch) | PyTorch | YES | YES | NO | YES |
 | [SEGnet](buildin/cv/segmentation/segnet_caffe) | Caffe | YES | YES | YES | NO |
 
