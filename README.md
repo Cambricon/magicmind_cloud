@@ -35,7 +35,7 @@ CV：
 NLP:
 | MODELS | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| [BERT](buildin/nlp/nlp/LanguageModeling/bert_qa_pytorch) | PyTorch | YES | YES | NO | YES |
+| [BERT](buildin/nlp/LanguageModeling/bert_qa_pytorch) | PyTorch | YES | YES | NO | YES |
 | [Transformers](buildin/nlp/LanguageModeling/transformers_pytorch) | PyTorch | YES | YES | NO | YES |
 | [TACOTRON2](buildin/nlp/SpeechSynthesis/tacotron2_onnx) | ONNX | YES | YES | NO | YES |
 
