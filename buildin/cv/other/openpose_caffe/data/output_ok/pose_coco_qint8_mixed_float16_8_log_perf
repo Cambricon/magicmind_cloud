@@ -1,0 +1,80 @@
+==================== Parameter Information
+magicmind model file: /home/tanjiasheng/modelzoo/openpose-dev/buildin/cv/other/openpose_caffe/data/models/pose_coco_qint8_mixed_float16_8
+input dims type: 0
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+batch: 8
+[MMINFO]  CreateModel time is 2228 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -1183845383
+[MMINFO]  CreateEngine time is 911 ms
+[MMINFO]  Constdata Size: 64.000000 (MB)
+[2022-9-6 18:22:49] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v3] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[MMINFO]  ContextMaxworkspace Size: 58.937500 (MB)
+[MMINFO]  CreateContext time is 1 ms
+[MMINFO]  dev_0_thread_0_warm_up time is 295 ms
+[MMINFO]  dev_0_thread_0_e2e time is 42063 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: image
+  Datatype: UINT8
+  Layout: NHWC
+  Dim: [8, 368, 656, 3]
+  Size: 5793792
+  Ptr Addr: 0x30180ff88054000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 1
+[0]: 
+  Name: net_output
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [8, 57, 46, 82]
+  Size: 6880128
+  Ptr Addr: 0x30180ff885dc000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 30    max: 67    mean: 65.15 median: 67   
+dev0_mem_info(MB):            min: 1025  max: 1025  mean: 1025  median: 1025 
+dev0_power_info(W):           min: 42    max: 50    mean: 47.7  median: 48   
+dev0_temp_info(C):            min: 38    max: 39    mean: 38.95 median: 39   
+==================== Performance Summary
+Iterations:                   1000
+Host Wall Time (s):           42.0636
+MLU Compute Time (s):         42.0501
+Throughput (qps):             190.188
+Enqueue Time (ms):            min: 0.086209   max: 0.53368    mean: 0.21688    median: 0.23028    percentile: (90%) 0.28453    (95%) 0.30989    (99%) 0.37481   
+H2D Latency (ms):             min: 0.44       max: 0.967      mean: 0.46048    median: 0.451      percentile: (90%) 0.459      (95%) 0.462      (99%) 0.95      
+MLU Compute Latency (ms):     min: 42.007     max: 42.133     mean: 42.05      median: 42.048     percentile: (90%) 42.075     (95%) 42.089     (99%) 42.108    
+D2H Latency (ms):             min: 0.514      max: 0.596      mean: 0.51821    median: 0.517      percentile: (90%) 0.523      (95%) 0.524      (99%) 0.537     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 42.048      Enqueue: 0.24946   
+  MLU Compute Latency (ms): 42.049      Enqueue: 0.23283   
+  MLU Compute Latency (ms): 42.049      Enqueue: 0.19364   
+  MLU Compute Latency (ms): 42.05       Enqueue: 0.13161   
+  MLU Compute Latency (ms): 42.051      Enqueue: 0.19754   
+  MLU Compute Latency (ms): 42.051      Enqueue: 0.20705   
+  MLU Compute Latency (ms): 42.053      Enqueue: 0.27145   
+  MLU Compute Latency (ms): 42.05       Enqueue: 0.22966   
+  MLU Compute Latency (ms): 42.048      Enqueue: 0.23588   
+  MLU Compute Latency (ms): 42.051      Enqueue: 0.21969   

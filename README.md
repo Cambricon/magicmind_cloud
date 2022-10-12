@@ -22,6 +22,7 @@ CV：
 | [Squeezenet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe | YES | YES | YES | NO |
 | [Squeezenet_v1_1](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe | YES | YES | YES | NO |
 | [VGG16](buildin/cv/classification/vgg16_caffe) | Caffe | YES | YES | YES | YES |
+| [Arcface](buildin/cv/classification/arcface_pytorch) | PyTorch | YES | YES | YES | NO |
 | [C3D](buildin/cv/detection/c3d_caffe) | Caffe | YES | YES | YES | NO |
 | [Centernet](buildin/cv/detection/centernet_pytorch) | PyTorch | YES | YES | YES | NO |
 | [MaskRCNN](buildin/cv/detection/maskrcnn_pytorch) | Caffe | YES | YES | NO | YES |
@@ -29,13 +30,18 @@ CV：
 | [YOLOV3](buildin/cv/detection/yolov3_caffe) | Caffe | YES | YES | YES | NO |
 | [YOLOV3 Tiny](buildin/cv/detection/yolov3_tiny_caffe) | Caffe | YES | YES | YES | NO |
 | [YOLOV5](buildin/cv/detection/yolov5_v6_1_pytorch) | PyTorch | YES | YES | YES | YES |
+| [Retinaface](buildin/cv/detection/retinaface_pytorch) | PyTorch | YES | YES | YES | NO |
 | [Unet](buildin/cv/segmentation/nnUNet_pytorch) | PyTorch | YES | YES | NO | YES |
 | [SEGnet](buildin/cv/segmentation/segnet_caffe) | Caffe | YES | YES | YES | NO |
+| [Deeplabv3](buildin/cv/segmentation/deeplabv3_tf) | TensorFlow | YES | YES | YES | NO |
+| [U2Net](buildin/cv/segmentation/u2net_pytorch) | PyTorch | YES | YES | NO | YES |
+| [Openpose](buildin/cv/other/openpose_caffe) | Caffe | YES | YES | YES | NO |
 
 NLP:
 | MODELS | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | [BERT](buildin/nlp/LanguageModeling/bert_qa_pytorch) | PyTorch | YES | YES | NO | YES |
+| [BERT](buildin/nlp/LanguageModeling/bert_tensorflow) | Tensorflow | YES | NO | NO | YES |
 | [Transformers](buildin/nlp/LanguageModeling/transformers_pytorch) | PyTorch | YES | YES | NO | YES |
 | [TACOTRON2](buildin/nlp/SpeechSynthesis/tacotron2_onnx) | ONNX | YES | YES | NO | YES |
 

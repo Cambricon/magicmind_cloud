@@ -1,0 +1,2 @@
+model,language,dataset,metric,eval,fps
+deeplabv3_tf,infer_cpp,voc2012,miou,0.7574648857281159,

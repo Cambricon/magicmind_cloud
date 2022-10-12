@@ -1,0 +1,132 @@
+==================== Parameter Information
+magicmind model file: /home/tanjiasheng/modelzoo/openpose-dev/buildin/cv/segmentation/u2net_pytorch/data/models/u2net_pytorch_force_float32_1
+input dims type: 0
+input 0:
+  input[0] dim: [1, 3, 320, 320]
+iterations: 1000
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+[MMINFO]  CreateModel time is 2046 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -1636973575
+2022-09-20 12:41:06.896752: WARNING:  magicmind/runtime/executor/context.cc:223] Inferoutputshape return value is Unavailable, input parameter is invalid or inferring output shape is impossible because of control flow and special op. The output data of other op will be used as tensor shape in the following op to participate infer, which will cause infering fail. Special op: Unpool, reverse, slice... 
+2022-09-20 12:41:06.912002: WARNING:  magicmind/runtime/executor/context.cc:223] Inferoutputshape return value is Unavailable, input parameter is invalid or inferring output shape is impossible because of control flow and special op. The output data of other op will be used as tensor shape in the following op to participate infer, which will cause infering fail. Special op: Unpool, reverse, slice... 
+[MMINFO]  CreateEngine time is 35 ms
+[MMINFO]  Constdata Size: 167.774902 (MB)
+[MMINFO]  ContextMaxworkspace Size: UNAVAILABLE
+[MMINFO]  CreateContext time is 8 ms
+[2022-9-20 20:41:6] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v3] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[2022-9-20 20:41:6] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v4] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[MMINFO]  dev_0_thread_0_warm_up time is 264 ms
+[MMINFO]  dev_0_thread_0_e2e time is 28973 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: main/arg-0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 3, 320, 320]
+  Size: 1228800
+  Ptr Addr: 0x30180ffb8054000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 7
+[0]: 
+  Name: main/mm.sigmoid:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 1, 320, 320]
+  Size: 409600
+  Ptr Addr: 0x30180ff4c065900
+  TensorLoc: kMLU
+[1]: 
+  Name: main/mm.sigmoid-1:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 1, 320, 320]
+  Size: 409600
+  Ptr Addr: 0x30180ffb8267d00
+  TensorLoc: kMLU
+[2]: 
+  Name: main/mm.sigmoid-2:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 1, 320, 320]
+  Size: 409600
+  Ptr Addr: 0x30180ff4c259900
+  TensorLoc: kMLU
+[3]: 
+  Name: main/mm.sigmoid-3:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 1, 320, 320]
+  Size: 409600
+  Ptr Addr: 0x30180ff4c321900
+  TensorLoc: kMLU
+[4]: 
+  Name: main/mm.sigmoid-4:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 1, 320, 320]
+  Size: 409600
+  Ptr Addr: 0x30180ff4c191900
+  TensorLoc: kMLU
+[5]: 
+  Name: main/mm.sigmoid-5:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 1, 320, 320]
+  Size: 409600
+  Ptr Addr: 0x30180ff4c0c9900
+  TensorLoc: kMLU
+[6]: 
+  Name: main/mm.sigmoid-6:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [1, 1, 320, 320]
+  Size: 409600
+  Ptr Addr: 0x30180ff4c001900
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 29    max: 66    mean: 64.15 median: 66   
+dev0_mem_info(MB):            min: 1325  max: 1325  mean: 1325  median: 1325 
+dev0_power_info(W):           min: 30    max: 52    mean: 49.05 median: 50   
+dev0_temp_info(C):            min: 36    max: 38    mean: 37.3  median: 37   
+==================== Performance Summary
+Iterations:                   1000
+Host Wall Time (s):           28.974
+MLU Compute Time (s):         28.9603
+Throughput (qps):             34.5137
+Enqueue Time (ms):            min: 3.8936     max: 10.215     mean: 4.1469     median: 4.0367     percentile: (90%) 4.3734     (95%) 4.4006     (99%) 4.931     
+H2D Latency (ms):             min: 0.108      max: 0.14       mean: 0.11714    median: 0.116      percentile: (90%) 0.12       (95%) 0.128      (99%) 0.136     
+MLU Compute Latency (ms):     min: 28.51      max: 31.251     mean: 28.96      median: 28.896     percentile: (90%) 29.291     (95%) 29.568     (99%) 30.367    
+D2H Latency (ms):             min: 0.262      max: 0.339      mean: 0.28264    median: 0.281      percentile: (90%) 0.286      (95%) 0.306      (99%) 0.328     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 28.912      Enqueue: 4.3675    
+  MLU Compute Latency (ms): 28.992      Enqueue: 4.4119    
+  MLU Compute Latency (ms): 28.954      Enqueue: 4.3424    
+  MLU Compute Latency (ms): 28.929      Enqueue: 4.0858    
+  MLU Compute Latency (ms): 28.973      Enqueue: 4.034     
+  MLU Compute Latency (ms): 28.992      Enqueue: 4.0676    
+  MLU Compute Latency (ms): 28.953      Enqueue: 4.0387    
+  MLU Compute Latency (ms): 28.989      Enqueue: 4.0572    
+  MLU Compute Latency (ms): 28.936      Enqueue: 4.0145    
+  MLU Compute Latency (ms): 28.974      Enqueue: 4.0496    

@@ -1,0 +1,20 @@
+--- export_model/Pytorch_Retinaface/models/net-o.py	2020-04-20 02:57:23.000000000 +0000
++++ export_model/Pytorch_Retinaface/models/net.py	2022-01-18 04:45:47.103566940 +0000
+@@ -41,7 +41,7 @@
+     def __init__(self, in_channel, out_channel):
+         super(SSH, self).__init__()
+         assert out_channel % 4 == 0
+-        leaky = 0
++        leaky = 0.0
+         if (out_channel <= 64):
+             leaky = 0.1
+         self.conv3X3 = conv_bn_no_relu(in_channel, out_channel//2, stride=1)
+@@ -68,7 +68,7 @@
+ class FPN(nn.Module):
+     def __init__(self,in_channels_list,out_channels):
+         super(FPN,self).__init__()
+-        leaky = 0
++        leaky = 0.0
+         if (out_channels <= 64):
+             leaky = 0.1
+         self.output1 = conv_bn1X1(in_channels_list[0], out_channels, stride = 1, leaky = leaky)

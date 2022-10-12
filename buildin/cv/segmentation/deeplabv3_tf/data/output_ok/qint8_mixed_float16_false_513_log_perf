@@ -1,0 +1,73 @@
+==================== Parameter Information
+magicmind model file: /mm_ws/proj/modelzoo/magicmind_cloud/buildin/cv/segmentation/deeplabv3_tf/../../../../../magicmind_cloud/buildin/cv/segmentation/deeplabv3_tf/data/models/deeplabv3_tf_model_qint8_mixed_float16_false
+input dims type: 0
+input 0:
+  input[0] dim: [1, 513, 513, 3]
+iterations: 100
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+[MMINFO]  CreateModel time is 2299 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       -631290887
+[MMINFO]  CreateEngine time is 19 ms
+[MMINFO]  Constdata Size: 2.091003 (MB)
+[2022-9-30 13:55:26] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v4] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[2022-9-30 13:55:26] [CNNL] [Warning]: [cnnlSetActivationDescriptor_v3] is deprecated and will be removed in the future release, please use [cnnlSetActivationDescriptor_v5] instead.
+[MMINFO]  ContextMaxworkspace Size: 42.134277 (MB)
+[MMINFO]  CreateContext time is 3 ms
+[MMINFO]  dev_0_thread_0_warm_up time is 257 ms
+[MMINFO]  dev_0_thread_0_e2e time is 2801 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: ImageTensor:0
+  Datatype: UINT8
+  Layout: NONE
+  Dim: [1, 513, 513, 3]
+  Size: 789507
+  Ptr Addr: 0x30080fe81a9e000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 1
+[0]: 
+  Name: SemanticPredictions:0
+  Datatype: INT32
+  Layout: NONE
+  Dim: [1, 513, 513]
+  Size: 1052676
+  Ptr Addr: 0x30080fe81b60000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 23    max: 47    mean: 39    median: 47   
+dev0_mem_info(MB):            min: 2315  max: 2315  mean: 2315  median: 2315 
+dev0_power_info(W):           min: 31    max: 31    mean: 31    median: 31   
+dev0_temp_info(C):            min: 38    max: 39    mean: 38.333 median: 38   
+==================== Performance Summary
+Iterations:                   133
+Host Wall Time (s):           2.80192
+MLU Compute Time (s):         2.79936
+Throughput (qps):             47.4675
+Enqueue Time (ms):            min: 4.1106     max: 14.75      mean: 5.0213     median: 4.9195     percentile: (90%) 5.1078     (95%) 5.1575     (99%) 5.8585    
+H2D Latency (ms):             min: 0.079      max: 0.124      mean: 0.096098   median: 0.097      percentile: (90%) 0.104      (95%) 0.11       (99%) 0.12      
+MLU Compute Latency (ms):     min: 20.954     max: 22.469     mean: 21.048     median: 21.035     percentile: (90%) 21.085     (95%) 21.112     (99%) 21.209    
+D2H Latency (ms):             min: 0.123      max: 0.151      mean: 0.14165    median: 0.142      percentile: (90%) 0.144      (95%) 0.144      (99%) 0.148     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 21.043      Enqueue: 5.0518    

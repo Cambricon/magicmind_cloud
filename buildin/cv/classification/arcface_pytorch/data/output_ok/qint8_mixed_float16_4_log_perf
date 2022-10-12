@@ -1,0 +1,75 @@
+==================== Parameter Information
+magicmind model file: /home/tanjiasheng/modelzoo/dev-magicmind_cloud/buildin/cv/classification/arcface_pytorch/data/models/arcface_qint8_mixed_float16_4.mm
+input dims type: 0
+iterations: 100
+duration: 3000
+warm_up: 200
+thread_num: 1
+bind_cluster: 0
+devices: 0 
+disable_data_copy: 0
+datatransfer_opt: 1
+kernel_capture: 0
+batch: 4
+[MMINFO]  CreateModel time is 3395 ms
+=================== Device Information
+Device ID:                    0
+Compute Capability:           3.0
+Cluster Number:               6
+IPU Clock Rate:               1 (GHz)
+Total Memory Size:            24576 (MB)
+Memory Bus Width:             384 (bits)
+Memory Clock Rate:            3.2 (GHz)
+Maximum Queue Size:           4080
+Maximum Notifer Size:         24000
+Sparse Computing Support:     0
+Host Memory Map Support:      0
+Pageable Memory Access:       1075106809
+[MMINFO]  CreateEngine time is 783 ms
+[MMINFO]  Constdata Size: 64.000000 (MB)
+[MMINFO]  ContextMaxworkspace Size: 0.382812 (MB)
+[MMINFO]  CreateContext time is 3 ms
+[MMINFO]  dev_0_thread_0_warm_up time is 206 ms
+[MMINFO]  dev_0_thread_0_e2e time is 2803 ms
+==================== Model Information 
+Buffer Info: Input
+Num: 1
+[0]: 
+  Name: main/arg-0
+  Datatype: UINT8
+  Layout: NHWC
+  Dim: [4, 112, 112, 3]
+  Size: 150528
+  Ptr Addr: 0x30180fc0410a000
+  TensorLoc: kMLU
+Buffer Info: Output
+Num: 1
+[0]: 
+  Name: main/mm.fused_batch_norm-153:0
+  Datatype: FLOAT
+  Layout: NONE
+  Dim: [4, 512]
+  Size: 8192
+  Ptr Addr: 0x30180fc04130000
+  TensorLoc: kMLU
+==================== Device Utilization Summary
+dev0_chip_util(%):            min: 24    max: 66    mean: 61.929 median: 66   
+dev0_mem_info(MB):            min: 1702  max: 1931  mean: 1783.8 median: 1702 
+dev0_power_info(W):           min: 32    max: 38    mean: 37    median: 37   
+dev0_temp_info(C):            min: 37    max: 37    mean: 37    median: 37   
+==================== Performance Summary
+Iterations:                   694
+Host Wall Time (s):           2.80374
+MLU Compute Time (s):         2.79444
+Throughput (qps):             990.106
+Enqueue Time (ms):            min: 0.081315   max: 0.42751    mean: 0.19222    median: 0.18773    percentile: (90%) 0.2131     (95%) 0.22356    (99%) 0.31935   
+H2D Latency (ms):             min: 0.04       max: 0.134      mean: 0.042899   median: 0.041      percentile: (90%) 0.045      (95%) 0.047      (99%) 0.066     
+MLU Compute Latency (ms):     min: 4.004      max: 4.128      mean: 4.0266     median: 4.027      percentile: (90%) 4.033      (95%) 4.035      (99%) 4.039     
+D2H Latency (ms):             min: 0.015      max: 0.023      mean: 0.016467   median: 0.016      percentile: (90%) 0.017      (95%) 0.022      (99%) 0.023     
+Trace averages of 100 runs:
+  MLU Compute Latency (ms): 4.0276      Enqueue: 0.18915   
+  MLU Compute Latency (ms): 4.0256      Enqueue: 0.1907    
+  MLU Compute Latency (ms): 4.0261      Enqueue: 0.1743    
+  MLU Compute Latency (ms): 4.0267      Enqueue: 0.1922    
+  MLU Compute Latency (ms): 4.0259      Enqueue: 0.19357   
+  MLU Compute Latency (ms): 4.0271      Enqueue: 0.19891   

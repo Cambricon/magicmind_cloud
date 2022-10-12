@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str)
 parser.add_argument("--output_file", type=str)
 parser.add_argument("--output_ok_file", type=str)
-parser.add_argument("--metric", type=str, choices = ["top1andtop5", "cocomAP", "vocmAP", "unet", "squad", "voc_miou", "mrpc"])
+parser.add_argument("--metric", type=str, choices = ["top1andtop5", "cocomAP", "vocmAP", "unet", "squad", "voc_miou", "1e5and1e4", "mrpc", "u2net", "cocoKeyPoints"])
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.split(__file__)[0], ""))
 report_file = "%s/eval_report.csv"%ROOT_DIR
@@ -154,6 +154,88 @@ def summary_top1andtop5(testcase_name, file, metric, result, top1_diff, top5_dif
     
     show_tb.add_row ([testcase_name, file.split("/")[-2], metric, status, top1_diff, top5_diff])
     tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, top1_diff, top5_diff])
+    
+    print(show_tb)
+    with open(report_file, "w") as f:
+        f.write(tb.get_csv_string())
+def summary_1e5and1e4(testcase_name, file, metric, result, res_1e5_diff, res_1e4_diff):
+    header = ["testcase", "file", "metric", "status", "1e5_diff", "1e4_diff"]
+    show_tb = prettytable.PrettyTable()
+    show_tb.align = "l"
+    show_tb.field_names = header
+    report_file = "%s/eval_1e5and1e4_report.csv"%ROOT_DIR
+
+    if os.path.exists(report_file):
+        with open(report_file, "r") as f:
+            tb = prettytable.from_csv(f)
+            tb.align = "l"
+    else:
+        tb = prettytable.PrettyTable()
+        tb.field_names = header
+        tb.align = "l"
+
+    if result:
+        status = "pass"
+    else:
+        status = "fail"
+    
+    show_tb.add_row ([testcase_name, file.split("/")[-2], metric, status, res_1e5_diff, res_1e4_diff])
+    tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, res_1e5_diff, res_1e4_diff])
+   
+    print(show_tb)
+    with open(report_file, "w") as f:
+        f.write(tb.get_csv_string())
+
+def summary_u2net(testcase_name, file, metric, result, mae, fmeasure):
+    header = ["testcase", "file", "metric", "status", "average_mae_diff", "max_fmeasure_diff"]
+    show_tb = prettytable.PrettyTable()
+    show_tb.align = "l"
+    show_tb.field_names = header
+    report_file = "%s/eval_u2net_report.csv"%ROOT_DIR
+    if os.path.exists(report_file):
+        with open(report_file, "r") as f:
+            tb = prettytable.from_csv(f)
+            tb.align = "l"
+    else:
+        tb = prettytable.PrettyTable()
+        tb.field_names = header
+        tb.align = "l"
+
+    if result:
+        status = "pass"
+    else:
+        status = "fail"
+    
+    show_tb.add_row ([testcase_name, file.split("/")[-1], metric, status, mae, fmeasure])
+    tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, mae, fmeasure])
+ 
+    print(show_tb)
+    with open(report_file, "w") as f:
+        f.write(tb.get_csv_string())
+
+def summary_cocoKeyPoints(testcase_name, file, metric, result, body25_diff, coco_diff):
+    header = ["testcase", "file", "metric", "status", "body25_diff", "coco_diff"]
+    show_tb = prettytable.PrettyTable()
+    show_tb.align = "l"
+    show_tb.field_names = header
+    report_file = "%s/eval_cocoKeyPoints_report.csv"%ROOT_DIR
+
+    if os.path.exists(report_file):
+        with open(report_file, "r") as f:
+            tb = prettytable.from_csv(f)
+            tb.align = "l"
+    else:
+        tb = prettytable.PrettyTable()
+        tb.field_names = header
+        tb.align = "l"
+
+    if result:
+        status = "pass"
+    else:
+        status = "fail"
+    
+    show_tb.add_row ([testcase_name, file.split("/")[-1], metric, status, body25_diff, coco_diff])
+    tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, body25_diff, coco_diff])
     
     print(show_tb)
     with open(report_file, "w") as f:
@@ -314,8 +396,8 @@ def summary_voc_miou(testcase_name, file, metric, result, voc_miou_diff):
     else:
         status = "fail"
 
-    show_tb.add_row ([testcase_name, file.split("/")[-2], metric, status, voc_miou_diff])
-    tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, voc_miou_diff])
+    show_tb.add_row ([testcase_name, file.split("/")[-1], metric, status, voc_miou_diff])
+    tb.add_row ([testcase_name ,file.split("/")[-1], metric, status, voc_miou_diff])
 
     print(show_tb)
     with open(report_file, "w") as f:
@@ -357,21 +439,30 @@ if __name__ == "__main__":
         if args.metric == "top1andtop5":
             result, top1_diff, top5_diff = compare_top1andtop5(output_file, output_ok_file)
             summary_top1andtop5(testcase_name, args.output_file, args.metric, result, top1_diff, top5_diff)
+        elif args.metric == "1e5and1e4":
+            result, top1_diff, top5_diff = compare_top1andtop5(output_file, output_ok_file)
+            summary_1e5and1e4(testcase_name, args.output_file, args.metric, result, top1_diff, top5_diff)
         elif args.metric == "cocomAP":
             result, mAP_0_5to0_95_diff, mAP_0_5_diff = compute_cocomAP(output_file, output_ok_file)
             summary_cocomAP(testcase_name, args.output_file, args.metric, result, mAP_0_5to0_95_diff, mAP_0_5_diff)
+        elif args.metric == "cocoKeyPoints":
+            result, body25_diff, coco_diff = compare_top1andtop5(output_file, output_ok_file)
+            summary_cocoKeyPoints(testcase_name, args.output_file, args.metric, result, body25_diff, coco_diff)
         elif args.metric == "vocmAP":
             result, mAP_diff = compute_vocmAP(output_file, output_ok_file)
             summary_vocmAP(testcase_name, args.output_file, args.metric, result, mAP_diff)
         elif args.metric == "unet":
             result, accuracy_diff, dice_diff, precision_diff, recall_diff = compute_unet(output_file, output_ok_file)
             summary_unet(testcase_name, args.output_file, args.metric, result, accuracy_diff, dice_diff, precision_diff, recall_diff)
+        elif args.metric == "u2net":
+            result, mae, fmeasure = compare_top1andtop5(output_file, output_ok_file)
+            summary_u2net(testcase_name, args.output_ok_file, args.metric, result, mae, fmeasure)
         elif args.metric == "squad":
             result, exact_diff, f1_diff = compute_squad(output_file, output_ok_file)
             summary_squad(testcase_name, args.output_file, args.metric, result, exact_diff, f1_diff)
         elif args.metric == "voc_miou":
             result, voc_miou_diff = compute_voc_miou(output_file, output_ok_file)
-            summary_voc_miou(testcase_name, args.output_file, args.metric, result, voc_miou_diff)
+            summary_voc_miou(testcase_name, args.output_ok_file, args.metric, result, voc_miou_diff)
         elif args.metric == "mrpc":
             result, acc_diff, f1_diff = compute_mrpc(output_file, output_ok_file)
             summary_mrpc(testcase_name, args.output_file, args.metric, result, acc_diff, f1_diff)
