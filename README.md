@@ -2,9 +2,9 @@
 
 ## 介绍
 
-MagicMind 是面向寒武纪 MLU(Machine Learning Unit,机器学习单元)的推理加速引擎。
+MagicMind 是面向寒武纪 MLU 的推理加速引擎。
 
-MagicMind 能将深度学习框架(Tensorflow,PyTorch,ONNX,Caffe 等) 训练好的算法模型转换成 MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
+MagicMind 能将 AI 框架(Tensorflow,PyTorch,ONNX,Caffe 等) 训练好的算法模型转换成 MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
 
 本仓库展示如何将 CV 分类、检测、分割、NLP、语音等场景的前沿和经典模型，通过 MagicMind 转换和优化，进而运行在基于 MagicMind 的推理加速引擎的寒武纪加速板卡上的示例程序，为开发者提供丰富的 AI 应用移植参考。
 

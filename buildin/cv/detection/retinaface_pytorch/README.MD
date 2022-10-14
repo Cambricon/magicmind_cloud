@@ -1,6 +1,6 @@
 # retinaface_pytorch
 
-MagicMind 是面向寒武纪 MLU(Machine Learning Unit,机器学习单元)的推理加速引擎。MagicMind 能将深度学习框架(Tensorflow,PyTorch,ONNX 等) 训练好的算法模型转换成 MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
+MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框架(Tensorflow,PyTorch,ONNX 等) 训练好的算法模型转换成 MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
 
 本 sample 探讨如何使用将 retinaface 网络的 PyTorch 实现转换为 MagicMind 模型，进而部署在寒武纪 MLU 板卡上。
 
@@ -28,7 +28,7 @@ MagicMind 是面向寒武纪 MLU(Machine Learning Unit,机器学习单元)的推
 
 ## 1.模型概述
 
- 本例使用的 retinaface 实现来自github开源项目https://github.com/biubug6/Pytorch_Retinaface，获取 master 分支最新代码(commit: b984b4b775b2c4dced95c1eadd195a5c7d32a60b)。下面将展示如何将该项目中 PyTorch 实现的 retinaface 模型转换为 MagicMind 的模型。
+本例使用的 retinaface 实现来自 github 开源项目https://github.com/biubug6/Pytorch_Retinaface，获取 master 分支最新代码(commit: b984b4b775b2c4dced95c1eadd195a5c7d32a60b)。下面将展示如何将该项目中 PyTorch 实现的 retinaface 模型转换为 MagicMind 的模型。
 
 ## 2.前提条件
 
@@ -106,7 +106,7 @@ Generate model done, model save to /mm_ws/proj/modelzoo/magicmind_cloud/buildin/
 
 ### 3.6 执行推理
 
-   编译 infer_cpp 目录，在当前目录输出 x86 可执行文件`infer`:
+编译 infer_cpp 目录，在当前目录输出 x86 可执行文件`infer`:
 
 ```bash
 cd $PROJ_ROOT_PATH/infer_cpp
@@ -146,10 +146,13 @@ Hard   Val AP: 0.8070893019687196
 ### 4.1export_model 细节说明
 
 修改 leaky 初始化为浮点数 0.0
+
 ```bash
 leaky = 0.0
 ```
+
 或者直接运行以下代码：
+
 ```bash
 cd $PROJ_ROOT_PATH/export_model
 # 修改Pytorch_Retinaface/models/net.py
@@ -165,6 +168,7 @@ python $PROJ_ROOT_PATH/export_model/export.py --weights $PROJ_ROOT_PATH/data/mod
 ### 4.2 gen_model 细节说明
 
 PyTorch retinaface 模型转换为 MagicMind retinaface 模型分成以下几步：
+
 - 使用 MagicMind Parser 模块将 torch.jit.trace 生成的 pt 文件解析为 MagicMind 网络结构。
 - 模型量化。
 - 使用 MagicMind Builder 模块生成 MagicMind 模型实例并保存为离线模型文件。
@@ -185,11 +189,13 @@ PyTorch retinaface 模型转换为 MagicMind retinaface 模型分成以下几步
 
 概述：
 本例使用 MagicMind C++ API 编写了名为 infer_cpp 的目标检测程序。infer_cpp 将展示如何使用 MagicMind C++ API 构建高效的 retinaface 人脸检测(图像预处理=>推理=>后处理)。其中程序主要由以下内容构成:
+
 - infer.hpp, infer.cpp: 高效率的将 MagicMind 模型运行在 MLU 板卡上。
 - pre_precess.hpp, pre_precess.cpp: 前处理。
 - post_precess.hpp, post_precess.cpp: 后处理。
 
 参数说明:
+
 - `magicmind_model`: MagicMind 模型路径。
 - `image_dir`: 输入图像目录，程序对该目录下所有后缀为 jpg 的图片执行目标检测任务。
 - `image_num`: 输入图像数量。
@@ -220,39 +226,41 @@ cd $PROJ_ROOT_PATH/benchmark
 
 得到如下性能结果：
 
-|    Model   |   Quant_Mode        | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ---------- | ------------------- | ---------- | ---------------- | ----------- |
-| retinaface | force_float32       | 1          | 22.3537          | MLU370 S4   |
-| retinaface | force_float32       | 4          | 33.2657          | MLU370 S4   |
-| retinaface | force_float32       | 8          | 27.755           | MLU370 S4   |
-| retinaface | force_float16       | 1          | 62.5968          | MLU370 S4   |
-| retinaface | force_float16       | 4          | 113.325          | MLU370 S4   |
-| retinaface | force_float16       | 8          | 104.611          | MLU370 S4   |
-| retinaface | qint8_mixed_float16 | 1          | 97.8772          | MLU370 S4   |
-| retinaface | qint8_mixed_float16 | 4          | 363.162          | MLU370 S4   |
-| retinaface | qint8_mixed_float16 | 8          | 382.091          | MLU370 S4   |
+| Model      | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
+| ---------- | ------------------- | ---------- | ---------------- | ------------ |
+| retinaface | force_float32       | 1          | 22.3537          | MLU370 S4    |
+| retinaface | force_float32       | 4          | 33.2657          | MLU370 S4    |
+| retinaface | force_float32       | 8          | 27.755           | MLU370 S4    |
+| retinaface | force_float16       | 1          | 62.5968          | MLU370 S4    |
+| retinaface | force_float16       | 4          | 113.325          | MLU370 S4    |
+| retinaface | force_float16       | 8          | 104.611          | MLU370 S4    |
+| retinaface | qint8_mixed_float16 | 1          | 97.8772          | MLU370 S4    |
+| retinaface | qint8_mixed_float16 | 4          | 363.162          | MLU370 S4    |
+| retinaface | qint8_mixed_float16 | 8          | 382.091          | MLU370 S4    |
 
-|    Model   |   Quant_Mode        | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ---------- | ------------------- | ---------- | ---------------- | ----------- |
-| retinaface | force_float32       | 1          | 22.9354          | MLU370 X4   |
-| retinaface | force_float32       | 4          | 36.7685          | MLU370 X4   |
-| retinaface | force_float32       | 8          | 35.1435          | MLU370 X4   |
-| retinaface | force_float16       | 1          | 64.2167          | MLU370 X4   |
-| retinaface | force_float16       | 4          | 117.414          | MLU370 X4   |
-| retinaface | force_float16       | 8          | 115.893          | MLU370 X4   |
-| retinaface | qint8_mixed_float16 | 1          | 97.9781          | MLU370 X4   |
-| retinaface | qint8_mixed_float16 | 4          | 366.324          | MLU370 X4   |
-| retinaface | qint8_mixed_float16 | 8          | 615.642          | MLU370 X4   |
+| Model      | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
+| ---------- | ------------------- | ---------- | ---------------- | ------------ |
+| retinaface | force_float32       | 1          | 22.9354          | MLU370 X4    |
+| retinaface | force_float32       | 4          | 36.7685          | MLU370 X4    |
+| retinaface | force_float32       | 8          | 35.1435          | MLU370 X4    |
+| retinaface | force_float16       | 1          | 64.2167          | MLU370 X4    |
+| retinaface | force_float16       | 4          | 117.414          | MLU370 X4    |
+| retinaface | force_float16       | 8          | 115.893          | MLU370 X4    |
+| retinaface | qint8_mixed_float16 | 1          | 97.9781          | MLU370 X4    |
+| retinaface | qint8_mixed_float16 | 4          | 366.324          | MLU370 X4    |
+| retinaface | qint8_mixed_float16 | 8          | 615.642          | MLU370 X4    |
 
-### 5.2精度benchmark结果
-一键运行benchmark里的脚本：
+### 5.2 精度 benchmark 结果
+
+一键运行 benchmark 里的脚本：
 
 ```bash
 cd $PROJ_ROOT_PATH/benchmark
 ./eval.sh
 ```
-通过快速使用中3.6的脚本跑出retinaface在widerface数据集上的AP如下：
-| Model  | Quant_Mode | datasets | AP |MLU板卡类型 |
+
+通过快速使用中 3.6 的脚本跑出 retinaface 在 widerface 数据集上的 AP 如下：
+| Model | Quant_Mode | datasets | AP |MLU 板卡类型 |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | retinaface | force_float32 | Easy | 0.9493 | MLU370 S4 |
 | retinaface | force_float32 | Medium | 0.9314 | MLU370 S4 |
@@ -264,23 +272,26 @@ cd $PROJ_ROOT_PATH/benchmark
 | retinaface | qint8_mixed_float16 | Medium | 0.9298 | MLU370 S4 |
 | retinaface | qint8_mixed_float16 | Hard | 0.8071 | MLU370 S4 |
 
-| Model  | Quant_Mode | datasets | AP |MLU板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| retinaface | force_float32 | Easy | 0.9493 | MLU370 X4 |
-| retinaface | force_float32 | Medium | 0.9314 | MLU370 X4 |
-| retinaface | force_float32 | Hard | 0.8093 | MLU370 X4 |
-| retinaface | force_float16 | Easy | 0.9495 | MLU370 X4 |
-| retinaface | force_float16 | Medium | 0.9315 | MLU370 X4 |
-| retinaface | force_float16 | Hard | 0.8092 | MLU370 X4 |
-| retinaface | qint8_mixed_float16 | Easy | 0.9485 | MLU370 X4 |
-| retinaface | qint8_mixed_float16 | Medium | 0.9298 | MLU370 X4 |
-| retinaface | qint8_mixed_float16 | Hard | 0.8071 | MLU370 X4 |
+| Model      | Quant_Mode          | datasets | AP     | MLU 板卡类型 |
+| ---------- | ------------------- | -------- | ------ | ------------ |
+| retinaface | force_float32       | Easy     | 0.9493 | MLU370 X4    |
+| retinaface | force_float32       | Medium   | 0.9314 | MLU370 X4    |
+| retinaface | force_float32       | Hard     | 0.8093 | MLU370 X4    |
+| retinaface | force_float16       | Easy     | 0.9495 | MLU370 X4    |
+| retinaface | force_float16       | Medium   | 0.9315 | MLU370 X4    |
+| retinaface | force_float16       | Hard     | 0.8092 | MLU370 X4    |
+| retinaface | qint8_mixed_float16 | Easy     | 0.9485 | MLU370 X4    |
+| retinaface | qint8_mixed_float16 | Medium   | 0.9298 | MLU370 X4    |
+| retinaface | qint8_mixed_float16 | Hard     | 0.8071 | MLU370 X4    |
 
 ## 6.免责声明
+
 您明确了解并同意，以下链接中的软件、数据或者模型由第三方提供并负责维护。在以下链接中出现的任何第三方的名称、商标、标识、产品或服务并不构成明示或暗示与该第三方或其软件、数据或模型的相关背书、担保或推荐行为。您进一步了解并同意，使用任何第三方软件、数据或者模型，包括您提供的任何信息或个人数据（不论是有意或无意地），应受相关使用条款、许可协议、隐私政策或其他此类协议的约束。因此，使用链接中的软件、数据或者模型可能导致的所有风险将由您自行承担。
-* WIDER_val 数据集下载链接：https://drive.google.com/uc?id=1GUCogbp16PMGa39thoMMeWxp7Rp5oM8Q
-* retinaface 模型下载链接：https://drive.google.com/uc?id=14KX6VqF69MdSPk3Tr9PlDYbq7ArpdNUW
-* retinaface GITHUB下载链接：https://github.com/biubug6/Pytorch_Retinaface.git
+
+- WIDER_val 数据集下载链接：https://drive.google.com/uc?id=1GUCogbp16PMGa39thoMMeWxp7Rp5oM8Q
+- retinaface 模型下载链接：https://drive.google.com/uc?id=14KX6VqF69MdSPk3Tr9PlDYbq7ArpdNUW
+- retinaface GITHUB 下载链接：https://github.com/biubug6/Pytorch_Retinaface.git
 
 ## 7.Release_Notes
+
 @TODO

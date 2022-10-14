@@ -1,7 +1,7 @@
 # 基于 Magicmind 适配部署 Tacotron2+Waveglow 语音合成
 
 Tacotron2 和 WaveGlow 模型构成了一个文本语音(TTS)系统，使用户能够合成自然语音。
-MagicMind 是寒武纪的推理引擎，用于在寒武纪硬件产品上加速神经网络推理任务。下面我们使用 MagicMind 来实现基于 Tacotron2 和 WaveGlow 模型的高性能语音合成任务。
+MagicMind 是寒武纪的推理引擎，用于在寒武纪硬件产品上加速 AI 推理任务。下面我们使用 MagicMind 来实现基于 Tacotron2 和 WaveGlow 模型的高性能语音合成任务。
 
 本 sample 探讨如何使用 MagicMind 来在寒武纪 MLU370 板卡上适配和部署 Tacotron2+Waveglow 模型。
 
