@@ -240,32 +240,6 @@ cd $PROJ_ROOT_PATH/benchmark
 ./perf.sh
 ```
 
-得到如下性能结果：
-
-| Model     | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| --------- | ------------------- | ---------- | ---------------- | ------------ |
-| CenterNet | force_float32       | 1          | 38.3222          | MLU370 S4    |
-| CenterNet | force_float32       | 4          | 101.571          | MLU370 S4    |
-| CenterNet | force_float32       | 8          | 96.5939          | MLU370 S4    |
-| CenterNet | force_float16       | 1          | 115.252          | MLU370 S4    |
-| CenterNet | force_float16       | 4          | 318.38           | MLU370 S4    |
-| CenterNet | force_float16       | 8          | 316.23           | MLU370 S4    |
-| CenterNet | qint8_mixed_float16 | 1          | 219.13           | MLU370 S4    |
-| CenterNet | qint8_mixed_float16 | 4          | 759.791          | MLU370 S4    |
-| CenterNet | qint8_mixed_float16 | 8          | 812.749          | MLU370 S4    |
-
-| Model     | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| --------- | ------------------- | ---------- | ---------------- | ------------ |
-| CenterNet | force_float32       | 1          | 39.2093          | MLU370 X4    |
-| CenterNet | force_float32       | 4          | 139.214          | MLU370 X4    |
-| CenterNet | force_float32       | 8          | 242.72           | MLU370 X4    |
-| CenterNet | force_float16       | 1          | 115.84           | MLU370 X4    |
-| CenterNet | force_float16       | 4          | 409.408          | MLU370 X4    |
-| CenterNet | force_float16       | 8          | 737.179          | MLU370 X4    |
-| CenterNet | qint8_mixed_float16 | 1          | 227.525          | MLU370 X4    |
-| CenterNet | qint8_mixed_float16 | 4          | 740.679          | MLU370 X4    |
-| CenterNet | qint8_mixed_float16 | 8          | 1285.24          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

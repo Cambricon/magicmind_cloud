@@ -164,22 +164,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | QuantMode_ShapeMutable_BatchSize | Throughput (qps) | MLU compute Latency Avg (ms) | 95% (ms) | 99% (ms) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| transformers | force_float32_false_1 | 101.236 | 9.8658 | 10.078 | 10.078 | MLU370 S4 |
-| transformers | force_float32_false_4 | 209.179 | 19.11 | 23.426 | 25.209 | MLU370 S4 |
-| transformers | force_float32_false_8 | 217.772 | 36.722 | 44.843 | 48.263 | MLU370 S4 |
-| transformers | force_float16_false_1 | 138.082 | 7.227 | 7.193 | 7.213 | MLU370 S4|
-| transformers | force_float16_false_4 | 379.543 | 10.525 | 11.16 | 11.926 | MLU370 S4 |
-| transformers | force_float16_false_8 | 440.841 | 18.133 | 20.622 | 23.722 | MLU370 S4 |
-| transformers | force_float32_false_1 | 107.878 | 9.2568 | 9.546 | 9.679 | MLU370 X4 |
-| transformers | force_float32_false_4 | 265.152 | 15.074 |15.507 | 15.635 | MLU370 X4 |
-| transformers | force_float32_false_8 | 357.992 | 22.335 | 22.824 | 22.914 | MLU370 X4 |
-| transformers | force_float16_false_1 | 139.096 | 7.1756 | 7.259 | 7.364 | MLU370 X4 |
-| transformers | force_float16_false_4 | 421.502 | 9.4723 | 9.72 | 9.858 | MLU370 X4 |
-| transformers | force_float16_false_8 | 630.099 | 12.685 | 13.062 | 13.291 | MLU370 X4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

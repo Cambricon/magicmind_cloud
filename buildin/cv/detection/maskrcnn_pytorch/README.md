@@ -208,17 +208,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-_待更新_
-| Model | QuantMode_ShapeMutable_BatchSize | Throughput (qps) | MLU compute Latency Avg (ms) | 95% (ms) | 99% (ms) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| maskrcnn | force_float32_true_1 | 7.68529 | 130.08 | 138.09 | 141.11 | MLU370 S4 |
-| maskrcnn | force_float32_true_4 | 8.37917 |477.28 | 492.03 | 497.89 | MLU370 S4 |
-| maskrcnn | force_float32_true_8 | 7.17817 | 1114.3 | 1135.8 | 1147.3 | MLU370 S4 |
-| maskrcnn | force_float32_true_1 | 14.46 | 69.131 | 70.845 | 72.251 | MLU370 X4 |
-| maskrcnn | force_float32_true_4 | 17.9008 | 223.42 | 226.31 |227.69 | MLU370 X4 |
-| maskrcnn | force_float32_true_8 | 19.0615 | 419.24 | 422.42 | 425.38 | MLU370 X4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

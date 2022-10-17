@@ -204,50 +204,6 @@ cd $PROJ_ROOT_PATH/benchmark
 ./perf.sh
 ```
 
-得到如下性能结果：
-
-| Model   | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------- | ------------------- | ---------- | ---------------- | ------------ |
-| BODY_25 | force_float32       | 1          | 13.2472          | MLU370 S4    |
-| BODY_25 | force_float32       | 4          | 19.3514          | MLU370 S4    |
-| BODY_25 | force_float32       | 8          | 19.7939          | MLU370 S4    |
-| BODY_25 | force_float16       | 1          | 37.8034          | MLU370 S4    |
-| BODY_25 | force_float16       | 4          | 82.2583          | MLU370 S4    |
-| BODY_25 | force_float16       | 8          | 81.8625          | MLU370 S4    |
-| BODY_25 | qint8_mixed_float16 | 1          | 76.3648          | MLU370 S4    |
-| BODY_25 | qint8_mixed_float16 | 4          | 298.924          | MLU370 S4    |
-| BODY_25 | qint8_mixed_float16 | 8          | 304.545          | MLU370 S4    |
-| COCO    | force_float32       | 1          | 14.4412          | MLU370 S4    |
-| COCO    | force_float32       | 4          | 17.4236          | MLU370 S4    |
-| COCO    | force_float32       | 8          | 17.6475          | MLU370 S4    |
-| COCO    | force_float16       | 1          | 17.816           | MLU370 S4    |
-| COCO    | force_float16       | 4          | 53.3254          | MLU370 S4    |
-| COCO    | force_float16       | 8          | 53.7895          | MLU370 S4    |
-| COCO    | qint8_mixed_float16 | 1          | 48.7534          | MLU370 S4    |
-| COCO    | qint8_mixed_float16 | 4          | 186.823          | MLU370 S4    |
-| COCO    | qint8_mixed_float16 | 8          | 190.188          | MLU370 S4    |
-
-| Model   | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------- | ------------------- | ---------- | ---------------- | ------------ |
-| BODY_25 | force_float32       | 1          | 14.9537          | MLU370 X4    |
-| BODY_25 | force_float32       | 4          | 38.4633          | MLU370 X4    |
-| BODY_25 | force_float32       | 8          | 46.5278          | MLU370 X4    |
-| BODY_25 | force_float16       | 1          | 39.0592          | MLU370 X4    |
-| BODY_25 | force_float16       | 4          | 134.324          | MLU370 X4    |
-| BODY_25 | force_float16       | 8          | 209.517          | MLU370 X4    |
-| BODY_25 | qint8_mixed_float16 | 1          | 76.8276          | MLU370 X4    |
-| BODY_25 | qint8_mixed_float16 | 4          | 302.866          | MLU370 X4    |
-| BODY_25 | qint8_mixed_float16 | 8          | 570.515          | MLU370 X4    |
-| COCO    | force_float32       | 1          | 15.8897          | MLU370 X4    |
-| COCO    | force_float32       | 4          | 26.7866          | MLU370 X4    |
-| COCO    | force_float32       | 8          | 30.1957          | MLU370 X4    |
-| COCO    | force_float16       | 1          | 18.1144          | MLU370 X4    |
-| COCO    | force_float16       | 4          | 58.8773          | MLU370 X4    |
-| COCO    | force_float16       | 8          | 97.0313          | MLU370 X4    |
-| COCO    | qint8_mixed_float16 | 1          | 48.9694          | MLU370 X4    |
-| COCO    | qint8_mixed_float16 | 4          | 186.582          | MLU370 X4    |
-| COCO    | qint8_mixed_float16 | 8          | 359.509          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

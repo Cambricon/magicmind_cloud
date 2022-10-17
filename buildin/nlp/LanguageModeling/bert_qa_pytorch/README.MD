@@ -211,25 +211,6 @@ cd $PROJ_ROOT_PATH/benchmark
 ./perf.sh
 ```
 
-得到如下性能结果：
-| Model | Max_Seq_Length | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| bert_qa | 128 | force_float32 | 1 | 80.6725 | MLU370 S4 |
-| bert_qa | 128 | force_float32 | 4 | 177.147 | MLU370 S4 |
-| bert_qa | 128 | force_float32 | 8 | 189.017 | MLU370 S4 |
-| bert_qa | 128 | force_float16 | 1 | 361.048 | MLU370 S4 |
-| bert_qa | 128 | force_float16 | 4 | 596.094 | MLU370 S4 |
-| bert_qa | 128 | force_float16 | 8 | 631.545 | MLU370 S4 |
-
-| Model   | Max_Seq_Length | Quant_Mode    | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------- | -------------- | ------------- | ---------- | ---------------- | ------------ |
-| bert_qa | 128            | force_float32 | 1          | 84.9537          | MLU370 X4    |
-| bert_qa | 128            | force_float32 | 4          | 213.327          | MLU370 X4    |
-| bert_qa | 128            | force_float32 | 8          | 300.279          | MLU370 X4    |
-| bert_qa | 128            | force_float16 | 1          | 513.283          | MLU370 X4    |
-| bert_qa | 128            | force_float16 | 4          | 1102.05          | MLU370 X4    |
-| bert_qa | 128            | force_float16 | 8          | 1561.42          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

@@ -156,19 +156,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| segnet | force_float32 | 1 | 63.6736 | MLU370 S4 |
-| segnet | force_float32 | 4 | 112.772 | MLU370 S4 |
-| segnet | force_float32 | 8 | 108.305 | MLU370 S4 |
-| segnet | force_float16 | 1 | 146.721 | MLU370 S4 |
-| segnet | force_float16 | 4 | 361.346 | MLU370 S4 |
-| segnet | force_float16 | 8 | 365.014 | MLU370 S4 |
-| segnet | qint8_mixed_float16 | 1 | 235.532 | MLU370 S4 |
-| segnet | qint8_mixed_float16 | 4 | 835.412 | MLU370 S4 |
-| segnet | qint8_mixed_float16 | 8 | 917.507 | MLU370 S4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 segnet 在 VOC2012 数据集上的 mIOU 如下：

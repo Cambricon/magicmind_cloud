@@ -164,31 +164,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| nnUNet | force_float32 | 1 | 31.3452 | MLU370 S4 |
-| nnUNet | force_float32 | 4 | 96.2349 | MLU370 S4 |
-| nnUNet | force_float32 | 8 | 123.651 | MLU370 S4 |
-| nnUNet | force_float16 | 1 | 39.9741 | MLU370 S4 |
-| nnUNet | force_float16 | 4 | 144.811 | MLU370 S4 |
-| nnUNet | force_float16 | 8 | 236.551 | MLU370 S4 |
-| nnUNet | qint8_mixed_float16 | 1 | 43.6192 | MLU370 S4 |
-| nnUNet | qint8_mixed_float16 | 4 | 164.225 | MLU370 S4 |
-| nnUNet | qint8_mixed_float16 | 8 | 291.196 | MLU370 S4 |
-
-| Model  | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------ | ------------------- | ---------- | ---------------- | ------------ |
-| nnUNet | force_float32       | 1          | 32.0963          | MLU370 X4    |
-| nnUNet | force_float32       | 4          | 108.556          | MLU370 X4    |
-| nnUNet | force_float32       | 8          | 177.243          | MLU370 X4    |
-| nnUNet | force_float16       | 1          | 39.9396          | MLU370 X4    |
-| nnUNet | force_float16       | 4          | 147.202          | MLU370 X4    |
-| nnUNet | force_float16       | 8          | 269.463          | MLU370 X4    |
-| nnUNet | qint8_mixed_float16 | 1          | 44.0199          | MLU370 X4    |
-| nnUNet | qint8_mixed_float16 | 4          | 160.633          | MLU370 X4    |
-| nnUNet | qint8_mixed_float16 | 8          | 298.186          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 nnUNet 在 IMAGENET2012 数据集上的 TOP1 和 TOP5 如下：

@@ -217,19 +217,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| VGG16 | force_float32 | 1 | 112.941 | MLU370 S4 |
-| VGG16 | force_float32 | 4 | 226.015 | MLU370 S4 |
-| VGG16 | force_float32 | 8 | 229.632 | MLU370 S4 |
-| VGG16 | force_float16 | 1 | 247.438 | MLU370 S4 |
-| VGG16 | force_float16 | 4 | 637.497 | MLU370 S4 |
-| VGG16 | force_float16 | 8 | 716.345 | MLU370 S4 |
-| VGG16 | qint8_mixed_float16 | 1 | 482.073 | MLU370 S4 |
-| VGG16 | qint8_mixed_float16 | 4 | 1839.11 | MLU370 S4 |
-| VGG16 | qint8_mixed_float16 | 8 | 2410.12 | MLU370 S4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 VGG16 在 IMAGENET2012 数据集上的 TOP1 和 TOP5 如下：

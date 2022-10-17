@@ -192,19 +192,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| alexnet | force_float32 | 1 | 472.791 | MLU370 S4 |
-| alexnet | force_float32 | 4 | 1536.56 | MLU370 S4 |
-| alexnet | force_float32 | 8 | 2372.29 | MLU370 S4 |
-| alexnet | force_float16 | 1 | 1033 | MLU370 S4 |
-| alexnet | force_float16 | 4 | 3618.19 | MLU370 S4 |
-| alexnet | force_float16 | 8 | 6063.42 | MLU370 S4 |
-| alexnet | qint8_mixed_float16 | 1 | 1776.65 | MLU370 S4 |
-| alexnet | qint8_mixed_float16 | 4 | 6428.9 | MLU370 S4 |
-| alexnet | qint8_mixed_float16 | 8 | 10749.2 | MLU370 S4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 alexnet 在 IMAGENET2012 数据集上的 TOP1 和 TOP5 如下：

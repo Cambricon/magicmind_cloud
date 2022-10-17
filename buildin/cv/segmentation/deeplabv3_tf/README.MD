@@ -162,16 +162,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | Quant_Mode | Shape_Mutable(H/W) | (H/W)| Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| deeplabv3_tf | force_float32 | true | 513/513 | 41.9964 | MLU370 S4 |
-| deeplabv3_tf | force_float16 | true | 513/513 | 46.2465 | MLU370 S4 |
-| deeplabv3_tf | qint8_mixed_float16 | true | 513/513 | 47.1758 | MLU370 S4 |
-| deeplabv3_tf | force_float32 | false | 513/513 | 42.1686 | MLU370 S4 |
-| deeplabv3_tf | force_float16 | false | 513/513 | 47.1693 | MLU370 S4 |
-| deeplabv3_tf | qint8_mixed_float16 | false | 513/513 | 47.4675 | MLU370 S4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 deeplabv3_tf 在 VOC2012 数据集上的 mIOU 如下：

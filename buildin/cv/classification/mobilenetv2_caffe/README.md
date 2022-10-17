@@ -181,28 +181,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | QuantMode_ShapeMutable_BatchSize | Throughput (qps) | MLU compute Latency Avg (ms) | 95% (ms) | 99% (ms) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| mobilenetv2 | force_float32_false_1 | 510.669 | 1.9469 | 1.949 | 1.95 | MLU370 S4 |
-| mobilenetv2 | force_float32_false_4 | 1657.69 | 2.4014 | 2.406 | 2.408 | MLU370 S4 |
-| mobilenetv2 | force_float32_false_8 | 1980.05 | 4.0286 |4.035| 4.038 | MLU370 S4 |
-| mobilenetv2 | force_float16_false_1 | 1282.29 | 0.7687 | 0.77 | 0.77 | MLU370 S4 |
-| mobilenetv2 | force_float16_false_4 | 2653.99| 0.66002 |1.532 | 1.563 | MLU370 S4 |
-| mobilenetv2 | force_float16_false_8 | 4485.59 | 1.7719 | 1.775 | 1.784 | MLU370 S4 |
-| mobilenetv2 | qint8_mixed_float16_false_4 | 1486.99 | 7.1393 | 0.684 | 0.719 | MLU370 S4 |
-| mobilenetv2 | qint8_mixed_float16_false_1 | 3051.86 | 1.2993 |1.301 | 1.302 | MLU370 S4 |
-| mobilenetv2 | qint8_mixed_float16_false_8 | 5120.48 | 1.5508 | 1.553 | 1.554 | MLU370 S4 |
-| mobilenetv2 | force_float32_false_1 | 512.515 | 1.9413 | 1.943 | 1.945 | MLU370 X4 |
-| mobilenetv2 | force_float32_false_4 | 1564.34 | 2.547 | 2.552 | 2.554 | MLU370 X4 |
-| mobilenetv2 | force_float32_false_8 | 2868.95 | 2.7785 | 2.784 | 2.787 | MLU370 X4 |
-| mobilenetv2 | force_float16_false_1 | 1277.69 | 0.76645| 0.768 | 0.769 | MLU370 X4 |
-| mobilenetv2 | force_float16_false_4 | 2583.19| 1.5334 | 1.537 | 1.538 | MLU370 X4 |
-| mobilenetv2 | force_float16_false_8 | 5110.23 | 1.5557 | 1.558 | 1.559 | MLU370 X4 |
-| mobilenetv2 | qint8_mixed_float16_false_1 | 1508.74 | 0.65242 | 0.653 | 0.654 | MLU370 X4 |
-| mobilenetv2 | qint8_mixed_float16_false_4 | 2991.76 | 1.3226 | 1.324 | 1.325 | MLU370 X4 |
-| mobilenetv2 | qint8_mixed_float16_false_8 | 5921.19 | 1.341 | 1.343 | 1.353 | MLU370 X4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

@@ -250,19 +250,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| senet50 | force_float32 | 1 | 148.886 | MLU370 S4 |
-| senet50 | force_float32 | 4 | 502.273 | MLU370 S4 |
-| senet50 | force_float32 | 8 | 639.769 | MLU370 S4 |
-| senet50 | force_float16 | 1 | 432.858 | MLU370 S4 |
-| senet50 | force_float16 | 4 | 1521.19 | MLU370 S4 |
-| senet50 | force_float16 | 8 | 2016.01 | MLU370 S4 |
-| senet50 | qint8_mixed_float16 | 1 | 740.109 | MLU370 S4 |
-| senet50 | qint8_mixed_float16 | 4 | 2711.33 | MLU370 S4 |
-| senet50 | qint8_mixed_float16 | 8 | 3499.75 | MLU370 S4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 Squeezenet v1.1 在 IMAGENET2012 数据集上的 TOP1 和 TOP5 如下：

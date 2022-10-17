@@ -198,28 +198,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | QuantMode_ShapeMutable_BatchSize | Throughput (qps) | MLU compute Latency Avg (ms) | 95% (ms) | 99% (ms) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| yolov3_tiny | force_float32_false_1 | 425.298 | 2.3402 | 2.501 | 2.626 | MLU370 S4 |
-| yolov3_tiny | force_float32_false_4 | 1081.64 |3.6866 | 4.105 | 4.275 | MLU370 S4 |
-| yolov3_tiny | force_float32_false_8 | 1087.81 | 7.3423 | 8.392 | 8.725 | MLU370 S4 |
-| yolov3_tiny | force_float16_false_1 | 891.936 | 1.1099 | 1.243 | 1.336 | MLU370 S4|
-| yolov3_tiny | force_float16_false_4 | 3113.07 | 1.2735 | 1.422 | 1.505 | MLU370 S4 |
-| yolov3_tiny | force_float16_false_8 | 3233.71 | 2.4622 | 2.9 | 3.009 | MLU370 S4 |
-| yolov3_tiny | qint8_mixed_float16_false_1 | 1666.3 | 0.58854 | 0.59 | 0.59 | MLU370 S4 |
-| yolov3_tiny | qint8_mixed_float16_false_4 | 5823.68 | 0.67619 | 0.679 | 0.681 | MLU370 S4 |
-| yolov3_tiny | qint8_mixed_float16_false_8 | 6505.94 | 1.2185 | 1.222 | 1.224 | MLU370 S4 |
-| yolov3_tiny | force_float32_false_1 | 445.322 | 2.2359 | 2.236 | 2.241 | MLU370 X4 |
-| yolov3_tiny | force_float32_false_4 | 1384.06 | 2.8801 |2.886| 2.889 | MLU370 X4 |
-| yolov3_tiny | force_float32_false_8 | 2213 | 3.5804 | 3.63 | 3.723 | MLU370 X4 |
-| yolov3_tiny | force_float16_false_1 | 919.19| 1.0728 | 1.075 | 1.081 | MLU370 X4 |
-| yolov3_tiny | force_float16_false_4 | 3196.63 | 1.2389 | 1.241 | 1.249 | MLU370 X4 |
-| yolov3_tiny | force_float16_false_8 | 6013.67 | 1.3145 | 1.341 | 1.348 | MLU370 X4 |
-| yolov3_tiny | qint8_mixed_float16_false_1 | 1744.59 | 0.56291 | 0.564 | 0.575 | MLU370 X4 |
-| yolov3_tiny | qint8_mixed_float16_false_4 | 5304.85| 0.74044 | 0.743 | 0.747 | MLU370 X4 |
-| yolov3_tiny | qint8_mixed_float16_false_8 | 9926.99 | 0.79082| 0.794 | 0.798 | MLU370 X4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

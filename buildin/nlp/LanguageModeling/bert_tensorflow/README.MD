@@ -149,16 +149,6 @@ cd $PROJ_ROOT_PATH/benchmark
 ./perf.sh
 ```
 
-得到如下性能结果：
-| Model | Max_Seq_Length | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| bert | 384 | force_float32 | 1 | 426.365 | MLU370 X4 |
-| bert | 384 | force_float32 | 4 | 1027.74 | MLU370 X4 |
-| bert | 384 | force_float32 | 8 | 1290.44 | MLU370 X4 |
-| bert | 384 | force_float16 | 1 | 505.115 | MLU370 X4 |
-| bert | 384 | force_float16 | 4 | 1239.89 | MLU370 X4 |
-| bert | 384 | force_float16 | 8 | 1697.31 | MLU370 X4 |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

@@ -228,32 +228,6 @@ cd $PROJ_ROOT_PATH/benchmark
 bash perf.sh qint8_mixed_float16_1.mm 1
 ```
 
-得到如下性能结果：
-
-| Model   | Quant_Mode         | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------- | ------------------ | ---------- | ---------------- | ------------ |
-| arcface | forced float32     | 1          | 84.3575          | MLU370 S4    |
-| arcface | forced float32     | 4          | 257.861          | MLU370 S4    |
-| arcface | forced float32     | 8          | 283.501          | MLU370 S4    |
-| arcface | forced float16     | 1          | 250.021          | MLU370 S4    |
-| arcface | forced float16     | 4          | 578.49           | MLU370 S4    |
-| arcface | forced float16     | 8          | 820.806          | MLU370 S4    |
-| arcface | int8 mixed float16 | 1          | 489.927          | MLU370 S4    |
-| arcface | int8 mixed float16 | 4          | 989.652          | MLU370 S4    |
-| arcface | int8 mixed float16 | 8          | 1730.93          | MLU370 S4    |
-
-| Model   | Quant_Mode         | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------- | ------------------ | ---------- | ---------------- | ------------ |
-| arcface | forced float32     | 1          | 85.2637          | MLU370 X4    |
-| arcface | forced float32     | 4          | 272.33           | MLU370 X4    |
-| arcface | forced float32     | 8          | 487.858          | MLU370 X4    |
-| arcface | forced float16     | 1          | 250.131          | MLU370 X4    |
-| arcface | forced float16     | 4          | 542.211          | MLU370 X4    |
-| arcface | forced float16     | 8          | 1124.57          | MLU370 X4    |
-| arcface | int8 mixed float16 | 1          | 499.161          | MLU370 X4    |
-| arcface | int8 mixed float16 | 4          | 916.46           | MLU370 X4    |
-| arcface | int8 mixed float16 | 8          | 1721.63          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

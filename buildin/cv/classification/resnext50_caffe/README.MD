@@ -218,32 +218,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-@TODO:update the performance data
-| Model | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| resnext50 | forced float32 | 1 | 109.914 | MLU370 S4 |
-| resnext50 | forced float32 | 4 | 397.524 | MLU370 S4 |
-| resnext50 | forced float32 | 8 | 487.416 | MLU370 S4 |
-| resnext50 | forced float16 | 1 | 332.094 | MLU370 S4 |
-| resnext50 | forced float16 | 4 | 1211.54 | MLU370 S4 |
-| resnext50 | forced float16 | 8 | 1581.84 | MLU370 S4 |
-| resnext50 | int8 mixed float16 | 1 | 512.316 | MLU370 S4 |
-| resnext50 | int8 mixed float16 | 4 | 1920.46 | MLU370 S4 |
-| resnext50 | int8 mixed float16 | 8 | 2540.15 | MLU370 S4 |
-
-| Model     | Quant_Mode         | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| --------- | ------------------ | ---------- | ---------------- | ------------ |
-| resnext50 | forced float32     | 1          | 111.743          | MLU370 X4    |
-| resnext50 | forced float32     | 4          | 353.837          | MLU370 X4    |
-| resnext50 | forced float32     | 8          | 659.514          | MLU370 X4    |
-| resnext50 | forced float16     | 1          | 328.828          | MLU370 X4    |
-| resnext50 | forced float16     | 4          | 1051.24          | MLU370 X4    |
-| resnext50 | forced float16     | 8          | 1987.1           | MLU370 X4    |
-| resnext50 | int8 mixed float16 | 1          | 517.799          | MLU370 X4    |
-| resnext50 | int8 mixed float16 | 4          | 1694.94          | MLU370 X4    |
-| resnext50 | int8 mixed float16 | 8          | 3193.17          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 resnext50 在 IMAGENET2012 数据集上的 TOP1 和 TOP5 如下：

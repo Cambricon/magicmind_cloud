@@ -275,32 +275,6 @@ cd $PROJ_ROOT_PATH/benchmark
 ./perf.sh
 ```
 
-得到如下性能结果：
-
-| Model  | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------ | ------------------- | ---------- | ---------------- | ------------ |
-| YoloV5 | force_float32       | 1          | 28.1165          | MLU370 S4    |
-| YoloV5 | force_float32       | 4          | 96.5386          | MLU370 S4    |
-| YoloV5 | force_float32       | 8          | 96.7644          | MLU370 S4    |
-| YoloV5 | force_float16       | 1          | 56.5703          | MLU370 S4    |
-| YoloV5 | force_float16       | 4          | 210.995          | MLU370 S4    |
-| YoloV5 | force_float16       | 8          | 218.893          | MLU370 S4    |
-| YoloV5 | qint8_mixed_float16 | 1          | 77.6011          | MLU370 S4    |
-| YoloV5 | qint8_mixed_float16 | 4          | 306.278          | MLU370 S4    |
-| YoloV5 | qint8_mixed_float16 | 8          | 313.798          | MLU370 S4    |
-
-| Model  | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------ | ------------------- | ---------- | ---------------- | ------------ |
-| YoloV5 | force_float32       | 1          | 28.7968          | MLU370 X4    |
-| YoloV5 | force_float32       | 4          | 104.895          | MLU370 X4    |
-| YoloV5 | force_float32       | 8          | 193.116          | MLU370 X4    |
-| YoloV5 | force_float16       | 1          | 57.2007          | MLU370 X4    |
-| YoloV5 | force_float16       | 4          | 215.304          | MLU370 X4    |
-| YoloV5 | force_float16       | 8          | 420.021          | MLU370 X4    |
-| YoloV5 | qint8_mixed_float16 | 1          | 77.5678          | MLU370 X4    |
-| YoloV5 | qint8_mixed_float16 | 4          | 297.881          | MLU370 X4    |
-| YoloV5 | qint8_mixed_float16 | 8          | 588.423          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

@@ -172,29 +172,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-
-| Model | QuantMode_ShapeMutable_BatchSize | Throughput (qps) | MLU compute Latency Avg (ms) | 95% (ms) | 99% (ms) | MLU 板卡类型 |
-| ----- | -------------------------------- | ---------------- | ---------------------------- | -------- | -------- | ------------ |
-| C3D   | force_float32_false_1            | 26.4652          | 37.773                       | 54.082   | 60.456   | MLU370 S4    |
-| C3D   | force_float32_false_4            | 71.2793          | 56.105                       | 78.788   | 82.389   | MLU370 S4    |
-| C3D   | force_float32_false_8            | 100.814          | 79.34                        | 101.92   | 105.91   | MLU370 S4    |
-| C3D   | force_float16_false_1            | 66.162           | 15.101                       | 33.546   | 37.718   | MLU370 S4    |
-| C3D   | force_float16_false_4            | 192.492          | 20.767                       | 43.44    | 47.214   | MLU370 S4    |
-| C3D   | force_float16_false_8            | 291.771          | 27.405                       | 50.877   | 55.092   | MLU370 S4    |
-| C3D   | qint8_mixed_float16_false_1      | 252.96           | 3.9402                       | 6.127    | 28.382   | MLU370 S4    |
-| C3D   | qint8_mixed_float16_false_4      | 514.704          | 7.7583                       | 25.211   | 34.051   | MLU370 S4    |
-| C3D   | qint8_mixed_float16_false_8      | 671.644          | 11.898                       | 14.984   | 38.591   | MLU370 S4    |
-| C3D   | force_float32_false_1            | 30.0278          | 33.29                        | 37.234   | 47.184   | MLU370 X4    |
-| C3D   | force_float32_false_4            | 91.3226          | 43.789                       | 57.619   | 61.683   | MLU370 X4    |
-| C3D   | force_float32_false_8            | 145.804          | 54.855                       | 70.214   | 74.407   | MLU370 X4    |
-| C3D   | force_float16_false_1            | 80.3762          | 12.424                       | 19.16    | 30.125   | MLU370 X4    |
-| C3D   | force_float16_false_4            | 261.985          | 15.253                       | 20.272   | 31.963   | MLU370 X4    |
-| C3D   | force_float16_false_8            | 427.534          | 18.7                         | 28.095   | 38.22    | MLU370 X4    |
-| C3D   | qint8_mixed_float16_false_1      | 322.206          | 2.9381                       | 3.383    | 9.355    | MLU370 X4    |
-| C3D   | qint8_mixed_float16_false_4      | 752.547          | 5.2258                       | 7.167    | 18.346   | MLU370 X4    |
-| C3D   | qint8_mixed_float16_false_8      | 1019.77          | 7.7997                       | 11.537   | 27.926   | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

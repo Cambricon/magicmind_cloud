@@ -224,32 +224,6 @@ cd $PROJ_ROOT_PATH/benchmark
 ./perf.sh
 ```
 
-得到如下性能结果：
-
-| Model      | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ---------- | ------------------- | ---------- | ---------------- | ------------ |
-| retinaface | force_float32       | 1          | 22.3537          | MLU370 S4    |
-| retinaface | force_float32       | 4          | 33.2657          | MLU370 S4    |
-| retinaface | force_float32       | 8          | 27.755           | MLU370 S4    |
-| retinaface | force_float16       | 1          | 62.5968          | MLU370 S4    |
-| retinaface | force_float16       | 4          | 113.325          | MLU370 S4    |
-| retinaface | force_float16       | 8          | 104.611          | MLU370 S4    |
-| retinaface | qint8_mixed_float16 | 1          | 97.8772          | MLU370 S4    |
-| retinaface | qint8_mixed_float16 | 4          | 363.162          | MLU370 S4    |
-| retinaface | qint8_mixed_float16 | 8          | 382.091          | MLU370 S4    |
-
-| Model      | Quant_Mode          | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ---------- | ------------------- | ---------- | ---------------- | ------------ |
-| retinaface | force_float32       | 1          | 22.9354          | MLU370 X4    |
-| retinaface | force_float32       | 4          | 36.7685          | MLU370 X4    |
-| retinaface | force_float32       | 8          | 35.1435          | MLU370 X4    |
-| retinaface | force_float16       | 1          | 64.2167          | MLU370 X4    |
-| retinaface | force_float16       | 4          | 117.414          | MLU370 X4    |
-| retinaface | force_float16       | 8          | 115.893          | MLU370 X4    |
-| retinaface | qint8_mixed_float16 | 1          | 97.9781          | MLU370 X4    |
-| retinaface | qint8_mixed_float16 | 4          | 366.324          | MLU370 X4    |
-| retinaface | qint8_mixed_float16 | 8          | 615.642          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本：

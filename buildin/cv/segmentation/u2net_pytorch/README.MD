@@ -158,31 +158,6 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-得到如下性能结果：
-| Model | Quant_Mode | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| u2net | force_float32 | 1 | 34.5137 | MLU370 S4 |
-| u2net | force_float32 | 4 | 54.8677 | MLU370 S4 |
-| u2net | force_float32 | 8 | 58.3338 | MLU370 S4 |
-| u2net | force_float16 | 1 | 64.6213 | MLU370 S4 |
-| u2net | force_float16 | 4 | 121.846 | MLU370 S4 |
-| u2net | force_float16 | 8 | 141.88 | MLU370 S4 |
-| u2net | qint16_mixed_float32 | 1 | 53.3801 | MLU370 S4 |
-| u2net | qint16_mixed_float32 | 4 | 86.3547 | MLU370 S4 |
-| u2net | qint16_mixed_float32 | 8 | 96.3341 | MLU370 S4 |
-
-| Model | Quant_Mode           | Batch_Size | Throughput (qps) | MLU 板卡类型 |
-| ----- | -------------------- | ---------- | ---------------- | ------------ |
-| u2net | force_float32        | 1          | 37.7032          | MLU370 X4    |
-| u2net | force_float32        | 4          | 68.5801          | MLU370 X4    |
-| u2net | force_float32        | 8          | 77.643           | MLU370 X4    |
-| u2net | force_float16        | 1          | 69.3775          | MLU370 X4    |
-| u2net | force_float16        | 4          | 141.702          | MLU370 X4    |
-| u2net | force_float16        | 8          | 174.42           | MLU370 X4    |
-| u2net | qint16_mixed_float32 | 1          | 56.8866          | MLU370 X4    |
-| u2net | qint16_mixed_float32 | 4          | 97.7327          | MLU370 X4    |
-| u2net | qint16_mixed_float32 | 8          | 111.602          | MLU370 X4    |
-
 ### 5.2 精度 benchmark 结果
 
 一键运行 benchmark 里的脚本跑出 u2net 在 MSRA-B 数据集上的 mae 和 fmeasure 如下：
