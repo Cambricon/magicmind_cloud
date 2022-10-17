@@ -16,9 +16,9 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [执行推理](#3.5执行推理)
   - [一键运行](#3.6一键运行)
 - [高级说明](#4.高级说明)
-  - [export_model 细节说明](#4.1export_model细节说明)
-  - [gen_model 细节说明](#4.2gen_model细节说明)
-  - [infer_python 细节说明](#4.3infer_python细节说明)
+  - [export_model 高级说明](#4.1export_model高级说明)
+  - [gen_model 高级说明](#4.2gen_model高级说明)
+  - [infer_python 高级说明](#4.3infer_python高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -99,7 +99,7 @@ bash run.sh force_float32 true 1 384
 
 ## 4.高级说明
 
-### 4.1gen_model 细节说明
+### 4.1gen_model 高级说明
 
 Tensorflow bert 模型转换为 MagicMind bert 模型分成以下几步：
 
@@ -115,7 +115,7 @@ Tensorflow bert 模型转换为 MagicMind bert 模型分成以下几步：
 - `batch_size`: 生成可变模型时 batch_size 可以随意取值，生成不可变模型时 batch_size 的取值需要对应 pt 的输入维度。
 - `max_seq_length`: max_seq_length。
 
-### 4.2infer_python 细节说明
+### 4.2infer_python 高级说明
 
 本例使用 MagicMind PYTHON API 编写了名为 infer_python 的目标检测程序。infer_python 将展示如何使用 MagicMind PYTHON API 构建高效的 bert demo(预处理=>推理=>后处理)。
 MagicMind 提供推理能力的类为 Engine 和 Context。其中一个 Engine 实例可使用一张 MLU 板卡。一个 Engine 实例可创建多个 Context 实例来向 MLU 下发任务。一个 Context 实例可使用一个 Queue 实例下发任务，同一个 Context 不能通过多个不同的 Queue 下发任务。多个 Context 实例可以通过同一个 Queue 实例下发任务。更多详细信息请参考《Cambricon-MagicMind-User-Guide》中编程模型章节。

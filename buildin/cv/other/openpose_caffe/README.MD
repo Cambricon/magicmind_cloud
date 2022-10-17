@@ -16,8 +16,8 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [执行推理](#3.5执行推理)
   - [一键运行](#3.6一键运行)
 - [高级说明](#4.高级说明)
-  - [gen_model 细节说明](#4.1gen_model细节说明)
-  - [infer_cpp 细节说明](#4.2infer_cpp细节说明)
+  - [gen_model 高级说明](#4.1gen_model高级说明)
+  - [infer_cpp 高级说明](#4.2infer_cpp高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -147,7 +147,7 @@ python $UTILS_PATH/compute_coco_keypoints.py --ann_file $DATASETS_PATH/annotatio
 
 ## 4.高级说明
 
-### 4.1gen_model 细节说明
+### 4.1gen_model 高级说明
 
 Caffe openpose 模型转换为 MagicMind yolov5 模型分成以下几步：
 
@@ -167,7 +167,7 @@ Caffe openpose 模型转换为 MagicMind yolov5 模型分成以下几步：
 - `calibrate_list`: 输入图片文件列表，使用列表中文件做为输入进行模型量化。
 - `device_id`: 设备号。
 
-### 4.2infer_cpp 细节说明
+### 4.2infer_cpp 高级说明
 
 概述：
 本例使用 MagicMind C++ API 编写了名为 infer_cpp 的模型推理程序。其中程序主要由以下内容构成:

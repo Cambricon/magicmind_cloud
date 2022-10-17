@@ -25,7 +25,7 @@ CV：
 | [Arcface](buildin/cv/classification/arcface_pytorch) | PyTorch | YES | YES | YES | NO |
 | [C3D](buildin/cv/detection/c3d_caffe) | Caffe | YES | YES | YES | NO |
 | [Centernet](buildin/cv/detection/centernet_pytorch) | PyTorch | YES | YES | YES | NO |
-| [MaskRCNN](buildin/cv/detection/maskrcnn_pytorch) | Caffe | YES | YES | NO | YES |
+| [MaskRCNN](buildin/cv/detection/maskrcnn_pytorch) | PyTorch | YES | YES | NO | YES |
 | [SSD](buildin/cv/detection/ssd_caffe) | Caffe | YES | YES | YES | YES |
 | [YOLOV3](buildin/cv/detection/yolov3_caffe) | Caffe | YES | YES | YES | NO |
 | [YOLOV3 Tiny](buildin/cv/detection/yolov3_tiny_caffe) | Caffe | YES | YES | YES | NO |

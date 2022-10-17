@@ -18,9 +18,9 @@ MagicMind 是寒武纪的推理引擎，用于在寒武纪硬件产品上加速 
   - [执行推理](#3.6执行推理)
   - [一键运行](#3.7一键运行)
 - [高级说明](#4.高级说明)
-  - [export_model 细节说明](#4.1export_model细节说明)
-  - [gen_model 细节说明](#4.2gen_model细节说明)
-  - [infer_python 细节说明](#4.3infer_python细节说明)
+  - [export_model 高级说明](#4.1export_model高级说明)
+  - [gen_model 高级说明](#4.2gen_model高级说明)
+  - [infer_python 高级说明](#4.3infer_python高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
 - [免责声明](#6.免责声明)
@@ -124,7 +124,7 @@ tacotron2_items_per_sec average = 7706.340271
 
 ## 4.高级说明
 
-### 4.1export_model 细节说明
+### 4.1export_model 高级说明
 
 本例使用 PyTorch 训练好的模型，通过将 PyTorch 模型转换为 ONNX 模型再转换为 MagicMind 模型进行部署。
 首先将以下 tacotron2 和 waveglow 模型文件下载至`$MODEL_PATH`目录：
@@ -161,7 +161,7 @@ python /tmp/TensorRT/demo/Tacotron2/tensorrt/convert_tacotron22onnx.py --tacotro
 python /tmp/TensorRT/demo/Tacotron2/tensorrt/convert_waveglow2onnx.py --waveglow $PROJ_ROOT_PATH/data/models/nvidia_waveglow256pyt_fp16 --config-file /tmp/TensorRT/demo/Tacotron2/config.json --wn-channels 256 -o $PROJ_ROOT_PATH/data/models/
 ```
 
-### 4.2gen_model 细节说明
+### 4.2gen_model 高级说明
 
 参数说明:
 
@@ -174,7 +174,7 @@ python /tmp/TensorRT/demo/Tacotron2/tensorrt/convert_waveglow2onnx.py --waveglow
 - `quant_mode`: 量化模式，如 force_float32，force_float16。
 - `bs`: batch_size_min, batch_size, batch_size_max
 
-### 4.3infer_python 细节说明
+### 4.3infer_python 高级说明
 
 参数说明：
 

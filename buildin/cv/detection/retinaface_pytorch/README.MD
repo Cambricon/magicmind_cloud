@@ -17,9 +17,9 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [执行推理](#3.6执行推理)
   - [一键运行](#3.7一键运行)
 - [高级说明](#4.高级说明)
-  - [export_model 细节说明](#4.1export_model细节说明)
-  - [gen_model 细节说明](#4.2gen_model细节说明)
-  - [infer_cpp 细节说明](#4.3infer_cpp细节说明)
+  - [export_model 高级说明](#4.1export_model高级说明)
+  - [gen_model 高级说明](#4.2gen_model高级说明)
+  - [infer_cpp 高级说明](#4.3infer_cpp高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -143,7 +143,7 @@ Hard   Val AP: 0.8070893019687196
 
 ## 4.高级说明
 
-### 4.1export_model 细节说明
+### 4.1export_model 高级说明
 
 修改 leaky 初始化为浮点数 0.0
 
@@ -165,7 +165,7 @@ git apply retinaface.diff
 python $PROJ_ROOT_PATH/export_model/export.py --weights $PROJ_ROOT_PATH/data/models/Resnet50_Final.pth --imgsz 672 1024 --batch-size 1
 ```
 
-### 4.2 gen_model 细节说明
+### 4.2 gen_model 高级说明
 
 PyTorch retinaface 模型转换为 MagicMind retinaface 模型分成以下几步：
 
@@ -185,7 +185,7 @@ PyTorch retinaface 模型转换为 MagicMind retinaface 模型分成以下几步
 - `iou_thres`: nms_thresh。
 - `max_det`: limit_detections。
 
-### 4.3 infer_cpp 细节说明
+### 4.3 infer_cpp 高级说明
 
 概述：
 本例使用 MagicMind C++ API 编写了名为 infer_cpp 的目标检测程序。infer_cpp 将展示如何使用 MagicMind C++ API 构建高效的 retinaface 人脸检测(图像预处理=>推理=>后处理)。其中程序主要由以下内容构成:

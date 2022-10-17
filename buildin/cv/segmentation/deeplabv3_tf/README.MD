@@ -16,8 +16,8 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [执行推理](#3.5执行推理)
   - [一键运行](#3.6一键运行)
 - [高级说明](#4.高级说明)
-  - [gen_model 细节说明](#4.1gen_model细节说明)
-  - [infer_cpp 细节说明](#4.2infer_cpp细节说明)
+  - [gen_model 高级说明](#4.1gen_model高级说明)
+  - [infer_cpp 高级说明](#4.2infer_cpp高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -111,7 +111,7 @@ bash run.sh force_float32 true 1000
 
 ## 4.高级说明
 
-### 4.1gen_model 细节说明
+### 4.1gen_model 高级说明
 
 TensorFlow deeplabv3 模型转换为 MagicMind deeplabv3 模型分成以下几步：
 
@@ -128,7 +128,7 @@ TensorFlow deeplabv3 模型转换为 MagicMind deeplabv3 模型分成以下几�
 - `quant_mode`: 量化模式，如 force_float32，force_float16，qint8_mixed_float16。
 - `shape_mutable`: 是否生成可变 h/w 的 MagicMind 模型。
 
-### 4.2infer_cpp 细节说明
+### 4.2infer_cpp 高级说明
 
 概述：
 本例使用 MagicMind CPP API 编写了名为 infer_cpp 的目标检测程序。infer_cpp 将展示如何使用 MagicMind CPP API 构建高效的 deeplabv3 图像分割(图像预处理=>推理=>后处理)。

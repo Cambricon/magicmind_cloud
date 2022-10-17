@@ -17,10 +17,10 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [执行推理](#3.6执行推理)
   - [一键运行](#3.7一键运行)
 - [高级说明](#4.高级说明)
-  - [export_model 细节说明](#4.1export_model细节说明)
-  - [gen_model 细节说明](#4.2gen_model细节说明)
-  - [infer_cpp 细节说明](#4.3infer_cpp细节说明)
-  - [infer_python 细节说明](#4.3infer_python细节说明)
+  - [export_model 高级说明](#4.1export_model高级说明)
+  - [gen_model 高级说明](#4.2gen_model高级说明)
+  - [infer_cpp 高级说明](#4.3infer_cpp高级说明)
+  - [infer_python 高级说明](#4.3infer_python高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -162,7 +162,7 @@ cd $PROJ_ROOT_PATH/infer_python
 
 ## 4.高级说明
 
-### 4.1export_model 细节说明
+### 4.1export_model 高级说明
 
 1.由于 magicmind 最高支持 pytorch 1.6.0 版本，此版本没有 SiLU 函数，所以要在环境中修改代码如下：
 
@@ -202,7 +202,7 @@ git apply $PROJ_ROOT_PATH/export_model/yolov5_v6.1_pytorch.patch
 python $PROJ_ROOT_PATH/export_model/yolov5/export.py --weights $PROJ_ROOT_PATH/data/models/yolov5m.pt --imgsz 640 640 --include torchscript --batch-size 1
 ```
 
-### 4.2gen_model 细节说明
+### 4.2gen_model 高级说明
 
 PyTorch yolov5 模型转换为 MagicMind yolov5 模型分成以下几步：
 
@@ -223,7 +223,7 @@ PyTorch yolov5 模型转换为 MagicMind yolov5 模型分成以下几步：
 - `iou_thres`: nms_thresh。
 - `max_det`: limit_detections。
 
-### 4.3infer_cpp 细节说明
+### 4.3infer_cpp 高级说明
 
 概述：
 本例使用 MagicMind C++ API 编写了名为 infer_cpp 的目标检测程序。infer_cpp 将展示如何使用 MagicMind C++ API 构建高效的 yolov5 目标检测(图像预处理=>推理=>后处理)。其中程序主要由以下内容构成:
@@ -243,7 +243,7 @@ PyTorch yolov5 模型转换为 MagicMind yolov5 模型分成以下几步：
 - `save`: 结果可视化。若指定为 true，则保存渲染后的图像，默认为 false。
 - `batch_size`: 推理时，输入 tensor 的维度
 
-### 4.4infer_python 细节说明
+### 4.4infer_python 高级说明
 
 参数说明：
 

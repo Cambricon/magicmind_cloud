@@ -15,10 +15,10 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [编译 MagicMind 模型](#3.4编译MagicMind模型)
   - [执行推理](#3.5执行推理)
   - [一键运行](#3.6一键运行)
-- [细节说明](#4.细节说明)
-  - [gen_model 细节说明](#4.1gen_model细节说明)
-  - [infer_python 细节说明](#4.2infer_python细节说明)
-  - [infer_cpp 细节说明](#4.2infer_cpp细节说明)
+- [高级说明](#4.高级说明)
+  - [gen_model 高级说明](#4.1gen_model高级说明)
+  - [infer_python 高级说明](#4.2infer_python高级说明)
+  - [infer_cpp 高级说明](#4.2infer_cpp高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -141,7 +141,7 @@ top5:  0.84
 
 ## 4.高级说明
 
-### 4.1gen_model 细节说明
+### 4.1gen_model 高级说明
 
 Caffe resnext50 模型转换为 MagicMind resnext50 模型分成以下几步：
 
@@ -163,7 +163,7 @@ Caffe resnext50 模型转换为 MagicMind resnext50 模型分成以下几步：
 - `input_height`: H。
 - `device_id`: 设备号。
 
-### 4.2infer_python 细节说明
+### 4.2infer_python 高级说明
 
 概述：
 本例使用 MagicMind PYTHON API 编写了名为 infer_python 的目标检测程序。infer_python 将展示如何使用 MagicMind PYTHON API 构建高效的 resnet50 图像分类(图像预处理=>推理=>后处理)。
@@ -180,7 +180,7 @@ Caffe resnext50 模型转换为 MagicMind resnext50 模型分成以下几步：
 - `result_top1_file`: top1 文件
 - `result_top5_file`: top5 文件
 
-### 4.3infer_cpp 细节说明
+### 4.3infer_cpp 高级说明
 
 概述：
 本例使用 MagicMind C++ API 编写了名为 infer_cpp 的目标检测程序。infer_cpp 将展示如何使用 MagicMind C++ API 构建高效的 resnext50 图像分类(图像预处理=>推理=>后处理)。

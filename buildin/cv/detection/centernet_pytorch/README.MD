@@ -17,9 +17,9 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [执行推理](#3.6执行推理)
   - [一键运行](#3.7一键运行)
 - [高级说明](#4.高级说明)
-  - [export_model 细节说明](#4.1export_model细节说明)
-  - [gen_model 细节说明](#4.2gen_model细节说明)
-  - [infer_cpp 细节说明](#4.3infer_cpp细节说明)
+  - [export_model 高级说明](#4.1export_model高级说明)
+  - [gen_model 高级说明](#4.2gen_model高级说明)
+  - [infer_cpp 高级说明](#4.3infer_cpp高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -163,7 +163,7 @@ cd $PROJ_ROOT_PATH/infer_python
 
 ## 4.高级说明
 
-### 4.1export_model 细节说明
+### 4.1export_model 高级说明
 
 向 MagicMind 导入 PyTorch 模型首先需要先使用 torch.jit.trace 生成 PyTorch 模型文件。
 
@@ -186,7 +186,7 @@ python $PROJ_ROOT_PATH/export_model/export.py --model_weight $MODEL_PATH/ctdet_c
     					      --traced_pt $PROJ_ROOT_PATH/data/models/ctdet_coco_dlav0_1x_traced_1bs.pt
 ```
 
-### 4.2gen_model 细节说明
+### 4.2gen_model 高级说明
 
 PyTorch CenterNet 网络转换为 MagicMind 模型可分为以下几个步骤: 1.通过 torch.jit.trace 生成 pt 文件。 2.使用 MagicMind Parser 模块将 torch.jit.trace 生成的 pt 文件解析为 MagicMind 网络结构。 3.模型量化(可选)。 4.使用 MagicMind Builder 模块生成 MagicMind 模型实例并保存为离线模型文件。
 
@@ -199,7 +199,7 @@ PyTorch CenterNet 网络转换为 MagicMind 模型可分为以下几个步骤: 1
 - `shape_mutable`: 是否生成可变 batch_size 的 MagicMind 模型。
 - `batch_size`: 生成可变模型时 batch_size 可以随意取值，生成不可变模型时 batch_size 的取值需要对应 pt 的输入维度。
 
-### 4.3infer_cpp 细节说明
+### 4.3infer_cpp 高级说明
 
 概述：
 本例使用 MagicMind C++ API 编写了名为 infer_cpp 的目标检测程序。infer_cpp 将展示如何使用 MagicMind C++ API 构建高效的 centernet 目标检测(图像预处理=>推理=>后处理)。其中程序主要由以下内容构成:

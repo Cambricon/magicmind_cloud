@@ -15,9 +15,9 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [编译 MagicMind 模型](#3.4编译MagicMind模型)
   - [执行推理](#3.5执行推理)
   - [一键运行](#3.6一键运行)
-- [细节说明](#4.细节说明)
-  - [gen_model 细节说明](#4.1gen_model细节说明)
-  - [infer_cpp 细节说明](#4.2infer_cpp细节说明)
+- [高级说明](#4.高级说明)
+  - [gen_model 高级说明](#4.1gen_model高级说明)
+  - [infer_cpp 高级说明](#4.2infer_cpp高级说明)
 - [精度和性能 benchmark](#5.精度和性能benchmark)
   - [性能 benchmark 结果](#5.1性能benchmark结果)
   - [精度 benchmark 结果](#5.2精度benchmark结果)
@@ -132,7 +132,7 @@ top5:  0.6186186186186187
 
 ## 4.高级说明
 
-### 4.1gen_model 细节说明
+### 4.1gen_model 高级说明
 
 Caffe squeezenet_v1_0 模型转换为 MagicMind squeezenet_v1_0 模型分成以下几步：
 
@@ -152,7 +152,7 @@ Caffe squeezenet_v1_0 模型转换为 MagicMind squeezenet_v1_0 模型分成以�
 - `batch_size`: 生成可变模型时 batch_size 可以随意取值，生成不可变模型时 batch_size 的取值需要对应 pt 的输入维度。
 - `device_id`: 设备号。
 
-### 4.2infer_cpp 细节说明
+### 4.2infer_cpp 高级说明
 
 概述：
 本例使用 MagicMind C++ API 编写了名为 infer_cpp 的目标检测程序。infer_cpp 将展示如何使用 MagicMind C++ API 构建高效的 squeezenet_v1_0 图像分类(图像预处理=>推理=>后处理)。
