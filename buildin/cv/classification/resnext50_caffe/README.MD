@@ -229,14 +229,14 @@ cd $PROJ_ROOT_PATH
 
 | Model     | Quant_Mode         | Batch_Size | TOP1     | TOP5      | MLU 板卡类型 |
 | --------- | ------------------ | ---------- | -------- | --------- | ------------ |
-| resnext50 | forced float32     | 1          | 0.628629 | 0.848849  | MLU370 S4    |
-| resnext50 | forced float16     | 1          | 0.629630 | 0.849850  | MLU370 S4    |
+| resnext50 | force float32     | 1          | 0.628629 | 0.848849  | MLU370 S4    |
+| resnext50 | force float16     | 1          | 0.629630 | 0.849850  | MLU370 S4    |
 | resnext50 | int8 mixed float16 | 1          | 0.618619 | 0. 844845 | MLU370 S4    |
 
 | Model     | Quant_Mode         | Batch_Size | TOP1     | TOP5      | MLU 板卡类型 |
 | --------- | ------------------ | ---------- | -------- | --------- | ------------ |
-| resnext50 | forced float32     | 1          | 0.628629 | 0.848849  | MLU370 X4    |
-| resnext50 | forced float16     | 1          | 0.629630 | 0.849850  | MLU370 X4    |
+| resnext50 | force float32     | 1          | 0.628629 | 0.848849  | MLU370 X4    |
+| resnext50 | force float16     | 1          | 0.629630 | 0.849850  | MLU370 X4    |
 | resnext50 | int8 mixed float16 | 1          | 0.618619 | 0. 844845 | MLU370 X4    |
 
 ## 6.免责声明
