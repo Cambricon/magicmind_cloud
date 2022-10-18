@@ -1,8 +1,8 @@
-#include <cnrt.h>
 #include <gflags/gflags.h>
 #include <mm_runtime.h>
-#include <chrono>
+#include <cnrt.h>
 #include <cstring>
+#include <chrono>
 #include <fstream>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -19,37 +19,40 @@ DEFINE_string(magicmind_model, "", "The magicmind model path");
 DEFINE_string(image_dir, "", "The image directory");
 DEFINE_string(output_dir, "", "The rendered images output directory");
 DEFINE_int32(batch, 1, "The batch size");
-void softmax_pixel(float *ptr, int h, int w, int c) {
-  for (int h_id = 0; h_id < h; h_id++) {
-    for (int w_id = 0; w_id < w; w_id++) {
+void softmax_pixel(float *ptr, int h, int w, int c)
+{
+  for (int h_id = 0; h_id < h; h_id++)
+  {
+    for (int w_id = 0; w_id < w; w_id++)
+    {
       float sum = 0.0;
-      for (int c_id = 0; c_id < c; c_id++) {
+      for (int c_id = 0; c_id < c; c_id++)
+      {
         float value = ptr[h_id * w * c + w_id * c + c_id];
         ptr[h_id * w * c + w_id * c + c_id] = exp(value);
         sum += ptr[h_id * w * c + w_id * c + c_id];
       }
-      for (int c_id = 0; c_id < c; c_id++) {
+      for (int c_id = 0; c_id < c; c_id++)
+      {
         ptr[h_id * w * c + w_id * c + c_id] /= sum;
       }
     }
   }
 }
 
-static std::vector<cv::String> GetFileList(std::string rex_string,
-                                           std::string dir) {
+static std::vector<cv::String> GetFileList(std::string rex_string, std::string dir) {
   char abs_path[PATH_MAX];
   if (dir.empty()) {
     std::cout << "dir: " + dir + "is empty" << std::endl;
     abort();
   }
-  if (!realpath(dir.c_str(), abs_path)) {
-    std::cout << "Get " + dir + " failed." << std::endl;
-  }
+  if (!realpath(dir.c_str(), abs_path)) { std::cout << "Get " + dir + " failed."<< std::endl;}
   std::string glob_path = std::string(abs_path);
   std::vector<cv::String> file_paths;
   cv::glob(glob_path + rex_string, file_paths, false);
   return file_paths;
 }
+
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -104,23 +107,20 @@ int main(int argc, char **argv) {
   }
   magicmind::Dims output_dim = magicmind::Dims(output_dim_vec);
   void *output_mlu_addr_ptr = nullptr;
-  if (magicmind::Status::OK() ==
-      context->InferOutputShape(input_tensors, output_tensors)) {
+  if (magicmind::Status::OK() == context->InferOutputShape(input_tensors, output_tensors)) {
     for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
-      CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr,
-                            output_tensors[output_id]->GetSize()));
+      CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, output_tensors[output_id]->GetSize()));
       MM_CHECK(output_tensors[output_id]->SetData(output_mlu_addr_ptr));
     }
-  } else {
+  }
+  else {
     std::cout << "InferOutputShape failed" << std::endl;
   }
   // output tensor malloc in host
-  float *output_cpu_ptrs = new float[output_tensors[0]->GetSize() /
-                                     sizeof(output_tensors[0]->GetDataType())];
+  float *output_cpu_ptrs = new float[output_tensors[0]->GetSize()/sizeof(output_tensors[0]->GetDataType())];
 
   // 7. load image
-  std::cout << "================== Load Images ===================="
-            << std::endl;
+  std::cout << "================== Load Images ====================" << std::endl;
   std::vector<cv::String> file_lists = GetFileList("/*data", FLAGS_image_dir);
   std::cout << "File list size: " << file_lists.size() << std::endl;
   std::cout << "Start run..." << std::endl;
@@ -136,8 +136,7 @@ int main(int argc, char **argv) {
     std::vector<float> data = ReadBinFile<float>(data_path);
     float *data_ptr = data.data();
     int image_elemt_size = (int)(data_shape[2] * data_shape[3]);
-    // std::cout << "datashape:" << data_shape[0] << " " << data_shape[1] << " "
-    // << data_shape[2] << " " << data_shape[3] << std::endl;
+    // std::cout << "datashape:" << data_shape[0] << " " << data_shape[1] << " " << data_shape[2] << " " << data_shape[3] << std::endl;
     for (int index = 0; index < data_shape[1]; index++) {
       auto img_data = data_ptr + index * image_elemt_size;
       cv::Mat img(data_shape[2], data_shape[3], CV_32FC1, img_data);
@@ -149,19 +148,16 @@ int main(int argc, char **argv) {
       int pad_w_before = (int)((w - data_shape[3]) / 2);
       int pad_w_after = (int)(w - data_shape[3] - pad_w_before);
       cv::copyMakeBorder(img, padded_img, pad_h_before, pad_h_after,
-                         pad_w_before, pad_w_after, cv::BORDER_CONSTANT,
-                         cv::Scalar(0));
-      for (int mirror_index = 0; mirror_index < FLAGS_batch; mirror_index++) {
+                        pad_w_before, pad_w_after, cv::BORDER_CONSTANT,
+                        cv::Scalar(0));
+      for (int mirror_index = 0; mirror_index < FLAGS_batch; mirror_index++)
+      {
         cv::Mat rgb(input_dim[1], input_dim[2], CV_32FC1);
         padded_img.copyTo(rgb);
 
         // 8. copy in
-        CNRT_CHECK(cnrtMemcpy(((float *)input_tensors[0]->GetMutableData()) +
-                                  mirror_index * input_tensors[0]->GetSize() /
-                                      FLAGS_batch / sizeof(float),
-                              rgb.data,
-                              input_tensors[0]->GetSize() / FLAGS_batch,
-                              CNRT_MEM_TRANS_DIR_HOST2DEV));
+        CNRT_CHECK(cnrtMemcpy(((float *)input_tensors[0]->GetMutableData()) + mirror_index * input_tensors[0]->GetSize() / FLAGS_batch / sizeof(float),
+                              rgb.data, input_tensors[0]->GetSize() / FLAGS_batch, CNRT_MEM_TRANS_DIR_HOST2DEV));
       }
 
       //  9. compute
@@ -171,25 +167,20 @@ int main(int argc, char **argv) {
       std::vector<float *> ptrs;
       std::vector<cv::Mat> imgs;
       int elem_data_count = output_dim.GetElementCount() / FLAGS_batch;
-      for (int batch_id = 0; batch_id < FLAGS_batch; batch_id++) {
-        ptrs.emplace_back(((float *)output_cpu_ptrs) +
-                          batch_id * elem_data_count);
+      for (int batch_id = 0; batch_id < FLAGS_batch; batch_id++)
+      {
+        ptrs.emplace_back(((float *)output_cpu_ptrs) + batch_id * elem_data_count);
         cv::Mat img(output_dim[1], output_dim[2], CV_32FC2, ptrs[batch_id]);
         imgs.emplace_back(std::move(img));
       }
 
       // 10. copy out
-      CNRT_CHECK(cnrtMemcpy(
-          (void *)output_cpu_ptrs, output_tensors[0]->GetMutableData(),
-          output_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST));
+      CNRT_CHECK(cnrtMemcpy((void *)output_cpu_ptrs, output_tensors[0]->GetMutableData(), output_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST));
       for (int batch_id = 0; batch_id < FLAGS_batch; batch_id++) {
-        softmax_pixel(ptrs[batch_id], output_dim[1], output_dim[2],
-                      output_dim[3]);
+        softmax_pixel(ptrs[batch_id], output_dim[1], output_dim[2], output_dim[3]);
         cv::addWeighted(imgs[0], 0.25, imgs[batch_id], 0.25, 0.0, imgs[0]);
       }
-      cv::Mat crop_img = imgs[0](cv::Rect(pad_w_before, pad_h_before,
-                                          data_shape[3], data_shape[2]))
-                             .clone();
+      cv::Mat crop_img = imgs[0](cv::Rect(pad_w_before, pad_h_before, data_shape[3], data_shape[2])).clone();
       float *crop_data = (float *)crop_img.data;
       int count = data_shape[2] * data_shape[3] * 2;
       int pos = data_path.find_last_of('/');
@@ -198,23 +189,23 @@ int main(int argc, char **argv) {
         // seg_output
         // compute argmax
         std::vector<uint8_t> argmax_result;
-        for (int k = 0; k < count / 2; k++) {
+        for (int k = 0; k < count / 2 ; k++) {
           if (crop_data[2 * k] > crop_data[2 * k + 1]) {
+
             argmax_result.push_back((uint8_t)0);
           } else {
             argmax_result.push_back((uint8_t)255);
           }
         }
-        cv::Mat seg_img(data_shape[2], data_shape[3], CV_8UC1,
-                        argmax_result.data());
-        std::string seg_output_path = FLAGS_output_dir + "/" + data_file_name +
-                                      "_output_" + std::to_string(index) +
-                                      "_seg.jpg";
+        cv::Mat seg_img(data_shape[2], data_shape[3], CV_8UC1, argmax_result.data());
+        std::string seg_output_path = FLAGS_output_dir + "/" +
+                                data_file_name + "_output_" +
+                                std::to_string(index) + "_seg.jpg";
         cv::imwrite(seg_output_path, seg_img);
         // softmax_output
         std::string softmax_output_path = FLAGS_output_dir + "/" +
-                                          data_file_name + "_output_" +
-                                          std::to_string(index);
+                                data_file_name + "_output_" +
+                                std::to_string(index);
         WriteBinFile(softmax_output_path, count, crop_data);
       }
     }

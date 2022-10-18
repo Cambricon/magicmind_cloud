@@ -44,8 +44,7 @@ class COCOResultSaver {
 
  private:
   // image_id : COCO style image id, gets from image_path
-  void Write(cv::Mat img, int image_id, const Keypoints &keypoints,
-             const PersonInfo &person);
+  void Write(cv::Mat img, int image_id, const Keypoints &keypoints, const PersonInfo &person);
 
  private:
   std::mutex mtx_;
@@ -54,3 +53,4 @@ class COCOResultSaver {
 };  // class COCOResultSaver
 
 #endif  // COCO_RESULT_SAVER_H_
+

@@ -2,8 +2,8 @@
 #define NET_PARAMS_H_
 
 #include <opencv2/opencv.hpp>
-#include <string>
 #include <vector>
+#include <string>
 
 struct NetParams {
   int nbody_parts;
@@ -26,3 +26,4 @@ const NetParams &GetNetParams();
 const std::string &GetNetName();
 
 #endif  // NET_PARAMS_H_
+

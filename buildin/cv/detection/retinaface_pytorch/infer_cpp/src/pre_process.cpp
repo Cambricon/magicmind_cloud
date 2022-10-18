@@ -5,9 +5,7 @@
  * @brief load all images(jpg) from image directory(FLAGS_image_dir)
  * @return Returns image paths
  */
-std::vector<std::string> LoadImages(const std::string image_dir, int batch_size,
-                                    int image_num,
-                                    const std::string file_list) {
+std::vector<std::string> LoadImages(const std::string image_dir, int batch_size, int image_num, const std::string file_list) {
   char abs_path[PATH_MAX];
   if (realpath(image_dir.c_str(), abs_path) == NULL) {
     std::cout << "Get real image path in " << image_dir.c_str() << " failed...";
@@ -20,7 +18,7 @@ std::vector<std::string> LoadImages(const std::string image_dir, int batch_size,
     std::string image_name;
     int count = 0;
     std::string image_path;
-    while (getline(in, image_name)) {
+    while(getline(in, image_name)) {
       image_path = glob_path + "/" + image_name;
       image_paths.push_back(image_path);
       count += 1;
@@ -32,26 +30,20 @@ std::vector<std::string> LoadImages(const std::string image_dir, int batch_size,
     image_paths.assign(images.begin(), images.end());
   }
   // pad to multiple of batch_size.
-  // The program will stuck when the number of input images is not an integer
-  // multiple of the batch size
+  // The program will stuck when the number of input images is not an integer multiple of the batch size
   size_t pad_num = batch_size - image_paths.size() % batch_size;
   if (pad_num != batch_size) {
-    std::cout << "There are " << image_paths.size() << " images in total, add "
-              << pad_num
-              << " more images to make the number of images is an integral "
-                 "multiple of batchsize["
-              << batch_size << "].";
+    std::cout << "There are " << image_paths.size() << " images in total, add " << pad_num
+              << " more images to make the number of images is an integral multiple of batchsize[" << batch_size << "].";
     while (pad_num--) image_paths.emplace_back(*image_paths.rbegin());
   }
   return image_paths;
 }
 
-cv::Mat Preprocess(cv::Mat src_img, int dst_h, int dst_w, bool transpose,
-                   bool normlize, bool swapBR, int depth) {
+cv::Mat Preprocess(cv::Mat src_img, int dst_h, int dst_w, bool transpose, bool normlize, bool swapBR, int depth){
   int src_h = src_img.rows;
   int src_w = src_img.cols;
-  float ratio =
-      std::min(float(dst_h) / float(src_h), float(dst_w) / float(src_w));
+  float ratio = std::min(float(dst_h) / float(src_h), float(dst_w) / float(src_w));
   int unpad_h = std::floor(src_h * ratio);
   int unpad_w = std::floor(src_w * ratio);
   if (ratio != 1) {
@@ -69,8 +61,7 @@ cv::Mat Preprocess(cv::Mat src_img, int dst_h, int dst_w, bool transpose,
   int pad_l = std::floor((dst_w - unpad_w) / 2);
   int pad_r = dst_w - unpad_w - pad_l;
 
-  cv::copyMakeBorder(src_img, src_img, pad_t, pad_b, pad_l, pad_r,
-                     cv::BORDER_CONSTANT, cv::Scalar(128, 128, 128));
+  cv::copyMakeBorder(src_img, src_img, pad_t, pad_b, pad_l, pad_r, cv::BORDER_CONSTANT, cv::Scalar(128, 128, 128));
 
   if (normlize) {
     src_img.convertTo(src_img, CV_32F);
@@ -103,3 +94,4 @@ cv::Mat Preprocess(cv::Mat src_img, int dst_h, int dst_w, bool transpose,
 
   return blob;
 }
+

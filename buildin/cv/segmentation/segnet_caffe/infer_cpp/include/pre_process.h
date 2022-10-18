@@ -5,10 +5,9 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-cv::Mat Preprocess(cv::Mat src_img, int dst_h, int dst_w);
 
-std::vector<std::string> LoadImages(const std::string image_dir,
-                                    const std::string image_list,
-                                    const int batch_size);
+cv::Mat Preprocess(cv::Mat src_img,int dst_h, int dst_w);
 
-#endif  //_PRE_PROCESS_HPP
+std::vector<std::string> LoadImages(const std::string image_dir, const std::string image_list, const int batch_size);
+
+#endif //_PRE_PROCESS_HPP

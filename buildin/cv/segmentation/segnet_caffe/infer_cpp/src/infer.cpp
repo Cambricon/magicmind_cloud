@@ -1,17 +1,17 @@
-#include <cnrt.h>
-#include <gflags/gflags.h>
 #include <mm_runtime.h>
+#include <cnrt.h>
 #include <sys/stat.h>
-#include <chrono>
-#include <cstring>
 #include <memory>
+#include <string>
+#include <cstring>
+#include <chrono>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-#include <string>
+#include <gflags/gflags.h>
 
-#include "post_process.h"
 #include "pre_process.h"
+#include "post_process.h"
 #include "utils.h"
 
 using namespace magicmind;
@@ -30,11 +30,12 @@ DEFINE_string(image_list, "", "The image file list");
 DEFINE_string(output_dir, "", "The classification results output file");
 DEFINE_bool(save_txt, true, "save txt");
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   // 1. cnrt init
   std::cout << "Cnrt init..." << std::endl;
-  uint8_t device_id = 0;
+  uint8_t device_id = 0; 
   MluDeviceGuard device_guard(device_id);
   cnrtQueue_t queue;
   CHECK_CNRT(cnrtQueueCreate, &queue);
@@ -96,9 +97,9 @@ int main(int argc, char **argv) {
   // 7. load image
   std::cout << "================== Load Images ===================="
             << std::endl;
-  std::vector<std::string> image_paths =
-      LoadImages(FLAGS_image_dir, FLAGS_image_list, input_dim[0]);
-  if (image_paths.size() == 0) {
+  std::vector<std::string> image_paths = LoadImages(FLAGS_image_dir, FLAGS_image_list, input_dim[0]);
+  if (image_paths.size() == 0)
+  {
     std::cout << "No images found in dir [" << FLAGS_image_dir
               << "]. Support jpg.";
     return 0;
@@ -106,65 +107,65 @@ int main(int argc, char **argv) {
   size_t image_num = image_paths.size();
   std::cout << "Total images : " << image_num << std::endl;
   std::cout << "Start run..." << std::endl;
-  for (int i = 0; i < image_num; i++) {
+  for (int i = 0; i < image_num; i++)
+  {
     std::string image_name = GetFileName(image_paths[i]);
-    std::cout << "Inference img: " << image_name << "\t\t\t" << i << "/"
-              << image_num << std::endl;
-
+    std::cout << "Inference img: " << image_name << "\t\t\t" << i << "/" << image_num << std::endl;
+  
     Mat img = imread(image_paths[i]);
     Mat img_pre = Preprocess(img, input_dim[1], input_dim[2]);
-    CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(), img_pre.data,
-                          input_tensors[0]->GetSize(),
-                          CNRT_MEM_TRANS_DIR_HOST2DEV));
+    CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(), img_pre.data, input_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_HOST2DEV));
 
     // 8. compute
-    // output_tensors.clear();
+    //output_tensors.clear();
     CHECK_STATUS(context->Enqueue(input_tensors, output_tensors, queue));
     CNRT_CHECK(cnrtQueueSync(queue));
 
     // 9. copy out
     std::vector<std::vector<float>> results;
-
-    for (uint32_t j = 0; j < output_num; j++) {
-      int detection_num = output_tensors[j]->GetDimensions()[0];
-      // get output data from tensor
-      auto preds_dim = output_tensors[j]->GetDimensions();
-      std::shared_ptr<void> preds_ptr = nullptr;
-      cv::Mat pred;
-      if (output_tensors[j]->GetMemoryLocation() ==
-          magicmind::TensorLocation::kHost) {
-        // memory in host
-        pred = PostProcess(img, preds_dim,
-                           (float *)output_tensors[j]->GetMutableData());
-      } else if (output_tensors[j]->GetMemoryLocation() ==
-                 magicmind::TensorLocation::kMLU) {
-        // memory in device
-        CHECK_CNRT(cnrtMemcpy, output_cpu_ptrs,
-                   output_tensors[j]->GetMutableData(),
-                   output_tensors[j]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST);
-        pred = PostProcess(img, preds_dim, (float *)output_cpu_ptrs);
-      } else {
-        std::cout << "Invalid memory location." << std::endl;
-      }
-      if (FLAGS_save_txt) {
-        std::string save_path =
-            FLAGS_output_dir + "/" + image_name + "_result.binary";
-        std::ofstream ofs(save_path, std::ios::binary);
-        if (!ofs.is_open()) {
-          std::cout << "Create file [" << save_path << "] failed." << std::endl;
+    
+    for(uint32_t j = 0; j < output_num ; j++) {
+        int detection_num = output_tensors[j]->GetDimensions()[0];
+        // get output data from tensor
+        auto preds_dim = output_tensors[j]->GetDimensions();
+        std::shared_ptr<void> preds_ptr = nullptr;
+        cv::Mat pred;
+        if (output_tensors[j]->GetMemoryLocation() == magicmind::TensorLocation::kHost)
+        {
+            // memory in host
+            pred = PostProcess(img, preds_dim, (float *)output_tensors[j]->GetMutableData());
+        } 
+        else if (output_tensors[j]->GetMemoryLocation() == magicmind::TensorLocation::kMLU)
+        {
+            // memory in device
+            CHECK_CNRT(cnrtMemcpy, output_cpu_ptrs, output_tensors[j]->GetMutableData(),
+                     output_tensors[j]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST);
+            pred = PostProcess(img, preds_dim, (float *)output_cpu_ptrs);
+        } 
+        else {
+		std::cout << "Invalid memory location." << std::endl;
         }
-        ofs.write((char *)pred.data, pred.cols * pred.rows);
-        ofs.close();
-      }
-    }
+        if (FLAGS_save_txt) {
+            std::string save_path = FLAGS_output_dir + "/" + image_name + "_result.binary";
+            std::ofstream ofs(save_path, std::ios::binary);
+	    if (!ofs.is_open()) {
+	      std::cout << "Create file [" << save_path << "] failed." << std::endl;
+	    }
+            ofs.write((char *)pred.data, pred.cols * pred.rows);
+            ofs.close();
+
+        }
+     }
   }
 
   // 9. destroy resource
-  for (auto tensor : input_tensors) {
+  for (auto tensor : input_tensors)
+  {
     cnrtFree(tensor->GetMutableData());
     tensor->Destroy();
   }
-  for (auto tensor : output_tensors) {
+  for (auto tensor : output_tensors)
+  {
     if (mlu_output_addr_ptr != nullptr) {
       cnrtFree(tensor->GetMutableData());
     }

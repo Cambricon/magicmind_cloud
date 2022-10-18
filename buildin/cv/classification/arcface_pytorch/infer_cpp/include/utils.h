@@ -1,42 +1,46 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <cnrt.h>
-#include <glog/logging.h>
-#include <mm_runtime.h>
 #include <fstream>
 #include <iostream>
+#include <mm_runtime.h>
+#include <glog/logging.h>
+#include <cnrt.h>
 #include <vector>
 #include "sys/stat.h"
 
-#define CHECK_CNRT(FUNC, ...)                                                 \
-  do {                                                                        \
-    cnrtRet_t ret = FUNC(__VA_ARGS__);                                        \
-    LOG_IF(FATAL, CNRT_RET_SUCCESS != ret)                                    \
-        << "Call " << #FUNC << " failed. Ret code [" << static_cast<int>(ret) \
-        << "]";                                                               \
+#define CHECK_CNRT(FUNC, ...)                                                         \
+  do                                                                                  \
+  {                                                                                   \
+    cnrtRet_t ret = FUNC(__VA_ARGS__);                                                \
+    LOG_IF(FATAL, CNRT_RET_SUCCESS != ret)                                            \
+        << "Call " << #FUNC << " failed. Ret code [" << static_cast<int>(ret) << "]"; \
   } while (0)
 
 #define CHECK_PTR(ptr)                         \
-  do {                                         \
-    if (ptr == nullptr) {                      \
+  do                                           \
+  {                                            \
+    if (ptr == nullptr)                        \
+    {                                          \
       LOG(INFO) << "mm failure " << std::endl; \
       abort();                                 \
     }                                          \
   } while (0)
 
-#define CHECK_MM(FUNC, ...)                          \
-  do {                                               \
-    magicmind::Status ret = FUNC(__VA_ARGS__);       \
-    if (!ret.ok()) {                                 \
-      std::cout << ret.error_message() << std::endl; \
-    }                                                \
-  } while (0)
+#define CHECK_MM(FUNC, ...) do {                                \
+    magicmind::Status ret = FUNC(__VA_ARGS__);                  \
+    if ( !ret.ok())                                             \
+    {                                                           \
+	    std::cout << ret.error_message() << std::endl;      \
+    }                                                           \
+} while(0)
 
-#define CHECK_STATUS(status)                           \
-  do {                                                 \
+#define CHECK_STATUS(status)                               \
+  do                                                   \
+  {                                                    \
     auto ret = (status);                               \
-    if (ret != magicmind::Status::OK()) {              \
+    if (ret != magicmind::Status::OK())                \
+    {                                                  \
       LOG(INFO) << "mm failure: " << ret << std::endl; \
       abort();                                         \
     }                                                  \
@@ -44,28 +48,35 @@
 
 class MluDeviceGuard {
  public:
-  MluDeviceGuard(int device_id) { CHECK_CNRT(cnrtSetDevice, device_id); }
+  MluDeviceGuard(int device_id) {
+    CHECK_CNRT(cnrtSetDevice, device_id);
+  }
 };  // class MluDeviceGuard
 
-class Record {
- public:
-  Record(std::string filename) {
-    outfile.open(("output/" + filename).c_str(),
-                 std::ios::trunc | std::ios::out);
+class Record
+{
+public:
+  Record(std::string filename)
+  {
+    outfile.open(("output/" + filename).c_str(), std::ios::trunc | std::ios::out);
   }
 
-  ~Record() {
-    if (outfile.is_open()) outfile.close();
+  ~Record()
+  {
+    if (outfile.is_open())
+      outfile.close();
   }
 
-  void write(std::string line, bool print = false) {
+  void write(std::string line, bool print = false)
+  {
     outfile << line << std::endl;
-    if (print) {
+    if (print)
+    {
       std::cout << line << std::endl;
     }
   }
 
- private:
+private:
   std::ofstream outfile;
 };
 
@@ -83,18 +94,20 @@ inline static void PrintModelInfo(magicmind::IModel *model) {
               << model->GetOutputDataType(i) << "]";
 }
 
-inline std::vector<std::string> split(const std::string &in,
-                                      const std::string &delim) {
-  std::regex re{delim};
-  return std::vector<std::string>{
-      std::sregex_token_iterator(in.begin(), in.end(), re, -1),
-      std::sregex_token_iterator()};
+inline std::vector<std::string> split(const std::string &in, const std::string &delim)
+{
+    std::regex re{delim};
+    return std::vector<std::string>{
+        std::sregex_token_iterator(in.begin(), in.end(), re, -1), std::sregex_token_iterator()};
 }
 
-inline bool check_file_exist(std::string path) {
+inline bool check_file_exist(std::string path)
+{
   struct stat buffer;
-  if (stat(path.c_str(), &buffer) == 0) {
-    if ((buffer.st_mode & S_IFDIR) == 0) {
+  if (stat(path.c_str(), &buffer) == 0)
+  {
+    if ((buffer.st_mode & S_IFDIR) == 0)
+    {
       return true;
     }
     return false;
@@ -102,10 +115,13 @@ inline bool check_file_exist(std::string path) {
   return false;
 }
 
-inline bool check_folder_exist(std::string path) {
+inline bool check_folder_exist(std::string path)
+{
   struct stat buffer;
-  if (stat(path.c_str(), &buffer) == 0) {
-    if ((buffer.st_mode & S_IFDIR) == 0) {
+  if (stat(path.c_str(), &buffer) == 0)
+  {
+    if ((buffer.st_mode & S_IFDIR) == 0)
+    {
       return false;
     }
     return true;
@@ -143,13 +159,13 @@ static bool CheckModel(magicmind::IModel *model) {
 inline std::string GetFileName(const std::string &abs_path) {
   auto slash_pos = abs_path.rfind('/');
   LOG_IF(FATAL, std::string::npos == slash_pos)
-      << "[" << abs_path << "] is not an absolute path.";
+    << "[" << abs_path << "] is not an absolute path.";
   if (slash_pos == abs_path.size() - 1) {
     return "";
   }
   auto point_pos = abs_path.rfind('.');
   LOG_IF(FATAL, point_pos == slash_pos + 1)
-      << "[" << abs_path << "] is not a file path.";
+    << "[" << abs_path << "] is not a file path.";
   return abs_path.substr(slash_pos + 1, point_pos - slash_pos - 1);
 }
 
@@ -176,4 +192,4 @@ inline static std::vector<std::string> SplitString(const std::string line) {
   return res;
 }
 
-#endif  // UTILS_HPP
+#endif // UTILS_HPP
