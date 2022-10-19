@@ -4,6 +4,10 @@ SHAPE_MUTABLE=$2 #true/false
 BATCH_SIZE=$3
 BATCH=$4
 IMAGE_NUM=$5
+if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
+then
+  mkdir $PROJ_ROOT_PATH/data/output
+fi
 if [ -d "$PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ];
 then
   echo "output dir already exits!!! no need to mkdir again!!!"

@@ -7,6 +7,10 @@ SHAPE_MUTABLE=$2
 BATCH_SIZE=$3
 SAVE_IMG=$4
 BATCH=1
+if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
+then
+    mkdir "$PROJ_ROOT_PATH/data/output"
+fi
 if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ]; 
 then
     mkdir "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}"
