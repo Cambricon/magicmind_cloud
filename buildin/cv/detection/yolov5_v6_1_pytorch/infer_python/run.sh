@@ -15,8 +15,8 @@ echo "infer Magicmind model..."
 python infer.py --magicmind_model $MODEL_PATH/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
                 --image_dir $DATASETS_PATH/val2017 \
                 --image_num ${IMAGE_NUM} \
-                --file_list $DATASETS_PATH/file_list_5000.txt \
-                --label_path $DATASETS_PATH/coco.names \
+                --file_list $UTILS_PATH/coco_file_list_5000.txt \
+                --label_path $UTILS_PATH/coco.names \
                 --batch ${BATCH} \
                 --output_dir $PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH} \
                 --save_img true

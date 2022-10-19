@@ -22,7 +22,7 @@ DEFINE_int32(device_id, 0, "The device index of mlu");
 DEFINE_string(magicmind_model, "", "The magicmind model path");
 DEFINE_string(image_dir, "", "The image directory"); //"./../../../datasets/coco/test";
 DEFINE_int32(image_num, 10, "image number");
-DEFINE_string(file_list, "file_list_5000.txt", "file_list");
+DEFINE_string(file_list, "coco_file_list_5000.txt", "file_list");
 DEFINE_string(label_path, "coco.names", "The label path");
 DEFINE_string(output_dir, "", "The rendered images output directory");
 DEFINE_bool(save_img, false, "whether saving the image or not");

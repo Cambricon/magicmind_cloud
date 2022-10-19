@@ -125,7 +125,7 @@ cd $PROJ_ROOT_PATH/infer_cpp
 使用 COCO API 计算精度:
 
 ```bash
-python $UTILS_PATH/compute_coco_mAP.py --file_list $DATASETS_PATH/file_list_5000.txt \
+python $UTILS_PATH/compute_coco_mAP.py --file_list $UTILS_PATH/coco_file_list_5000.txt \
                                        --result_dir $PROJ_ROOT_PATH/data/images/infer_cpp_output_dir_qint8_mixed_float16_true_1 \
                                        --ann_dir $DATASETS_PATH \
                                        --data_type val2017 \

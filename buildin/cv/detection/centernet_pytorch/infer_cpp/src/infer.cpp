@@ -21,7 +21,7 @@ DEFINE_int32(device_id, 0, "The device index of mlu");
 DEFINE_string(magicmind_model, "", "The magicmind model path");
 DEFINE_string(image_dir, "", "The image directory");
 DEFINE_int32(image_num, 1, "image number");
-DEFINE_string(file_list, "file_list_5000.txt", "file_list");
+DEFINE_string(file_list, "coco_file_list_5000.txt", "file_list");
 DEFINE_string(label_path, "coco.names", "The label path");
 DEFINE_int32(max_bbox_num, 100, "Max number of bounding-boxes per image");
 DEFINE_double(confidence_thresholds, 0.001, "");

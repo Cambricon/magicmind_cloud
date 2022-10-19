@@ -179,8 +179,8 @@ Pytorch maskrcnn 模型转换为 MagicMind maskrcnn 模型分成以下几步：
 python infer.py --magicmind_model $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL \
                 --device_id $DEV_ID \
                 --batch_size ${BATCH_SIZE} \
-                --image_dir ${DATASETS_PATH}/val2017 \
-                --label_dir ${DATASETS_PATH}/coco.names \
+                --image_dir ${UTILS_PATH}/val2017 \
+                --label_dir ${UTILS_PATH}/coco.names \
                 --output_img_dir $THIS_OUTPUT_DIR/bbox_imgs \
                 --output_maskimg_dir $THIS_OUTPUT_DIR/segmask_imgs \
                 --output_pred_dir $THIS_OUTPUT_DIR/results \

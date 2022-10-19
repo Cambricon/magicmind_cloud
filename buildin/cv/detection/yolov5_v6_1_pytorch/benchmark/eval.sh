@@ -18,7 +18,7 @@ COMPUTE_COCO(){
     BATCH=$3
     IMG_NUM=$4
     MODE=$5
-    python $UTILS_PATH/compute_coco_mAP.py --file_list $DATASETS_PATH/file_list_5000.txt \
+    python $UTILS_PATH/compute_coco_mAP.py --file_list $UTILS_PATH/coco_file_list_5000.txt \
                                            --result_dir $PROJ_ROOT_PATH/data/output/${MODE}_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH} \
                                            --ann_dir $DATASETS_PATH \
                                            --data_type val2017 \

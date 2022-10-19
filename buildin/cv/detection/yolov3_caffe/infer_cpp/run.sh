@@ -34,7 +34,7 @@ DEV_ID=0
         --device_id $DEV_ID \
         --batch_size ${BATCH_SIZE} \
         --image_dir ${DATASETS_PATH}/val2017 \
-        --label_path ${DATASETS_PATH}/coco.names \
+        --label_path ${UTILS_PATH}/coco.names \
         --output_img_dir $THIS_OUTPUT_DIR/draw_imgs \
         --output_pred_dir $THIS_OUTPUT_DIR/results \
         --save_imgname_dir $THIS_OUTPUT_DIR/json \

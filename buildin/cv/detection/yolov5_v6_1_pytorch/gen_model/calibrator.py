@@ -8,7 +8,7 @@ import logging
 from PIL import Image
 
 def coco_dataset(
-    file_list_txt="../../../../datasets/coco/file_list_5000.txt",
+    file_list_txt="coco_file_list_5000.txt",
     image_dir="../../../../datasets/coco/val2017",
     count=-1
 ):
