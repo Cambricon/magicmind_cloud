@@ -5,6 +5,11 @@ QUANT_MODE=$1 #force_float32/force_float16/qint8_mixed_float16
 SHAPE_MUTABLE=$2 #true/false
 BATCH_SIZE=$3
 IMAGE_NUM=$4
+if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
+then
+  mkdir "$PROJ_ROOT_PATH/data/output"
+fi
+
 if [ -d "$PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE}" ];
 then
   echo "output dir already exits!!! no need to mkdir again!!!"
