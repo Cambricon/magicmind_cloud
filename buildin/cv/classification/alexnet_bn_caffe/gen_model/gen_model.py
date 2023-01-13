@@ -20,9 +20,9 @@ def generate_model_config(args):
     config = mm.BuilderConfig()
 
     # 指定硬件平台
-    assert config.parse_from_string('{"archs":[{"mtp_372": [6, 8]}]}').ok()
+    assert config.parse_from_string('{"archs":[{"mtp_372": [2, 6, 8]}]}').ok()
     # 精度模式
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     # INT64 转 INT32
     assert config.parse_from_string('{"opt_config":{"type64to32_conversion":true}}').ok()
     assert config.parse_from_string('{"opt_config":{"conv_scale_fold":true}}').ok()
@@ -94,7 +94,7 @@ def main():
     args.add_argument("--output_model", "--output_model", type=str, default="mm_model", help="save mm model to this path")
     args.add_argument("--image_dir", "--image_dir",  type=str, default="/nfsdata/datasets/imageNet2012/", help="imagenet val datasets")
     args.add_argument("--label_file", "--label_file",  type=str, default="/nfsdata/datasets/imageNet2012/labels.txt", help="imagenet val label txt")
-    args.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
+    args.add_argument("--precision", "--precision", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
     args.add_argument("--shape_mutable", "--shape_mutable", type=str, default="false", help="whether the mm model is dynamic or static or not")
     args.add_argument('--batch_size', dest = 'batch_size', default = 1,
             type = int, help = 'batch_size')
@@ -105,14 +105,10 @@ def main():
     args.add_argument('--device_id', dest = 'device_id', default = 0,
             type = int, help = 'device_id')
     args = args.parse_args()
-    supported_quant_mode = ['qint8_mixed_float16', 'qint8_mixed_float32', 'qint16_mixed_float16', 'qint16_mixed_float32', 'force_float16', 'force_float32']
-    if args.quant_mode not in supported_quant_mode:
-        print('quant_mode [' + args.quant_mode + ']', 'not supported')
-        exit()
     
     network = caffe_parser(args)
     config, need_insert_bn, mean, std = generate_model_config(args)
-    if args.quant_mode.find('qint') != -1:
+    if args.precision.find('qint') != -1:
         print('do calibrate...')
         calibrate(args, network, config, need_insert_bn, mean, std)
 

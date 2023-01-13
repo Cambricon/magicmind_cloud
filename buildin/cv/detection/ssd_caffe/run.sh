@@ -2,34 +2,34 @@
 set -e
 set -x
 
+precision=force_float32
+shape_mutable=true
+batch_size=1
+save_img=true
+languages=infer_python
 ### 0.download datasets and models
 cd $PROJ_ROOT_PATH/export_model
-bash get_datasets_and_models.sh
+bash run.sh
 
 ### 1.build magicmind model
 cd $PROJ_ROOT_PATH/gen_model
-#bash run.sh quant_mode shape_mutable batch_size
-bash run.sh force_float32 true 1
+bash run.sh $precision $shape_mutable $batch_size
 
 ### 2.1 infer_python
-cd $PROJ_ROOT_PATH/infer_python
-#bash run.sh quant_mode shape_mutable batch_size batch save_img
-bash run.sh force_float32 true 1 1 1
+if [ $languages == "infer_python" ];
+then
+    cd $PROJ_ROOT_PATH/infer_python
+    bash run.sh $precision $shape_mutable $save_img
+fi
 
 ### 2.2 infer_cpp
-cd $PROJ_ROOT_PATH/infer_cpp
-#bash run.sh quant_mode shape_mutable batch_size save_img
-bash run.sh force_float32 true 1 1
+if [ $languages == "infer_cpp" ];
+then
+    cd $PROJ_ROOT_PATH/infer_cpp
+    bash run.sh $precision $shape_mutable $save_img
+fi
 
-### 3.eval and perf
-#bash $PROJ_ROOT_PATH/benchmark/eval.sh quant_mode shape_mutable batch ways
-bash $PROJ_ROOT_PATH/benchmark/eval.sh force_float32 true 1 infer_python
-bash $PROJ_ROOT_PATH/benchmark/eval.sh force_float32 true 1 infer_cpp
-#bash $PROJ_ROOT_PATH/benchmark/perf.sh quant_mode shape_mutable batch_size batch threads
-bash $PROJ_ROOT_PATH/benchmark/perf.sh force_float32 true 1 1 1
-
-###4. compare eval and perf result
-python $MAGICMIND_CLOUD/test/compare_eval.py --metric vocmAP --output_file $PROJ_ROOT_PATH/data/output/infer_python_output_force_float32_true_1/voc_preds/log_eval --output_ok_file $PROJ_ROOT_PATH/data/output_ok/infer_python_output_force_float32_true_1_log_eval --model ssd_caffe
-python $MAGICMIND_CLOUD/test/compare_eval.py --metric vocmAP --output_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/voc_preds/log_eval --output_ok_file $PROJ_ROOT_PATH/data/output_ok/infer_python_output_force_float32_true_1_log_eval --model ssd_caffe
-python $MAGICMIND_CLOUD/test/compare_perf.py --output_file $PROJ_ROOT_PATH/data/output/force_float32_true_1_log_perf --output_ok_file $PROJ_ROOT_PATH/data/output_ok/force_float32_true_1_log_perf --model ssd_caffe
-
+### 3.eval
+python $UTILS_PATH/compute_voc_mAP.py --path $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1/voc_preds/ \
+                                      --devkit_path $DATASETS_PATH/VOCdevkit \
+                                      --year 2012 2>&1 |tee $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1/log_eval

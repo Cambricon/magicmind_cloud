@@ -19,9 +19,7 @@ parser.add_argument("--image_num", "--image_num",  type=int, default=10, help="i
 parser.add_argument("--file_list", "--file_list",  type=str, default="coco_file_list_5000.txt", help="coco file list")
 parser.add_argument("--label_path", "--label_path", type=str, default="coco.names")
 parser.add_argument("--output_dir", "--output_dir", type=str, default="../data/images/output")
-parser.add_argument('--input_width', dest = 'input_width', default = 640, type = int, help = 'model input width')
-parser.add_argument('--input_height', dest = 'input_height', default = 640, type = int, help = 'model input height')
-parser.add_argument('--batch', dest = 'batch', default = 1, type = int, help = 'model input batch')
+parser.add_argument('--imgsz', '--imgsz', default = 640, type = int, help = 'inference size (pixels)')
 parser.add_argument("--save_img", "--save_img", type=bool, default=False)
 
 if __name__ == "__main__":
@@ -31,8 +29,9 @@ if __name__ == "__main__":
         exit()
     model = mm.Model()
     model.deserialize_from_file(args.magicmind_model)
-
-    img_size = [args.input_width, args.input_height]
+    
+    if isinstance(args.imgsz, int):
+        img_size = (args.imgsz, args.imgsz)
     with mm.System() as mm_sys:
         dev_count = mm_sys.device_count()
         print("Device count: ", dev_count)
@@ -58,9 +57,9 @@ if __name__ == "__main__":
         
         dataset = coco_dataset(file_list_txt = args.file_list, image_dir = args.image_dir, count = args.image_num)
         print("Start run ...")
-        for img, img_path in dataset:
+        from tqdm import tqdm
+        for img, img_path in tqdm(dataset, total=args.image_num):
             img_name = os.path.splitext(img_path.split("/")[-1])[0]
-            print("Inference img : ", img_name)
             # 准备输入数据
             show_img = img
             img, ratio = letterbox(img, img_size)
@@ -90,20 +89,20 @@ if __name__ == "__main__":
                 xmax = max(0, min(reshape_value[k * 7 + 5], img_size[1]))
                 ymin = max(0, min(reshape_value[k * 7 + 4], img_size[0]))
                 ymax = max(0, min(reshape_value[k * 7 + 6], img_size[0]))
-                xmin = (xmin - (img_size[1] - scale_w) / 2)
-                xmax = (xmax - (img_size[1] - scale_w) / 2)
-                ymin = (ymin - (img_size[0] - scale_h) / 2)
-                ymax = (ymax - (img_size[0] - scale_h) / 2)
-                xmin = int(max(0, xmin))
-                xmax = int(max(0, xmax))
-                ymin = int(max(0, ymin))
-                ymax = int(max(0, ymax))
+                xmin = (xmin - (img_size[1] - scale_w) / 2) / ratio
+                xmax = (xmax - (img_size[1] - scale_w) / 2) / ratio
+                ymin = (ymin - (img_size[0] - scale_h) / 2) / ratio
+                ymax = (ymax - (img_size[0] - scale_h) / 2) / ratio
+                xmin = float(max(0, xmin))
+                xmax = float(max(0, xmax))
+                ymin = float(max(0, ymin))
+                ymax = float(max(0, ymax))
                 result = name_dict[class_id]+"," +str(score)+","+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)
                 record.write(result, False)
                 if args.save_img:
-                    cv2.rectangle(show_img, (xmin, ymin), (xmax, ymax), (0, 255, 0))
+                    cv2.rectangle(show_img, (int(xmin), int(ymin)), (int(xmax), int(ymax)), (0, 255, 0))
                     text = name_dict[class_id] + ": " + str(score)
                     text_size, _ = cv2.getTextSize(text, 0, 0.5, 1)
-                    cv2.putText(show_img, text, (xmin, ymin + text_size[1]), 0, 0.5, (255, 255, 255), 1)
+                    cv2.putText(show_img, text, (int(xmin), int(ymin) + text_size[1]), 0, 0.5, (255, 255, 255), 1)
             if args.save_img:
                 cv2.imwrite(args.output_dir + "/" + img_name + ".jpg", show_img)

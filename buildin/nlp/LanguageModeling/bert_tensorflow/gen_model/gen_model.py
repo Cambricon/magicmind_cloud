@@ -38,22 +38,22 @@ def generate_model_config(args):
     else:
         assert config.parse_from_string('{"graph_shape_mutable":false}').ok()
     # 精度模式
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     return config
 
 def main():
     args = argparse.ArgumentParser()
     args.add_argument("--pb_model", "--pb_model", type=str, default="../data/models/frozen_graph.pb", help="bert pb")
     args.add_argument("--output_model", "--output_model", type=str, default="../data/models/bert_tensorflow_model", help="save mm model to this path")
-    args.add_argument("--quant_mode", "--quant_mode", type=str, default="force_float16", help="force_float32, force_float16")
+    args.add_argument("--precision", "--precision", type=str, default="force_float16", help="force_float32, force_float16")
     args.add_argument("--shape_mutable", "--shape_mutable", type=str, default="true", help="whether the mm model is dynamic or static or not")
     args.add_argument("--batch_size", "--batch_size", type=int, default=16, help="batch_size")
     args.add_argument("--max_seq_length", "--max_seq_length", type=int, default=128, help="max_seq_length")
     args = args.parse_args()
 
-    supported_quant_mode = ['force_float16', 'force_float32']
-    if args.quant_mode not in supported_quant_mode:
-        print('quant_mode [' + args.quant_mode + ']', 'not supported')
+    supported_precision = ['force_float16', 'force_float32']
+    if args.precision not in supported_precision:
+        print('precision [' + args.precision + ']', 'not supported')
         exit()
 
     network = tensorflow_parser(args)

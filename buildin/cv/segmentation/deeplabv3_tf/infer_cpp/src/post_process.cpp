@@ -42,9 +42,7 @@ void PostProcess(uint32_t *ptr, uint32_t output_h, uint32_t output_w,
     }
   }
   if (save_img) {
-    std::cout << "output img saved in " << output_dir << "/" << name << ".png"
-              << std::endl;
     imwrite(output_dir + "/" + name + ".png", color_out);
   }
-  free(out_ptr);
+  delete out_ptr;
 }

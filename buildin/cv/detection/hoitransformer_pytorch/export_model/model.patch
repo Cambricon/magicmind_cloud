@@ -1,0 +1,44 @@
+diff --git a/models/position_encoding.py b/models/position_encoding.py
+index 73ae39e..05ca139 100644
+--- a/models/position_encoding.py
++++ b/models/position_encoding.py
+@@ -42,8 +42,10 @@ class PositionEmbeddingSine(nn.Module):
+ 
+         pos_x = x_embed[:, :, :, None] / dim_t
+         pos_y = y_embed[:, :, :, None] / dim_t
+-        pos_x = torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()), dim=4).flatten(3)
+-        pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4).flatten(3)
++        pos_x_b, pos_x_h, pos_x_w, pos_x_c1, pos_x_c2 = torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()), dim=4).shape
++        pos_x = torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()), dim=4).reshape(pos_x_b, pos_x_h, pos_x_w, pos_x_c1*pos_x_c2)
++        pos_y_b, pos_y_h, pos_y_w, pos_y_c1, pos_y_c2 = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4).shape
++        pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4).reshape(pos_y_b, pos_y_h, pos_y_w, pos_y_c1*pos_y_c2)
+         pos = torch.cat((pos_y, pos_x), dim=3).permute(0, 3, 1, 2)
+         return pos
+ 
+diff --git a/models/transformer.py b/models/transformer.py
+index dcd5367..b65f174 100644
+--- a/models/transformer.py
++++ b/models/transformer.py
+@@ -47,16 +47,18 @@ class Transformer(nn.Module):
+     def forward(self, src, mask, query_embed, pos_embed):
+         # flatten NxCxHxW to HWxNxC
+         bs, c, h, w = src.shape
+-        src = src.flatten(2).permute(2, 0, 1)
+-        pos_embed = pos_embed.flatten(2).permute(2, 0, 1)
++        src = src.reshape(bs, c, h*w).permute(2, 0, 1)
++        pos_embed = pos_embed.reshape(bs, c, h*w).permute(2, 0, 1)
+         query_embed = query_embed.unsqueeze(1).repeat(1, bs, 1)
+-        mask = mask.flatten(1)
++        mask_b, mask_h, mask_w = mask.shape      
++        mask = mask.reshape(mask_b, mask_h*mask_w)
++        
+ 
+         tgt = torch.zeros_like(query_embed)
+         memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)
+         hs = self.decoder(tgt, memory, memory_key_padding_mask=mask,
+                           pos=pos_embed, query_pos=query_embed)
+-        return hs.transpose(1, 2), memory.permute(1, 2, 0).view(bs, c, h, w)
++        return hs.transpose(1, 2), memory.permute(1, 2, 0).reshape(bs, c, h, w)
+ 
+ 
+ class TransformerEncoder(nn.Module):

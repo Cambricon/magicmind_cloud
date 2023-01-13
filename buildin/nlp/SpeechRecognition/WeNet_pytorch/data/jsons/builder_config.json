@@ -1,0 +1,8 @@
+{
+    "archs":[{"mtp_372": [2, 6, 8]}],
+    "graph_shape_mutable": true,
+    "opt_config": {
+        "type64to32_conversion": true
+    }
+}
+

@@ -22,7 +22,7 @@ def torch_parser(args):
 def generate_model_config(args):
     config = mm.BuilderConfig()
     # 指定硬件平台
-    assert config.parse_from_string('{"archs":[{"mtp_372": [6,8]}]}').ok()
+    assert config.parse_from_string('{"archs":[{"mtp_372": [2,6,8]}]}').ok()
     # INT64 转 INT32
     assert config.parse_from_string('{"opt_config":{"type64to32_conversion":true}}').ok()
     assert config.parse_from_string('{"opt_config":{"conv_scale_fold":true}}').ok()
@@ -39,11 +39,11 @@ def generate_model_config(args):
     else:
         assert config.parse_from_string('{"graph_shape_mutable":false}').ok()
     # 精度模式
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     # 量化算法，支持对称量化（symmetric)和非对称量化（asymmetric）。当量化统计算法设置为EQNM_ALOGORITHM时，仅适用于对称量化。
     assert config.parse_from_string('{"precision_config": {"activation_quant_algo": "symmetric"}}').ok()
     # 设置量化粒度，支持按tensor量化（per_tensor）和按通道量化（per_axis）两种。
-    assert config.parse_from_string('{"precision_config": {"weight_quant_granularity": "per_tensor"}}').ok()
+    assert config.parse_from_string('{"precision_config": {"weight_quant_granularity": "per_axis"}}').ok()
     return config
 
 def calibrate(args, network : mm.Network, config : mm.BuilderConfig):
@@ -72,10 +72,10 @@ def main():
             required = True, type = str, help = 'tf output graph')
     args.add_argument('--output_model', dest = 'output_model', default = '/workspace/offline_models/2d_unet_0.model',
             type = str, help = 'output model path')
-    args.add_argument('--shape_mutable', dest = 'shape_mutable', default = 'true',
-            type = str, help = 'quant_mode, qint8_mixed_float16 qint8_mixed_float32 force_float16 force float32 are supported')
-    args.add_argument('--quant_mode', dest = 'quant_mode', default = 'qint8_mixed_float16',
-            type = str, help = 'quant_mode, qint8_mixed_float16 qint8_mixed_float32 force_float16 force float32 are supported')
+    args.add_argument('--shape_mutable', dest = 'shape_mutable', default = 'false',
+            type = str, help = 'whether the mm model is dynamic or static or not"')
+    args.add_argument('--precision', dest = 'precision', default = 'qint8_mixed_float16',
+            type = str, help = 'precision, qint8_mixed_float16 qint8_mixed_float32 force_float16 force float32 are supported')
     args.add_argument('--calib_data_path', dest = 'calib_data_path', default = 'pytorch_2d_unet_calib_data.pt',
             type = str, help = 'image list file path, file contains input image paths for calibration')
     args.add_argument('--batch_size', dest = 'batch_size', default = 4,
@@ -88,14 +88,9 @@ def main():
             type = int, help = 'mlu device id, used for calibration')
     args = args.parse_args()
 
-    supported_quant_mode = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32']
-    if args.quant_mode not in supported_quant_mode:
-        print('quant_mode [' + args.quant_mode + ']', 'not supported')
-        exit()
-
     network = torch_parser(args)
     config = generate_model_config(args)
-    if args.quant_mode.find('qint') != -1:
+    if args.precision.find('qint') != -1:
         print('do calibrate...')
         calibrate(args, network, config)
     print('build model...')

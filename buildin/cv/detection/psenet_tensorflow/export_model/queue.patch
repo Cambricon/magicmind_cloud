@@ -1,0 +1,17 @@
+--- tensorflow_PSENet/utils/utils_tool.py	2022-12-02 09:18:04.836205653 +0000
++++ utils_tool.py	2022-12-02 09:37:01.774521733 +0000
+@@ -1,6 +1,6 @@
+ import logging
+ from easydict import EasyDict as edict
+-import Queue
++import queue as Queue
+ import numpy as np
+ import cv2
+ 
+@@ -81,4 +81,4 @@
+         #     l = pred[x, y]
+         #     queue.put((x, y, l))
+ 
+-    return pred, label_values
+\ No newline at end of file
++    return pred, label_values

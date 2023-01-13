@@ -29,7 +29,7 @@ def generate_model_config(args):
     # 指定硬件平台
     assert config.parse_from_string('{"archs":[{"mtp_372": [6,8]}]}').ok()
     assert config.parse_from_string('{"opt_config":{"conv_scale_fold":true}}').ok()
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     return config
 
 def preprocess(img):
@@ -131,8 +131,8 @@ def main():
             required = True, type = str, help = 'tf output graph')
     args.add_argument('--output_model', dest = 'output_model', default = '/workspace/offline_models/2d_unet_0.model',
             type = str, help = 'output model path')
-    args.add_argument('--quant_mode', dest = 'quant_mode', default = 'qint8_mixed_float16',
-            type = str, help = 'quant_mode, qint8_mixed_float16 qint8_mixed_float32 force_float16 force float32 qint16_mixed_float32 are supported')
+    args.add_argument('--precision', dest = 'precision', default = 'qint8_mixed_float16',
+            type = str, help = 'precision, qint8_mixed_float16 qint8_mixed_float32 force_float16 force float32 qint16_mixed_float32 are supported')
     args.add_argument('--file_list', dest = 'file_list', default = 'file_list',
             type = str, help = 'image list file path, file contains input image paths for calibration')
     args.add_argument('--batch_size', dest = 'batch_size', default = 1,
@@ -145,14 +145,14 @@ def main():
             type = int, help = 'mlu device id, used for calibration')
     args = args.parse_args()
 
-    supported_quant_mode = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32', 'qint16_mixed_float32']
-    if args.quant_mode not in supported_quant_mode:
-        print('quant_mode [' + args.quant_mode + ']', 'not supported')
+    supported_precision = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32', 'qint16_mixed_float32']
+    if args.precision not in supported_precision:
+        print('precision [' + args.precision + ']', 'not supported')
         exit()
 
     network = torch_parser(args)
     config = generate_model_config(args)
-    if args.quant_mode.find('qint') != -1:
+    if args.precision.find('qint') != -1:
         print('do calibrate...')
         calibrate(args, network, config)
     print('build model...')

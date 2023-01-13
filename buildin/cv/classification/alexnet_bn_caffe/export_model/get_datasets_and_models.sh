@@ -2,10 +2,8 @@
 set -e
 set -x
 
-if [ -d $MODEL_PATH ];
+if [ ! -d $MODEL_PATH ];
 then
-    echo "folder $MODEL_PATH already exists"
-else
     mkdir $MODEL_PATH
 fi
 
@@ -14,7 +12,7 @@ if [ -d "AlexNet_cvgj" ];
 then
   echo "AlexNet caffemodel and prototxt already exists."
 else
-  echo "Downloading alexNet caffemodel and prototxt already exists."
+  echo "Downloading alexNet caffemodel and prototxt"
   wget -c https://github.com/cvjena/cnn-models/releases/download/v1.0/cnn-models_cvgj.zip
   unzip -o cnn-models_cvgj.zip
 fi

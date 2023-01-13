@@ -2,6 +2,13 @@
 set -e
 set -x
 
+if [ -d $PROJ_ROOT_PATH/data ];
+then
+    echo "folder $PROJ_ROOT_PATH/data already exists"
+else
+    mkdir $PROJ_ROOT_PATH/data
+fi
+
 if [ -d $MODEL_PATH ];
 then
     echo "folder $MODEL_PATH already exists"

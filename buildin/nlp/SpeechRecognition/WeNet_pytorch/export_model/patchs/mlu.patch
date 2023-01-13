@@ -1,0 +1,49 @@
+diff --git a/wenet/bin/export_onnx_gpu.py b/wenet/bin/export_onnx_gpu.py
+index 133749b..71ac29b 100644
+--- a/wenet/bin/export_onnx_gpu.py
++++ b/wenet/bin/export_onnx_gpu.py
+@@ -302,7 +302,7 @@ def export_offline_encoder(model, configs, args, logger, encoder_onnx_path):
+                       (speech, speech_lens),
+                       encoder_onnx_path,
+                       export_params=True,
+-                      opset_version=13,
++                      opset_version=11,
+                       do_constant_folding=True,
+                       input_names=['speech', 'speech_lengths'],
+                       output_names=['encoder_out', 'encoder_out_lens',
+@@ -323,7 +323,7 @@ def export_offline_encoder(model, configs, args, logger, encoder_onnx_path):
+     with torch.no_grad():
+         o0, o1, o2, o3, o4 = encoder(speech, speech_lens)
+ 
+-    providers = ["CUDAExecutionProvider"]
++    providers = ["CPUExecutionProvider"]
+     ort_session = onnxruntime.InferenceSession(encoder_onnx_path,
+                                                providers=providers)
+     ort_inputs = {'speech': to_numpy(speech),
+@@ -394,7 +394,7 @@ def export_online_encoder(model, configs, args, logger, encoder_onnx_path):
+                       input_tensors,
+                       encoder_onnx_path,
+                       export_params=True,
+-                      opset_version=14,
++                      opset_version=11,
+                       do_constant_folding=True,
+                       input_names=input_names,
+                       output_names=output_names,
+@@ -460,7 +460,7 @@ def export_rescoring_decoder(model, configs, args, logger, decoder_onnx_path):
+                        r_hyps_pad_sos_eos, ctc_score),
+                       decoder_onnx_path,
+                       export_params=True,
+-                      opset_version=13,
++                      opset_version=11,
+                       do_constant_folding=True,
+                       input_names=input_names,
+                       output_names=['best_index'],
+@@ -481,7 +481,7 @@ def export_rescoring_decoder(model, configs, args, logger, decoder_onnx_path):
+                      hyps_lens_sos,
+                      r_hyps_pad_sos_eos,
+                      ctc_score)
+-    providers = ["CUDAExecutionProvider"]
++    providers = ["CPUExecutionProvider"]
+     ort_session = onnxruntime.InferenceSession(decoder_onnx_path,
+                                                providers=providers)
+ 

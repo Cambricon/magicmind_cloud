@@ -31,7 +31,7 @@ DEFINE_int32(batch_size, 8, "batch_size");
 DEFINE_string(image_dir, "", "dataset_dir");
 DEFINE_string(output_dir,"", "output_dir");
 DEFINE_string(label_file, "labels.txt", "labels.txt");
-DEFINE_string(name_file, "/mm_ws/proj/datasets/imagenet/name.txt", "The label path");
+DEFINE_string(name_file, "name.txt", "The label path");
 DEFINE_string(result_file, "", "The classification results output file");
 DEFINE_string(result_label_file, "", "The classification results label output file");
 DEFINE_string(result_top1_file, "", "The classification results top1 output file");
@@ -42,6 +42,7 @@ int main(int argc,char **argv)
 {
     google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
+
     // Cnrt
     cnrtQueue_t queue;
     MluDeviceGuard device_guard(FLAGS_device_id);
@@ -69,32 +70,50 @@ int main(int argc,char **argv)
     MM_CHECK(context->CreateOutputTensors(&output_tensors));
 
     // malloc
-    void *mlu_input_addr_ptr;
-    CNRT_CHECK(cnrtMalloc(&mlu_input_addr_ptr, input_tensors[0]->GetSize()));
-    MM_CHECK(input_tensors[0]->SetData(mlu_input_addr_ptr));
-
-    void *mlu_output_addr_ptr;
-    CNRT_CHECK(cnrtMalloc(&mlu_output_addr_ptr, output_tensors[0]->GetSize()));
-    MM_CHECK(output_tensors[0]->SetData(mlu_output_addr_ptr));
-    
     int img_w = 224,img_h=224,img_c=3,batch_size = FLAGS_batch_size,n_classes = 1000;
+
+    void *mlu_ptr;
+    auto input_dim_vec = model->GetInputDimension(0).GetDims();
+    if (input_dim_vec[0] == -1) {
+        input_dim_vec[0] = batch_size;
+    }
+
+    magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
+    input_tensors[0]->SetDimensions(input_dim);
+    if (input_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+        CNRT_CHECK(cnrtMalloc(&mlu_ptr, input_tensors[0]->GetSize()));
+        MM_CHECK(input_tensors[0]->SetData(mlu_ptr));
+    } 
+
+    bool dynamic_output = false;
+    if (magicmind::Status::OK() ==
+        context->InferOutputShape(input_tensors, output_tensors)) {
+        std::cout << "InferOutputShape successed" << std::endl;
+        if (output_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+            CNRT_CHECK(cnrtMalloc(&mlu_ptr, output_tensors[0]->GetSize()));
+            MM_CHECK(output_tensors[0]->SetData(mlu_ptr));
+        } else {
+            std::cout << "InferOutputShape failed" << std::endl;
+            dynamic_output = true;
+        }
+    }
+
     //Set Input data ptr
     uint8_t *input_data_ptr = new uint8_t[batch_size*img_h*img_w*img_c];
     //Set Output data ptr
     float *output_data_ptr = new float[output_tensors[0]->GetSize()/sizeof(output_tensors[0]->GetDataType())];
 
-    // load images
+    // load images and pad nums of images
     std::cout << "================== Load Images ====================" << std::endl;
     result *test;
     test = LoadImages(FLAGS_image_dir, batch_size, FLAGS_label_file);
     if (test->image_paths.size() == 0) {
-       std::cout << "No images found in dir [" << FLAGS_image_dir << "]. Support jpg.";
+       std::cout << "No images found in dir [" << FLAGS_image_dir << "]. Support JPEG jpg.";
        return 0;
     }
     size_t image_num = test->image_paths.size();
-    std::cout << "Total images : " << image_num << std::endl; 
     std::map<int, std::string> name_map = load_name(FLAGS_name_file);
-    // cout << name_map << endl;
+    
     Record result_label(FLAGS_result_label_file);
     Record result_top1_file(FLAGS_result_top1_file);
     Record result_top5_file(FLAGS_result_top5_file);
@@ -106,7 +125,8 @@ int main(int argc,char **argv)
     if ( FLAGS_test_nums != -1 ){
         image_num = MINVALUE(FLAGS_test_nums,image_num);
     }
-    for ( int i = 0; i < image_num; i ++ ){
+    std::cout << "Total images : " << image_num << std::endl; 
+    for ( int i = 0; i <= image_num; i ++ ){
         if ( i != 0 && i % batch_size == 0 ){
             //Memcpy H2D
             CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(),input_data_ptr, input_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_HOST2DEV));
@@ -136,8 +156,11 @@ int main(int argc,char **argv)
                         result_file.write(std::to_string(j) + " [" + name_map[top5[j]] + "]", false);
                     }
                 }
+                if ( i == image_num && _batch == ( batch_size - image_num % batch_size - 1 ))
+                    break;
             }
         }
+        if (i == image_num) continue;
         //pre-process
         cv::Mat src_img = cv::imread(test->image_paths[i]);
         if ( src_img.data != NULL ){
@@ -154,7 +177,9 @@ int main(int argc,char **argv)
     delete [] output_data_ptr;
 
     for (auto tensor : input_tensors) {
-        cnrtFree(tensor->GetMutableData());
+        if (tensor->GetMemoryLocation() == magicmind::TensorLocation::kMLU){
+            cnrtFree(tensor->GetMutableData()); 
+        }
         tensor->Destroy();
     }
     for (auto tensor : output_tensors) {

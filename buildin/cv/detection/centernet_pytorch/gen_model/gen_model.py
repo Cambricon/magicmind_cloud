@@ -38,7 +38,7 @@ def generate_model_config(args):
     else:
         assert config.parse_from_string('{"graph_shape_mutable": false}').ok()
     # 精度模式
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     # 量化算法，支持对称量化（symmetric)和非对称量化（asymmetric）。当量化统计算法设置为EQNM_ALOGORITHM时，仅适用于对称量化。
     assert config.parse_from_string('{"precision_config": {"activation_quant_algo": "symmetric"}}').ok()
     # 设置量化粒度，支持按tensor量化（per_tensor）和按通道量化（per_axis）两种。
@@ -81,22 +81,22 @@ def main():
     parser.add_argument("--pt_model", "--pt_model", type=str, default="../data/models/ctdet_coco_dlav0_1x_traced_1bs.pt", help="ctdet_coco_dlav0_1x_traced_1bs.pt")
     parser.add_argument("--output_model", "--output_model", type=str, default="../data/models/centernet_pytorch_model_force_float32_true_1", help="save mm model to this path")
     parser.add_argument("--image_dir", "--image_dir",  type=str, default="../../datasets/coco/val2017", help="coco2017 datasets")
-    parser.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
+    parser.add_argument("--precision", "--precision", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
     parser.add_argument("--shape_mutable", "--shape_mutable", type=str, default="false", help="whether the mm model is dynamic or static or not")
     parser.add_argument("--batch_size", "--batch_size", type=int, default=1, help="batch_size")
     parser.add_argument('--input_width', dest = 'input_width', default = 512, type = int, help = 'model input width')
     parser.add_argument('--input_height', dest = 'input_height', default = 512, type = int, help = 'model input height')
     args = parser.parse_args()
     
-    supported_quant_mode = ['qint8_mixed_float16', 'qint8_mixed_float32', 'qint16_mixed_float16', 'qint16_mixed_float32', 'force_float16', 'force_float32']
-    if args.quant_mode not in supported_quant_mode:
-        print('quant_mode [' + args.quant_mode + ']', 'not supported')
+    supported_precision = ['qint8_mixed_float16', 'qint8_mixed_float32', 'qint16_mixed_float16', 'qint16_mixed_float32', 'force_float16', 'force_float32']
+    if args.precision not in supported_precision:
+        print('precision [' + args.precision + ']', 'not supported')
         exit()
 
     network = pytorch_parser(args)
     config = generate_model_config(args)
 
-    if args.quant_mode.find('qint') != -1:
+    if args.precision.find('qint') != -1:
         print('do calibrate...')
         calibrate(args, network, config)
     print('build model...')

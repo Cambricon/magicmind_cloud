@@ -4,8 +4,8 @@ import numpy as np
 import magicmind.python.runtime as mm
 from magicmind.python.runtime.parser import Parser
 import argparse
-from preprocess import preprocess, imagenet_dataset
 from calibrator import CalibData
+from typing import List
 
 def onnx_parser(args):
     # 创建MagicMind parser
@@ -22,11 +22,9 @@ def generate_model_config(args):
     config = mm.BuilderConfig()
 
     # 指定硬件平台
-    assert config.parse_from_string('{"archs":[{"mtp_372": [6,8]}]}').ok()
+    assert config.parse_from_string('{"archs":[{"mtp_372": [2, 6, 8]}]}').ok()
     assert config.parse_from_string('{"opt_config":{"type64to32_conversion":true}}').ok()
     assert config.parse_from_string('{"opt_config":{"conv_scale_fold":true}}').ok()
-    assert config.parse_from_string(
-    """{"cross_compile_toolchain_path": "/tmp/gcc-linaro-6.2.1-2016.11-x86_64_aarch64-linux-gnu/"}""").ok()
     # 输入数据摆放顺序
     # Caffe模型输入数据顺序为NCHW，如下代码转为NHWC输入顺序。
     # 输入顺序的改变需要同步到推理过程中的网络预处理实现，保证预处理结果的输入顺序与网络输入数据顺序一致。
@@ -39,47 +37,44 @@ def generate_model_config(args):
     else:
         assert config.parse_from_string('{"graph_shape_mutable":false}').ok()
     # 精度模式
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     # 量化算法，支持对称量化（symmetric)和非对称量化（asymmetric）。当量化统计算法设置为EQNM_ALOGORITHM时，仅适用于对称量化。
     assert config.parse_from_string('{"precision_config": {"activation_quant_algo": "symmetric"}}').ok()
     # 设置量化粒度，支持按tensor量化（per_tensor）和按通道量化（per_axis）两种。
     assert config.parse_from_string('{"precision_config": {"weight_quant_granularity": "per_tensor"}}').ok()
     return config
 
+
 def calibrate(args, network : mm.Network, config : mm.BuilderConfig):
     # 创建量化工具并设置量化统计算法
-    dataset = imagenet_dataset(val_txt =args.label_file, image_file_path = args.image_dir, count=10)
-    sample_data = []
-    for data, label in dataset:
-        data = preprocess(data, transpose=False)
-        sample_data.append(np.expand_dims(data, 0))
-    calib_data = CalibData(sample_data)
+    calib_data = CalibData(mm.Dims((args.batch_size, 3, args.input_height, args.input_width)), args.batch_size, args.image_dir)
     calibrator = mm.Calibrator([calib_data])
     assert calibrator is not None
     # 设置量化统计算法，支持线性统计算法（LINEAR_ALGORITHM）及加强的最小化量化噪声算法（EQM_ALGORITHM）。
     assert calibrator.set_quantization_algorithm(mm.QuantizationAlgorithm.LINEAR_ALGORITHM).ok()
-
     # 打开设备
     with mm.System() as mm_sys:
         dev_count = mm_sys.device_count()
         print("Device count: ", dev_count)
         if args.device_id >= dev_count:
             print("Invalid device set!")
-            # 打开MLU设备
-            dev = mm.Device()
-            dev.id = args.device_id
-            assert dev.active().ok()
-            print("Wroking on MLU ", args.device_id)
+        # 打开MLU设备
+        dev = mm.Device()
+        dev.id = args.device_id
+        assert dev.active().ok()
+        print("Wroking on MLU ", args.device_id)
     # 进行量化
     assert calibrator.calibrate(network, config).ok()
+
+
 
 def main():
     args = argparse.ArgumentParser()
     args.add_argument("--onnx_model", "--onnx_model", type=str, default="../export/resnet50-v1-7.onnx", help="original resnet50 onnx")
     args.add_argument("--output_model", "--output_model", type=str, default="resnet50_onnx_model", help="save mm model to this path")
-    args.add_argument("--image_dir", "--image_dir",  type=str, default="/nfsdata/datasets/imageNet2012/", help="imagenet val datasets")
+    args.add_argument("--image_dir", "--image_dir",  type=str, default="/nfsdata/modelzoo/datasets/ILSVRC2012", help="imagenet val datasets")
     args.add_argument("--label_file", "--label_file",  type=str, default="/nfsdata/datasets/imageNet2012/labels.txt", help="imagenet val label txt")
-    args.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
+    args.add_argument("--precision", "--precision", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
     args.add_argument("--shape_mutable", "--shape_mutable", type=str, default="false", help="whether the mm model is dynamic or static or not")
     args.add_argument('--batch_size', dest = 'batch_size', default = 1, type = int, help = 'batch_size')
     args.add_argument('--input_width', dest = 'input_width', default = 224, type = int, help = 'model input width')
@@ -87,14 +82,14 @@ def main():
     args.add_argument('--device_id', dest = 'device_id', default = 0, type = int, help = 'device_id')
     args = args.parse_args()
 
-    supported_quant_mode = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32']
-    if args.quant_mode not in supported_quant_mode:
-        print('quant_mode [' + args.quant_mode + ']', 'not supported')
+    supported_precision = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32']
+    if args.precision not in supported_precision:
+        print('precision [' + args.precision + ']', 'not supported')
         exit()
     
     network = onnx_parser(args)
     config = generate_model_config(args)
-    if args.quant_mode.find('qint') != -1:
+    if args.precision.find('qint') != -1:
         print('do calibrate...')
         calibrate(args, network, config)
     # 生成模型

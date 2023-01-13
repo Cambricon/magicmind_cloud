@@ -1,22 +1,32 @@
 #!/bin/bash
-QUANT_MODE=$1 #force_float32/force_float16/qint8_mixed_float16
-SHAPE_MUTABLE=$2 #true/false
-BATCH_SIZE=$3
-BATCH=$4
-IMAGE_NUM=$5
-if [ -d "$PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ];
+PRECISION=$1
+SHAPE_MUTABLE=$2
+IMAGE_NUM=$3
+
+if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
 then
-    echo "output dir already exits!!! no need to mkdir again!!!"
+  mkdir "$PROJ_ROOT_PATH/data/output"
+  echo "mkdir sucessed!!!"
 else
-    mkdir "$PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}"
-    echo "mkdir sucessed!!!"
+  echo "output dir exits!!! no need to mkdir again!!!"
+fi
+
+if [ ${SHAPE_MUTABLE} == 'false' ];
+then
+    MAGICMIND_MODEL=$MODEL_PATH/yolov5_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}_1
+else
+    MAGICMIND_MODEL=$MODEL_PATH/yolov5_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}
+fi
+OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_1
+if [ ! -d "$OUTPUT_DIR" ];
+then
+  mkdir "$OUTPUT_DIR"
 fi
 echo "infer Magicmind model..."
-python infer.py --magicmind_model $MODEL_PATH/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+python infer.py --magicmind_model $MAGICMIND_MODEL \
                 --image_dir $DATASETS_PATH/val2017 \
-                --image_num ${IMAGE_NUM} \
+                --image_num $IMAGE_NUM \
                 --file_list $UTILS_PATH/coco_file_list_5000.txt \
                 --label_path $UTILS_PATH/coco.names \
-                --batch ${BATCH} \
-                --output_dir $PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH} \
+                --output_dir $OUTPUT_DIR \
                 --save_img true

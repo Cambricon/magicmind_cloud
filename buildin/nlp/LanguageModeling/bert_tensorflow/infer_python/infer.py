@@ -398,11 +398,8 @@ if __name__ == "__main__":
             assert len(inputs) == len(feed), \
                     "This model has {} inputs, but {} feed provided".format(len(inputs), len(feed))            
             for i in range(len(inputs)):
-#                a=np.fromfile("../benchmark/input_"+str(i)+"_1_384.bin", dtype = np.float32).reshape(1,384)
-                #a=np.loadtxt("../benchmark/input_"+str(i)+"_1_384.txt").reshape(1,384)
                 inputs[i].from_numpy(feed[i])
-                #inputs[i].from_numpy(np.zeros((1,384))) #(feed[i])
-                #np.savetxt("input_"+str(i), feed[i].flatten())
+
             outputs = context.create_outputs(inputs, suppress_infer_shape_error=True)
             if isinstance(outputs,list):
                 for out in outputs:

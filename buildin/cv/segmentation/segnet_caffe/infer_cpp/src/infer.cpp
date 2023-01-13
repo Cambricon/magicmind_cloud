@@ -67,32 +67,39 @@ int main(int argc, char **argv)
 
   // 6. memory alloc
   // mlu
-  void *mlu_input_addr_ptr = nullptr;
+  void *ptr = nullptr;
   auto input_dim_vec = model->GetInputDimension(0).GetDims();
   if (input_dim_vec[0] == -1) {
     input_dim_vec[0] = 1;
   }
   magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
   input_tensors[0]->SetDimensions(input_dim);
-  CNRT_CHECK(cnrtMalloc(&mlu_input_addr_ptr, input_tensors[0]->GetSize()));
-  CHECK_STATUS(input_tensors[0]->SetData(mlu_input_addr_ptr));
+  if (input_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+    CNRT_CHECK(cnrtMalloc(&ptr, input_tensors[0]->GetSize()));
+    CHECK_STATUS(input_tensors[0]->SetData(ptr));
+  }
 
-  void *mlu_output_addr_ptr = nullptr;
+  bool dynamic_output = false;
   auto output_num = model->GetOutputNum();
   if (magicmind::Status::OK() ==
       context->InferOutputShape(input_tensors, output_tensors)) {
     std::cout << "InferOutputShape sucessed" << std::endl;
     for (size_t output_id = 0; output_id < output_num; ++output_id) {
-      CNRT_CHECK(cnrtMalloc(&mlu_output_addr_ptr,
-                            output_tensors[output_id]->GetSize()));
-      CHECK_STATUS(output_tensors[output_id]->SetData(mlu_output_addr_ptr));
+      if (output_tensors[output_id]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+        CNRT_CHECK(cnrtMalloc(&ptr,
+                              output_tensors[output_id]->GetSize()));
+        CHECK_STATUS(output_tensors[output_id]->SetData(ptr));
+      }
     }
   } else {
     std::cout << "InferOutputShape failed" << std::endl;
+    dynamic_output = true;
   }
 
   // cpu
-  void *output_cpu_ptrs = (void *)malloc(output_tensors[0]->GetSize());
+  void *output_cpu_ptrs = nullptr;
+  auto size = output_tensors[0]->GetSize();
+  cnrtHostMalloc(&output_cpu_ptrs, size);
 
   // 7. load image
   std::cout << "================== Load Images ===================="
@@ -110,7 +117,7 @@ int main(int argc, char **argv)
   for (int i = 0; i < image_num; i++)
   {
     std::string image_name = GetFileName(image_paths[i]);
-    std::cout << "Inference img: " << image_name << "\t\t\t" << i << "/" << image_num << std::endl;
+    std::cout << "Inference img: " << image_name << "\t\t\t" << i+1 << "/" << image_num << std::endl;
   
     Mat img = imread(image_paths[i]);
     Mat img_pre = Preprocess(img, input_dim[1], input_dim[2]);
@@ -159,20 +166,28 @@ int main(int argc, char **argv)
   }
 
   // 9. destroy resource
-  for (auto tensor : input_tensors)
-  {
-    cnrtFree(tensor->GetMutableData());
-    tensor->Destroy();
-  }
-  for (auto tensor : output_tensors)
-  {
-    if (mlu_output_addr_ptr != nullptr) {
+  // destroy must do strictly as follow
+  // destroy tensor/address first
+  cnrtFreeHost(output_cpu_ptrs);
+  for (auto tensor : input_tensors) {
+    if (tensor->GetMemoryLocation() == magicmind::TensorLocation::kMLU){
       cnrtFree(tensor->GetMutableData());
     }
     tensor->Destroy();
   }
+  for (auto tensor : output_tensors) {
+    if (!dynamic_output) {
+      cnrtFree(tensor->GetMutableData());
+    }
+    tensor->Destroy();
+  }
+  // destroy context
   context->Destroy();
+  // destory engine
   engine->Destroy();
+  // destroy model
   model->Destroy();
+  // destroy other
+  cnrtQueueDestroy(queue);
   return 0;
 }

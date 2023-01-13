@@ -6,25 +6,25 @@ if [ -d $MODEL_PATH ];
 then
     echo "folder $MODEL_PATH already exists"
 else
-    mkdir $MODEL_PATH
+    mkdir -p $MODEL_PATH
 fi
 
 cd $MODEL_PATH
 if [ -f "squeezenet_v1_0.caffemodel" ];
 then
-  echo "squeezenet_v1.1 caffemodel already exists."
+  echo "squeezenet_v1.0 caffemodel already exists."
 else
-  echo "Downloading squeezenet_v1.1 caffemodel file"
-  wget -c https://raw.githubusercontent.com/forresti/SqueezeNet/master/SqueezeNet_v1.1/squeezenet_v1.1.caffemodel -O squeezenet_v1_0.caffemodel
+  echo "Downloading squeezenet_v1.0 caffemodel file"
+  wget -c https://raw.githubusercontent.com/forresti/SqueezeNet/master/SqueezeNet_v1.0/squeezenet_v1.0.caffemodel -O squeezenet_v1_0.caffemodel
 fi
 
 cd $MODEL_PATH
 if [ -f "deploy_v1_0.prototxt" ];
 then
-  echo "squeezenet prototxt file already exists."
+  echo "squeezenet_v1.0 prototxt file already exists."
 else
   echo "Downloading squeezenet prototxt file"
-  wget -c https://github.com/forresti/SqueezeNet/blob/master/SqueezeNet_v1.1/deploy.prototxt -O deploy_v1_0.prototxt
+  wget -c https://raw.githubusercontent.com/forresti/SqueezeNet/master/SqueezeNet_v1.0/deploy.prototxt -O deploy_v1_0.prototxt
 fi
 
 cd $DATASETS_PATH

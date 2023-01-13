@@ -30,7 +30,6 @@ def generate_model_config(args):
     # 输入顺序的改变需要同步到推理过程中的网络预处理实现，保证预处理结果的输入顺序与网络输入数据顺序一致。
     # 以下JSON字符串中的0代表改变的是网络第一个输入的数据摆放顺序。1则代表第二个输入，以此类推。
     assert config.parse_from_string('{"convert_input_layout": { "0": {"src": "NCHW", "dst": "NHWC"}}}').ok()
-    assert config.parse_from_string('{"cross_compile_toolchain_path": "/tmp/gcc-linaro-6.2.1-2016.11-x86_64_aarch64-linux-gnu/"}').ok()
     # 模型输入输出规模可变功能
     if args.shape_mutable == "true":
         assert config.parse_from_string('{"graph_shape_mutable": true}').ok()
@@ -38,7 +37,7 @@ def generate_model_config(args):
     else:
         assert config.parse_from_string('{"graph_shape_mutable": false}').ok()
     # 精度模式
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     # 量化算法，支持对称量化（symmetric)和非对称量化（asymmetric）。当量化统计算法设置为EQNM_ALOGORITHM时，仅适用于对称量化。
     assert config.parse_from_string('{"precision_config": {"activation_quant_algo": "symmetric"}}').ok()
     # 设置量化粒度，支持按tensor量化（per_tensor）和按通道量化（per_axis）两种。
@@ -81,7 +80,7 @@ def main():
     parser.add_argument("--pt_model", "--pt_model", type=str, default="../data/models/retinaface_traced.pt", help="modified retinaface pt")
     parser.add_argument("--output_model", "--output_model", type=str, default="../data/models/retinaface.mm", help="save mm model to this path")
     parser.add_argument("--image_dir", "--image_dir",  type=str, default="../../datasets/widerface/WIDER_val'", help="widerface datasets")
-    parser.add_argument("--quant_mode", "--quant_mode", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
+    parser.add_argument("--precision", "--precision", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
     parser.add_argument("--shape_mutable", "--shape_mutable", type=str, default="false", help="whether the mm model is dynamic or static or not")
     parser.add_argument("--batch_size", "--batch_size", type=int, default=1, help="batch_size")
     parser.add_argument('--input_width', dest = 'input_width', default = 1024, type = int, help = 'model input width')
@@ -91,15 +90,15 @@ def main():
     parser.add_argument("--max_det", "--max_det", type=int, default=1000, help="limit_detections")
     args = parser.parse_args()
     
-    supported_quant_mode = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32']
-    if args.quant_mode not in supported_quant_mode:
-        print('quant_mode [' + args.quant_mode + ']', 'not supported')
+    supported_precision = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32']
+    if args.precision not in supported_precision:
+        print('precision [' + args.precision + ']', 'not supported')
         exit()
 
     network = pytorch_parser(args)
     config = generate_model_config(args)
 
-    if args.quant_mode.find('qint') != -1:
+    if args.precision.find('qint') != -1:
         print('do calibrate...')
         calibrate(args, network, config)
     print('build model...')

@@ -25,7 +25,7 @@
 >             mirror_2 = torch.flip(x, (2, ));
 >             mirror_3 = torch.flip(x, (3, 2));
 >             data = torch.cat((mirror_0,mirror_1,mirror_2,mirror_3),0)
->             torch.save(data, "calib_data.pt")
+>             torch.save(mirror_0, "calib_data.pt")
 >             traced_net = torch.jit.trace(self, data)
 >             torch.jit.save(traced_net, '2dunet_tmp.pt')
 >             self.save_model = True

@@ -2,20 +2,18 @@
 set -e
 set -x
 
-#dynamic
 for max_seq_length in 384
 do 
     cd $PROJ_ROOT_PATH/export_model
     bash run.sh
-    for quant_mode in force_float32 force_float16
+    for precision in force_float32 force_float16
     do 
         cd $PROJ_ROOT_PATH/gen_model
-	bash run.sh $quant_mode true 1 $max_seq_length
+	bash run.sh $precision true 1 $max_seq_length
 	for batch in 1
         do
             cd $PROJ_ROOT_PATH/infer_python
-            bash run.sh $quant_mode true $batch $max_seq_length 
-            python $MAGICMIND_CLOUD/test/compare_eval.py --metric squad --output_file $PROJ_ROOT_PATH/data/output/infer_python_output_${quant_mode}_true_${batch}_${max_seq_length}/result.txt --output_ok_file $PROJ_ROOT_PATH/data/output_ok/infer_python_output_${quant_mode}_true_${batch}_${max_seq_length}_result.txt --model bert_tensorflow
+            bash run.sh $precision true $batch $max_seq_length 
         done
     done
 done

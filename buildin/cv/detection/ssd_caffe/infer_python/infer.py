@@ -74,7 +74,7 @@ def get_results(path, pred_dir, save_img):
 
         inputs = context.create_inputs()
         for i, path in enumerate(images_path):
-            print('{}/{}:{}'.format(i, total_num, path))
+            print('{}/{}:{}'.format(i+1, total_num, path))
             img, ori, scale = preprocess_images(path, input_size)
             inputs[0].from_numpy(img)
             inputs[0].to(dev)

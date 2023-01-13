@@ -2,7 +2,7 @@ import os
 import yaml
 
 template_file = "test/data/template.yaml"
-search_dirs = ["buildin/cv/classification", "buildin/cv/detection", "buildin/cv/segmentation", "buildin/cv/other", "buildin/nlp/LanguageModeling", "buildin/nlp/SpeechSynthesis"]
+search_dirs = ["buildin/cv/classification", "buildin/cv/detection", "buildin/cv/segmentation", "buildin/cv/other", "buildin/nlp/LanguageModeling", "buildin/nlp/SpeechSynthesis", "buildin/nlp/SpeechRecognition"]
 
 dirs = []
 for search_dir in search_dirs:

@@ -38,7 +38,7 @@ bool post_process(cv::Mat &img, std::vector<std::vector<float>> results, std::ve
                  << xmax << " "
                  << ymax << "\n"; 
         file_map.close();
-        if (save_img){
+        if (save_img) {
             cv::rectangle(img, cv::Rect(cv::Point(xmin, ymin), cv::Point(xmax, ymax)), cv::Scalar(0, 255, 0));
             auto fontface = cv::FONT_HERSHEY_TRIPLEX;
             double fontscale = 0.5;

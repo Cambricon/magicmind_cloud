@@ -6,7 +6,7 @@ if [ -d $MODEL_PATH ];
 then
     echo "folder $MODEL_PATH already exists"
 else
-    mkdir $MODEL_PATH
+    mkdir -p $MODEL_PATH
 fi
 
 cd $MODEL_PATH
@@ -24,7 +24,7 @@ then
   echo "squeezenet prototxt file already exists."
 else
   echo "Downloading squeezenet prototxt file"
-  wget -c https://github.com/forresti/SqueezeNet/blob/master/SqueezeNet_v1.0/deploy.prototxt -O deploy_v1_1.prototxt
+  wget -c https://raw.githubusercontent.com/forresti/SqueezeNet/master/SqueezeNet_v1.1/deploy.prototxt -O deploy_v1_1.prototxt
 fi
 
 cd $DATASETS_PATH

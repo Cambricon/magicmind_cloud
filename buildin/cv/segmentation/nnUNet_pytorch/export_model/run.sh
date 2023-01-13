@@ -2,24 +2,22 @@
 set -e
 set -x
 PARAMETER_ID=$1
-BATCH_SIZE=$2
+if [ ! -d $PROJ_ROOT_PATH/data ];
+then
+    mkdir $PROJ_ROOT_PATH/data
+fi
 
 if [ ! -d $PROJ_ROOT_PATH/data/models ];
 then
-    mkdir "$PROJ_ROOT_PATH/data/models"
+    mkdir $PROJ_ROOT_PATH/data/models
 fi
 
 if [ ! -d $PROJ_ROOT_PATH/data/models/saved_pts ];
 then 
-    mkdir "$PROJ_ROOT_PATH/data/models/saved_pts"
+    mkdir $PROJ_ROOT_PATH/data/models/saved_pts
 fi
 
-if [ ! -d $PROJ_ROOT_PATH/data/models/saved_pts/${BATCH_SIZE}bs ];
-then
-    mkdir "$PROJ_ROOT_PATH/data/models/saved_pts/${BATCH_SIZE}bs"
-fi
-
-if [ -f "$PROJ_ROOT_PATH/data/models/saved_pts/${BATCH_SIZE}bs/2dunet_${PARAMETER_ID}.pt" ];
+if [ -f "$PROJ_ROOT_PATH/data/models/saved_pts/2dunet_${PARAMETER_ID}.pt" ];
 then echo "nnUNet pt already exists."
 else 
     # 1.下载数据集和模型
@@ -54,7 +52,7 @@ else
 
     # 5.trace model
     cd $PROJ_ROOT_PATH/export_model
-    python export.py -o $PROJ_ROOT_PATH/data/models/saved_pts/${BATCH_SIZE}bs \
+    python export.py -o $PROJ_ROOT_PATH/data/models/saved_pts \
                      -i $nnUNet_raw_data_base/nnUNet_raw_data/Task002_Heart/imagesTr \
                      -m $MODEL_PATH/2d/Task002_Heart/nnUNetTrainerV2__nnUNetPlansv2.1 \
                      --parameter_id ${PARAMETER_ID}

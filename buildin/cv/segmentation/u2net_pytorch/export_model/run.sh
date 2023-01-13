@@ -2,9 +2,9 @@
 set -e
 set -x
 
-if [ ! -d $PROJ_ROOT_PATH/data/models ];
+if [ ! -d $MODEL_PATH ];
 then
-    mkdir "$PROJ_ROOT_PATH/data/models"
+    mkdir -p "$MODEL_PATH"
 fi
 
 if [ ! -d $DATASETS_PATH ];

@@ -38,10 +38,24 @@ std::vector<cv::String> LoadImages(const std::string image_dir,
     std::cout << "Get real image path failed." << std::endl;
   }
   std::string glob_path = std::string(abs_path);
-  std::ifstream in(file_list);
+  std::ifstream in;
   std::string image_name;
   std::string image_path;
   std::vector<cv::String> image_paths;
+  in.open(file_list);
+  char c;
+  int lineCnt=0;
+  while(in.get(c)) {
+  	if(c=='\n')
+  	lineCnt++;
+  }
+  if (image_num > lineCnt) {
+    std::cout << "image_num now is " << image_num << ", but it must less than images of " << file_list << ": " << lineCnt << std::endl;
+    abort();
+  }
+  in.close();
+  in.seekg(0);
+  in.open(file_list);
   int count = 0;
   while (getline(in, image_name)) {
     image_path = glob_path + '/' + image_name + ".jpg";
@@ -68,22 +82,13 @@ std::vector<cv::String> LoadImages(const std::string image_dir,
   return image_paths;
 }
 
-cv::Mat Preprocess(cv::Mat src_img, std::string shape_mutable) {
+cv::Mat Preprocess(cv::Mat src_img) {
   int src_h = src_img.rows;
   int src_w = src_img.cols;
   int dst_h = 513;
   int dst_w = 513;
   // resize
-
-  if (shape_mutable == "true") {
-    float ratio = 1.0 * dst_h / std::max(float(src_h), float(src_w));
-    cv::resize(src_img, src_img,
-               cv::Size(std::round(ratio * src_w), std::round(ratio * src_h)),
-               cv::INTER_AREA);
-  }
-  if (shape_mutable == "false") {
-    cv::resize(src_img, src_img, cv::Size(dst_h, dst_w), cv::INTER_AREA);
-  }
+  cv::resize(src_img, src_img, cv::Size(dst_h, dst_w), cv::INTER_AREA);
   // bgr to rgb
   cv::cvtColor(src_img, src_img, cv::COLOR_BGR2RGB);
   return src_img;

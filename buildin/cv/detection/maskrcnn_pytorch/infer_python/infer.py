@@ -11,7 +11,6 @@ from post_process import apply_mask,random_colors
 parser = argparse.ArgumentParser()
 parser.add_argument("--magicmind_model", "--magicmind_model",type=str,default="")
 parser.add_argument("--device_id", "--device_id", type = int, default = 0, help = "device_id")
-parser.add_argument('--batch_size', dest = 'batch_size', default = 1, type = int, help = 'model input batch')
 parser.add_argument("--image_dir", "--image_dir",  type=str, default="", help="coco val datasets")
 parser.add_argument("--label_dir", "--label_dir",  type=str, default="", help="coco names dir")
 parser.add_argument("--output_img_dir", "--output_img_dir", type=str, default="")
@@ -36,7 +35,7 @@ if __name__ == "__main__":
     batch_size = 1 #当前仅支持batch_size=1 多batch情况下外加一层batch循环即可 保留传入参数batch_size
     
     # load images 循坏补齐为batch_size的整数倍
-    images_list = load_images(args.image_dir,args.batch_size)
+    images_list = load_images(args.image_dir,batch_size)
     
     # load name_dict
     name_dict = np.loadtxt(args.label_dir, dtype='str', delimiter='\n')

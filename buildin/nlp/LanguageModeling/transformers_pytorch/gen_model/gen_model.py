@@ -8,7 +8,7 @@ import cv2
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "transformers model calibrartion and build")
-    parser.add_argument('--quant_mode', type=str,   default='force_float16', required=True ,help='Quant_mode')
+    parser.add_argument('--precision', type=str,   default='force_float16', required=True ,help='Quant_mode')
     parser.add_argument('--batch_size', type=int,   default=8, required=True ,help='batch_size')
     parser.add_argument('--shape_mutable', type=str, default="", required=True ,help='shape_mutable')
     parser.add_argument('--pt_model', type=str, default="", required=True ,help='pt_model')
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # INT64转INT32
     assert config.parse_from_string("{\"opt_config\":{\"type64to32_conversion\": true}}").ok()
     # 选用float16精度模式，支持float16及float32
-    precision_json_str = '{"precision_config" : { "precision_mode" : "%s" }}'%args.quant_mode
+    precision_json_str = '{"precision_config" : { "precision_mode" : "%s" }}'%args.precision
     assert config.parse_from_string(precision_json_str).ok()
     if args.shape_mutable=='true':
         assert config.parse_from_string('{"graph_shape_mutable": true}').ok()
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         }}' % ((BATCH_SIZE, MAX_SEQ_LENGTH) * 3)).ok()
     else:
         assert config.parse_from_string('{"graph_shape_mutable": false}').ok()
-    assert config.parse_from_string("""{"archs": ["mtp_372"]}""").ok()
+    assert config.parse_from_string('{"archs":[{"mtp_372": [2,6,8]}]}').ok()
 
 
     # 设置模型输入形状和数据类型

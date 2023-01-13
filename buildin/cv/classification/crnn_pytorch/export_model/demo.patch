@@ -1,0 +1,27 @@
+diff --git a/demo.py b/demo.py
+index c78e83f..224658d 100644
+--- a/demo.py
++++ b/demo.py
+@@ -7,8 +7,8 @@ from PIL import Image
+ import models.crnn as crnn
+ 
+ 
+-model_path = './data/crnn.pth'
+-img_path = './data/demo.png'
++model_path = '../../data/models/crnn.pth'
++img_path = '../../data/demo.png'
+ alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'
+ 
+ model = crnn.CRNN(32, 1, 37, 256)
+@@ -30,6 +30,11 @@ image = Variable(image)
+ model.eval()
+ preds = model(image)
+ 
++# save pt
++trace_model = torch.jit.trace(model, image)
++torch.jit.save(trace_model, "../../data/models/crnn.pt")
++print("sucessfully save traced model to crnn.pt")
++exit()
+ _, preds = preds.max(2)
+ preds = preds.transpose(1, 0).contiguous().view(-1)
+ 

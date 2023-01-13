@@ -1,18 +1,18 @@
 set -e
 set -x
 #Example:bash run.sh force_float32 false 6
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output
-if [ ! -d $OUTPUT_DIR ];then
-    mkdir -p $OUTPUT_DIR
-fi
 
-QUANT_MODE=$1
+PRECISION=$1
 SHAPE_MUTABLE=$2
 BATCH_SIZE=$3
 
-MM_MODEL="${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
+if [ $SHAPE_MUTABLE == "true" ];then
+    MM_MODEL=${PRECISION}_${SHAPE_MUTABLE}_1
+else
+    MM_MODEL=${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
+fi 
 
-THIS_OUTPUT_DIR="$PROJ_ROOT_PATH/data/output/${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
+THIS_OUTPUT_DIR="$PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
 if [ ! -d $THIS_OUTPUT_DIR ];then
     mkdir -p $THIS_OUTPUT_DIR
     mkdir -p $THIS_OUTPUT_DIR/draw_imgs
@@ -21,7 +21,7 @@ if [ ! -d $THIS_OUTPUT_DIR ];then
 fi
 
 if [ ! -f $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL ];then
-    echo "$MM_MODEL not exist,please go to gen_model folder and run this command:bash run.sh $QUANT_MODE $SHAPE_MUTABLE $BATCH_SIZE!!!"
+    echo "$MM_MODEL not exist,please go to gen_model folder and run this command:bash run.sh $PRECISION $SHAPE_MUTABLE $BATCH_SIZE!!!"
     exit 1
 fi
 

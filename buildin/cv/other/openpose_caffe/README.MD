@@ -6,103 +6,79 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
 
 ## 目录
 
-- [模型概述](#1.模型概述)
-- [前提条件](#2.前提条件)
-- [快速使用](#3.快速使用)
-  - [环境准备](#3.1环境准备)
-  - [下载仓库](#3.2下载仓库)
-  - [下载数据集，模型](#3.3下载数据集,模型)
-  - [编译 MagicMind 模型](#3.4编译MagicMind模型)
-  - [执行推理](#3.5执行推理)
-  - [一键运行](#3.6一键运行)
-- [高级说明](#4.高级说明)
-  - [gen_model 高级说明](#4.1gen_model高级说明)
-  - [infer_cpp 高级说明](#4.2infer_cpp高级说明)
-- [精度和性能 benchmark](#5.精度和性能benchmark)
-  - [性能 benchmark 结果](#5.1性能benchmark结果)
-  - [精度 benchmark 结果](#5.2精度benchmark结果)
-- [免责声明](#6.免责声明)
-- [Release notes](#7.Release_Notes)
+- [模型概述](#1模型概述)
+- [前提条件](#2前提条件)
+- [快速使用](#3快速使用)
+  - [环境准备](#31-环境准备)
+  - [下载仓库](#32-下载仓库)
+  - [下载数据集和模型](#33-下载数据集和模型)
+  - [编译 MagicMind 模型](#34-编译-magicmind-模型)
+  - [执行推理](#35-执行推理)
+  - [一键运行](#36-一键运行)
+- [高级说明](#4高级说明)
+  - [gen_model 高级说明](#41gen_model-高级说明)
+  - [infer_cpp 高级说明](#42infer_cpp-高级说明)
+- [精度和性能 benchmark](#5精度和性能-benchmark)
+  - [性能 benchmark 测试](#51-性能-benchmark-测试)
+  - [精度 benchmark 测试](#52-精度-benchmark-测试)
+- [免责声明](#6免责声明)
 
 ## 1.模型概述
 
-本例使用的 openpose 实现来自 github 开源项目https://github.com/CMU-Perceptual-Computing-Lab/openpose。下面将展示如何将该项目中Caffe实现的openpose模型转换为MagicMind的模型。
+本例使用的 openpose 实现来自 github 开源项目https://github.com/CMU-Perceptual-Computing-Lab/openpose
+
+下面将展示如何将该项目中Caffe实现的openpose模型转换为MagicMind的模型。
 
 ## 2.前提条件
 
-- Linux 常见操作系统版本(如 Ubuntu16.04，Ubuntu18.04，CentOS7.x 等)，安装 docker(>=v18.00.0)应用程序；
-- 服务器装配好寒武纪计算版本 MLU370 S4 或 MLU370 X4，并安装好驱动(>=v4.20.6)；
-- 若不具备以上软硬件条件，可前往寒武纪云平台注册并试用@TODO
+请移至[主页面 README.md](../../../../README.md)的`2.前提条件`
 
 ## 3.快速使用
 
 ### 3.1 环境准备
 
-若基于寒武纪云平台环境可跳过该环节。否则需运行以下步骤：
-
-1.下载 MagicMind(version >= 0.13.0)镜像(下载链接待开放)，名字如下：
-
-magicmind_version_os.tar.gz
-
-2.加载：
-
-```bash
-docker load -i magicmind_version_os.tar.gz
-```
-
-3.运行：
-
-```bash
-docker run -it --name=dockername --network=host --cap-add=sys_ptrace -v /your/host/path/MagicMind:/MagicMind -v /usr/bin/cnmon:/usr/bin/cnmon --device=/dev/cambricon_dev0:/dev/cambricon_dev0 --device=/dev/cambricon_ctl -w /MagicMind/ magicmind_version_image_name:tag_name /bin/bash
-```
+请移至[主页面 README.md](../../../../README.md)的`3.环境准备`
 
 ### 3.2 下载仓库
 
 ```bash
 # 下载仓库
-git clone https://gitee.com/cambricon/magicmind_cloud.git
+git clone 本仓库
+cd magicmind_cloud/buildin/cv/other/openpose_caffe
 ```
 
-在开始运行代码前需要执行以下命令安装必要的库：
+在开始运行代码前需要先安装依赖：
 
 ```bash
 pip install -r requirement.txt
 ```
 
-在开始运行代码前需要先检查 env.sh 里的环境变量，并且执行以下命令：
+在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `DATASETS_PATH`, 并且执行以下命令：
 
 ```bash
 source env.sh
 ```
 
-### 3.3 下载数据集,模型
+### 3.3 下载数据集和模型
 
 ```bash
 cd $PROJ_ROOT_PATH/export_model
-./run.sh
+bash run.sh
 ```
 
 ### 3.4 编译 MagicMind 模型
 
 ```bash
 cd $PROJ_ROOT_PATH/gen_model
-./run.sh qint8_mixed_float16 1
+#bash run.sh <precision> <batch_size>
+bash run.sh qint8_mixed_float16 1
 ```
 
 ### 3.5 执行推理
 
-infer_cpp 执行推理
-编译 infer_cpp 目录，在当前目录输出 x86 可执行文件`bin/infer`:
-
 ```bash
-cd $PROJ_ROOT_PATH/infer_cpp
-./build.sh
-```
-
-推理：
-
-```bash
-./run.sh qint8_mixed_float16 1
+#bash run.sh <precision> <batch_size>
+bash run.sh qint8_mixed_float16 1
 ```
 
 使用 COCO API 计算精度:
@@ -143,7 +119,7 @@ python $UTILS_PATH/compute_coco_keypoints.py --ann_file $DATASETS_PATH/annotatio
 
 ### 3.6 一键运行
 
-以上 3.3~3.5 的步骤也可以通过运行./run.sh 来实现一键执行
+以上 3.3~3.5 的步骤也可以通过运行 cd magicmind_cloud/buildin/cv/other/openpose_caffe && bash run.sh 来实现一键执行
 
 ## 4.高级说明
 
@@ -163,7 +139,7 @@ Caffe openpose 模型转换为 MagicMind yolov5 模型分成以下几步：
 - `input_width`: W。
 - `input_height`: H。
 - `output_model`: 保存 MagicMind 模型路径。
-- `quant_mode`: 量化模式，如 force_float32，force_float16，qint8_mixed_float16。
+- `precision`: 精度模式，如 force_float32，force_float16，qint8_mixed_float16。
 - `calibrate_list`: 输入图片文件列表，使用列表中文件做为输入进行模型量化。
 - `device_id`: 设备号。
 
@@ -187,7 +163,7 @@ Caffe openpose 模型转换为 MagicMind yolov5 模型分成以下几步：
 
 ## 5.精度和性能 benchmark
 
-### 5.1 性能 benchmark 结果
+### 5.1 性能 benchmark 测试
 
 本仓库通过寒武纪提供的 Magicmind 性能测试工具 mm_run 展示性能数据
 
@@ -201,36 +177,27 @@ mm_run --magicmind_model $MM_MODEL --batch $BATCH_SIZE --devices $DEV_ID --threa
 
 ```bash
 cd $PROJ_ROOT_PATH/benchmark
-./perf.sh
+bash perf.sh
 ```
 
-### 5.2 精度 benchmark 结果
+### 5.2 精度 benchmark 测试
 
 一键运行 benchmark 里的脚本：
 
 ```bash
 cd $PROJ_ROOT_PATH/benchmark
-./eval.sh
+bash eval.sh
 ```
 
 通过快速使用中 3.5 的脚本跑出 openpose 在 COCO2017 数据集上的 AP 如下：
-| Model | Quant_Mode | Batch_Size | AP IoU=0.50 |MLU 板卡类型 |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| BODY_25 | force_float32 | 1 | 0.779 | MLU370 S4 |
-| BODY_25 | force_float16 | 1 | 0.780 | MLU370 S4 |
-| BODY_25 | qint8_mixed_float16 | 1 | 0.766 | MLU370 S4 |
-| COCO | force_float32 | 1 | 0.752 | MLU370 S4 |
-| COCO | force_float16 | 1 | 0.752 | MLU370 S4 |
-| COCO | qint8_mixed_float16 | 1 | 0.742 | MLU370 S4 |
-
-| Model   | Quant_Mode          | Batch_Size | AP IoU=0.50 | MLU 板卡类型 |
-| ------- | ------------------- | ---------- | ----------- | ------------ |
-| BODY_25 | force_float32       | 1          | 0.779       | MLU370 X4    |
-| BODY_25 | force_float16       | 1          | 0.780       | MLU370 X4    |
-| BODY_25 | qint8_mixed_float16 | 1          | 0.766       | MLU370 X4    |
-| COCO    | force_float32       | 1          | 0.752       | MLU370 X4    |
-| COCO    | force_float16       | 1          | 0.752       | MLU370 X4    |
-| COCO    | qint8_mixed_float16 | 1          | 0.742       | MLU370 X4    |
+| Model   | Precision          | Batch_Size | AP IoU=0.50 |
+| ------- | ------------------- | ---------- | ----------- |
+| BODY_25 | force_float32       | 1          | 0.779       |
+| BODY_25 | force_float16       | 1          | 0.780       |
+| BODY_25 | qint8_mixed_float16 | 1          | 0.766       |
+| COCO    | force_float32       | 1          | 0.752       |
+| COCO    | force_float16       | 1          | 0.752       |
+| COCO    | qint8_mixed_float16 | 1          | 0.742       |
 
 ## 6.免责声明
 
@@ -245,7 +212,3 @@ cd $PROJ_ROOT_PATH/benchmark
 - COCO caffemodel 下载链接：http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/coco/pose_iter_440000.caffemodel
 - openpose GITHUB 下载链接：https://github.com/CMU-Perceptual-Computing-Lab/openpose.git
 - rapidjson 代码下载链接：https://github.com/miloyip/rapidjson.git
-
-## 7.Release_Notes
-
-@TODO

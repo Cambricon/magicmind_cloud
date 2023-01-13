@@ -108,6 +108,7 @@ if __name__ == '__main__':
         predictions = json.load(prediction_file)
     exact_match, f1 = evaluate(dataset, predictions)
     f = open(args.result_file, "w")
+    print('exact, %.4f, f1, %.4f\n' %(exact_match, f1))
     f.write('exact_match, f1: exact, %.4f, f1, %.4f\n' %(exact_match, f1))
 #    f.write('f1: %.4f\n' %(f1))
     f.close()

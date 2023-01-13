@@ -1,0 +1,5 @@
+tensorflow-cpu==1.15
+gdown
+easydict
+tf_slim
+shapely

@@ -2,27 +2,41 @@
 set -e
 set -x
 
-QUANT_MODE=$1  
+PRECISION=$1  
 SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
+SAVE_IMG=$3
 IMAGE_NUM=$4
-
+# fi
 if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
 then
     mkdir "$PROJ_ROOT_PATH/data/output"
 fi
-if [ ! -d "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_1" ]; 
+
+OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/infer_cpp_output_${PRECISION}_${SHAPE_MUTABLE}_1
+if [ -d $OUTPUT_DIR ];
 then
-    mkdir "$PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_1"
+    echo "output dir already exits!!! no need to mkdir again!!!"
+else
+    mkdir $OUTPUT_DIR
+    echo "mkdir successed!!!"
 fi
-bash $PROJ_ROOT_PATH/infer_cpp/build.sh
-$PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model $PROJ_ROOT_PATH/data/models/centernet_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+
+if [ ${SHAPE_MUTABLE} == 'false' ];
+then
+    MAGICMIND_MODEL=$MODEL_PATH/centernet_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}_1
+else
+    MAGICMIND_MODEL=$MODEL_PATH/centernet_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}
+fi
+
+
+bash build.sh
+$PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model  $MAGICMIND_MODEL \
                                   --image_dir $DATASETS_PATH/val2017 \
                                   --image_num ${IMAGE_NUM} \
                                   --file_list $UTILS_PATH/coco_file_list_5000.txt \
                                   --label_path $UTILS_PATH/coco.names \
                                   --max_bbox_num 100 \
                                   --confidence_thresholds 0.001 \
-                                  --output_dir $PROJ_ROOT_PATH/data/output/infer_cpp_output_${QUANT_MODE}_${SHAPE_MUTABLE}_1 \
+                                  --output_dir $OUTPUT_DIR \
                                   --save_img true \
 

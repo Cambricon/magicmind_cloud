@@ -1,70 +1,34 @@
 #!/bin/bash
 set -e
 set -x
-QUANT_MODE=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-BATCH=$4
-THREADS=$5
 
 MM_RUN(){
-    QUANT_MODE=$1
+    PRECISION=$1
     SHAPE_MUTABLE=$2
     BATCH_SIZE=$3
-    BATCH=$4
-    THREADS=$5
-    if [ ! -d $PROJ_ROOT_PATH/data/output ];
-    then
-        mkdir "$PROJ_ROOT_PATH/data/output"
-    fi
-    ${MM_RUN_PATH}/mm_run --magicmind_model $MODEL_PATH/yolov5_pytorch_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-	                  --iterations 1000 \
-			  --batch ${BATCH} \
-			  --threads ${THREADS} \
-			  --devices 0 2>&1 |tee $PROJ_ROOT_PATH/data/output/${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}_log_perf
-    fps=`cat "$PROJ_ROOT_PATH/data/output/${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}_log_perf" | grep "Throughput (qps):"`
-    fps=`eval echo "${fps:18}"`
-    python $MAGICMIND_CLOUD/test/record_result.py --fps ${fps}
+    ${MM_RUN_PATH}/mm_run   --magicmind_model $MODEL_PATH/yolov5_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
+                            --iterations 1000 \
+                            --batch_size ${BATCH_SIZE} \
+                            --devices 0 2>&1 |tee $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}_log_perf
 }
 
-###dynamic
-if [ $# != 0 ];
-then
-    MM_RUN ${QUANT_MODE} ${SHAPE_MUTABLE} ${BATCH_SIZE} ${BATCH} ${THREADS}
-else
-    echo "Parm Doesn't exist, run benchmark"
-    cd $PROJ_ROOT_PATH/export_model
-    bash run.sh 1
-    for quant_mode in force_float32 force_float16 qint8_mixed_float16
-    do
-        cd $PROJ_ROOT_PATH/gen_model
-        bash run.sh $quant_mode true 1 0.001 0.65 1000
-        for batch in 1 4 8
-        do 
-            for threads in 1  
-            do
-                MM_RUN $quant_mode true 1 $batch $threads
-                python $MAGICMIND_CLOUD/test/compare_perf.py --output_file $PROJ_ROOT_PATH/data/output/${quant_mode}_true_${batch}_log_perf --output_ok_file $PROJ_ROOT_PATH/data/output_ok/${quant_mode}_true_${batch}_log_perf --model yolov5_v6_1_pytorch
-            done
+languages=infer_cpp
+image_num=5000
+conf=0.001
+iou=0.65
+max_det=1000
+
+cd $PROJ_ROOT_PATH/export_model
+bash run.sh
+for shape_mutable in false
+do
+    for precision in force_float32 force_float16 qint8_mixed_float16
+    do  
+        for batch_size in 1 4 8
+        do
+            cd $PROJ_ROOT_PATH/gen_model
+            bash run.sh $precision $shape_mutable $batch_size $conf $iou $max_det
+            MM_RUN $precision $shape_mutable $batch_size
         done
     done
-fi
-####static 
-#for batch_size in 1 4 8
-#do
-#  cd $PROJ_ROOT_PATH/export_model
-#  bash run.sh $batch_size
-#  for quant_mode in force_float32 force_float16 qint8_mixed_float16
-#  do
-#    cd $PROJ_ROOT_PATH/gen_model
-#    bash run.sh $quant_mode false $batch_size 0.001 0.65 1000
-#    for threads in 1
-#    do
-#      MM_RUN $batch_size $threads $quant_mode false $batch_size
-#    done
-#  done
-#done
-  
-
-
-
+done

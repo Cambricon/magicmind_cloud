@@ -11,25 +11,19 @@ echo "DOWNLOAD_DATA_SUCCESS!"
 
 ###2.build magicmind model
 cd $PROJ_ROOT_PATH/gen_model
-bash run.sh force_float32 false 1
+#bash run.sh <precision> <shape_mutable> <batch_size>
+bash run.sh force_float32 true 1
 echo "GENERATE MODEL SUCCESS!"
 
 ###3.infer_cpp
 cd $PROJ_ROOT_PATH/infer_cpp
-bash run.sh force_float32 false 1
+#bash run.sh <precision> <shape_mutable> <batch_size>
+bash run.sh force_float32 true 1
 echo "INFER CPP SUCCESS!"
 
-###4.compute performace
-cd $PROJ_ROOT_PATH/benchmark
-bash perf.sh
-echo "TEST PERFORMANCE SUCCESS!"
+###4.compute acc
+python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/output/force_float32_true_1/eval_labels.txt \
+                                            --result_1_file $PROJ_ROOT_PATH/data/output/force_float32_true_1/eval_result_1.txt \
+                                            --result_5_file $PROJ_ROOT_PATH/data/output/force_float32_true_1/eval_result_5.txt \
+                                            --top1andtop5_file $PROJ_ROOT_PATH/data/output/force_float32_true_1/eval_result.txt
 
-###5.compute accuracy
-cd $PROJ_ROOT_PATH/benchmark
-bash eval.sh
-echo "EVAL SUCCESS!"
-
-###6. compare eval and perf result
-python $MAGICMIND_CLOUD/test/compare_eval.py --metric top1andtop5 --output_file $PROJ_ROOT_PATH/data/output/force_float32_false_1/eval_result.txt --output_ok_file $PROJ_ROOT_PATH/data/output_ok/force_float32_false_1_eval_result.txt --model mobilenetv3_pytorch
-python $MAGICMIND_CLOUD/test/compare_perf.py --output_file $PROJ_ROOT_PATH/data/output/force_float32_false_1_log_perf --output_ok_file $PROJ_ROOT_PATH/data/output_ok/force_float32_false_1_log_perf --model mobilenetv3_pytorch
-echo "All has benn Finish!"

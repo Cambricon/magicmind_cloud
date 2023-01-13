@@ -9,6 +9,10 @@ from transformers.trainer_pt_utils import nested_concat,nested_truncate
 from torch.utils.data import DataLoader, SequentialSampler
 from datasets import load_dataset, load_metric
 
+import os 
+
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+
 # metrics
 def compute_metrics(p: EvalPrediction):
     preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
@@ -49,7 +53,8 @@ if __name__ == "__main__":
     eval_sampler = SequentialSampler(eval_dataset)
     dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=BATCH_SIZE,
                             collate_fn=default_data_collator, drop_last=True)
-    metric = load_metric('glue', 'mrpc')
+
+    metric = load_metric(os.path.join(cur_dir,'../export_model/glue.py'), 'mrpc')
         
     with mm.System() as mm_sys:  # 初始化系统
         dev_count = mm_sys.device_count()

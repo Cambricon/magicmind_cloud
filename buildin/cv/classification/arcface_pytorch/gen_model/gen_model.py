@@ -19,7 +19,7 @@ def pytorch_parser(args):
 
 def generate_model_config(args):
     config = mm.BuilderConfig()
-    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.quant_mode).ok()
+    assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     assert config.parse_from_string('{"opt_config":{"type64to32_conversion":true}}').ok()
     assert config.parse_from_string('{"opt_config":{"conv_scale_fold":true}}').ok()
     # assert config.parse_from_string('{"opt_config":{"tfu_enable":false}}').ok()
@@ -122,7 +122,7 @@ def main():
             type = int, help = 'model input height')
     args.add_argument('--output_model_path', dest = 'output_model_path', default = str(PROJ_ROOT_PATH) + '/data/models/arcface_qint8_mixed_float16_1.mm',
             type = str, help = 'output model path')
-    args.add_argument('--quant_mode', dest = 'quant_mode', default = 'qint8_mixed_float16',
+    args.add_argument('--precision', dest = 'precision', default = 'qint8_mixed_float16',
             type = str, help = 'precision mode, qint8_mixed_float16 qint8_mixed_float32 force_float16 force float32 are supported')
     args.add_argument('--image_dir', dest = 'image_dir', default = 'file_list.txt',
             type = str, help = 'image list file path, file contains input image paths for calibration')
@@ -133,13 +133,13 @@ def main():
     args = args.parse_args()
 
     supported_precision = ['qint8_mixed_float16', 'qint8_mixed_float32', 'force_float16', 'force_float32']
-    if args.quant_mode not in supported_precision:
-        print('precision mode [' + args.quant_mode + ']', 'not supported')
+    if args.precision not in supported_precision:
+        print('precision mode [' + args.precision + ']', 'not supported')
         exit()
 
     network = pytorch_parser(args)
     config = generate_model_config(args)
-    if args.quant_mode.find('qint') != -1:
+    if args.precision.find('qint') != -1:
         print('do calibrate...')
         calibrate(args, network, config)
     print('build model...')

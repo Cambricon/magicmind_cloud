@@ -24,7 +24,7 @@ def load_images(image_dir,bs):
     for _file in os.listdir(image_dir):
         if ".jpg" or ".JPEG" in _file:
             images.append(_file)
-    patch = bs - len(images) % bs
+    patch = bs - len(images) % bs if len(images) % bs != 0 else 0
     for i in range(patch):
         images.append(images[i])
     return images

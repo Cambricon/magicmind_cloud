@@ -1,25 +1,12 @@
 set -e
 set -x
 
-cd $PROJ_ROOT_PATH/export_model/
-bash run.sh
-
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output
-if [ ! -d $OUTPUT_DIR ];then
-    mkdir -p $OUTPUT_DIR
-fi
-
-QUANT_MODE=$1
+PRECISION=$1
 SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
+BATCH_SIZE=1
 
-if [ $2 == "true" ];then
-    MM_MODEL="${QUANT_MODE}_${SHAPE_MUTABLE}_1"
-else
-    MM_MODEL="${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
-fi
-
-THIS_OUTPUT_DIR="$PROJ_ROOT_PATH/data/output/$MM_MODEL"
+MM_MODEL=${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
+THIS_OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
 if [ ! -d $THIS_OUTPUT_DIR ];then
     mkdir -p $THIS_OUTPUT_DIR
     mkdir -p $THIS_OUTPUT_DIR/bbox_imgs
@@ -29,15 +16,15 @@ if [ ! -d $THIS_OUTPUT_DIR ];then
 fi
 
 if [ ! -f $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL ];then
-    echo "$MM_MODEL not exist,please go to gen_model folder and run this command:bash run.sh $QUANT_MODE $SHAPE_MUTABLE $BATCH_SIZE!!!"
+    echo "$MM_MODEL not exist,please go to gen_model folder and run this command:bash run.sh $PRECISION $SHAPE_MUTABLE $BATCH_SIZE!!!"
     exit 1
 fi
 
 cd $PROJ_ROOT_PATH/infer_python/
 DEV_ID=0
+# test_nums eauals to -1 means all images
 python infer.py --magicmind_model $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL \
                 --device_id $DEV_ID \
-                --batch_size ${BATCH_SIZE} \
                 --image_dir ${DATASETS_PATH}/val2017 \
                 --label_dir ${UTILS_PATH}/coco.names \
                 --output_img_dir $THIS_OUTPUT_DIR/bbox_imgs \
@@ -48,5 +35,4 @@ python infer.py --magicmind_model $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL \
                 --score_th 0.3 \
                 --save_mask 0 \
                 --input_size 800 \
-                --test_nums 1000
-
+                --test_nums -1

@@ -9,7 +9,7 @@ from calibrator import CalibData
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "c3d caffe model calibrartion and build")
-    parser.add_argument('--quant_mode', type=str,   default='', required=True ,help='Quant_mode')
+    parser.add_argument('--precision', type=str,   default='', required=True ,help='Quant_mode')
     parser.add_argument('--batch_size', type=int,   default=8, required=True ,help='batch_size')
     parser.add_argument('--shape_mutable', type=str, default="", required=True ,help='shape_mutable')
     parser.add_argument('--datasets_dir', type=str, default="", required=True ,help='datasets_dir')
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     RESIZE_HEIGHT = 128
     # MLU设备id
 
-    #${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE}
+    #${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
     # 设置生成的magicmind模型路径
     MM_MODEL = args.mm_model
     # 创建MagicMind parser
@@ -46,13 +46,14 @@ if __name__ == "__main__":
     network.get_input(0).set_dimension(mm.Dims((BATCH_SIZE, 3, CLIP_LEN, INPUT_SIZE[0], INPUT_SIZE[1])))
 
     config = mm.BuilderConfig()
-    precision_json_str = '{"precision_config" : { "precision_mode" : "%s" }}'%args.quant_mode
+    precision_json_str = '{"precision_config" : { "precision_mode" : "%s" }}'%args.precision
     assert config.parse_from_string(precision_json_str).ok()
     assert config.parse_from_string("{\"opt_config\":{\"type64to32_conversion\":true}}").ok()
     assert config.parse_from_string("{\"opt_config\":{\"conv_scale_fold\":true}}").ok()
     # 禁用模型输入输出规模可变功能
     if args.shape_mutable=='true':
         assert config.parse_from_string('{"graph_shape_mutable": true}').ok()
+        assert config.parse_from_string('{"dim_range": {"0": {"min": [1,3,8,112,112], "max": [32,3,8,112,112]}}}').ok()
     else:
         assert config.parse_from_string('{"graph_shape_mutable": false}').ok()
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
     # 设置量化粒度，支持按tensor量化（per_tensor）和按通道量化（per_axis）两种。
     assert config.parse_from_string('{"precision_config": {"weight_quant_granularity": "per_tensor"}}').ok()
 
-    if args.quant_mode != "force_float16" and args.quant_mode != "force_float32":
+    if args.precision != "force_float16" and args.precision != "force_float32":
         # 样本数据所在目录(目录中需存放若干jpg格式图片)
         CALIB_VIDEO_LIST = [os.path.join(DATASET_DIR,'WritingOnBoard/v_WritingOnBoard_g21_c06.avi'),
                             os.path.join(DATASET_DIR,'WalkingWithDog/v_WalkingWithDog_g16_c04.avi'),
@@ -92,7 +93,7 @@ if __name__ == "__main__":
         assert dev.active().ok()
 
     # 进行量化
-    if args.quant_mode != "force_float16" and args.quant_mode != "force_float32":
+    if args.precision != "force_float16" and args.precision != "force_float32":
         print("Calibrating......")
         assert calibrator.calibrate(network, config).ok()
         print("Calibrating done!")

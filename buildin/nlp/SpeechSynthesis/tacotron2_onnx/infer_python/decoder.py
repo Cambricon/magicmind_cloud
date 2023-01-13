@@ -13,9 +13,9 @@ def load_decoder_input_model(device : mm.Device):
     zero_const_int = network.add_i_const_node(mm.DataType.INT32, mm.Dims([]), [0])
     one_const_1_dim = network.add_i_const_node(mm.DataType.INT32, mm.Dims([1]), [1])
     zero_const_1_dim = network.add_i_const_node(mm.DataType.INT32, mm.Dims([1]), [0])
-    memory_size = network.add_input(mm.DataType.INT32, mm.Dims([1]))
+    memory_size = network.add_input(mm.DataType.INT32, mm.Dims([]))
     sequence_lengths = network.add_input(mm.DataType.INT32)
-    max_sequence_len = network.add_input(mm.DataType.INT32, mm.Dims([1]))
+    max_sequence_len = network.add_input(mm.DataType.INT32, mm.Dims([]))
 
     '''
     mask, implementation:

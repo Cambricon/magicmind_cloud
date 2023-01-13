@@ -10,10 +10,26 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str)
 parser.add_argument("--output_file", type=str)
 parser.add_argument("--output_ok_file", type=str)
-parser.add_argument("--metric", type=str, choices = ["top1andtop5", "cocomAP", "vocmAP", "unet", "squad", "voc_miou", "1e5and1e4", "mrpc", "u2net", "cocoKeyPoints"])
+parser.add_argument("--metric", type=str, choices = ["top1", "top1andtop5", "cocomAP", "vocmAP", "unet", "squad", "voc_miou", "1e5and1e4", "mrpc", "u2net", "cocoKeyPoints", "total_text"])
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.split(__file__)[0], ""))
 report_file = "%s/eval_report.csv"%ROOT_DIR
+# top1 compare
+def compare_top1(file1, file2):
+    with open(file1, "r") as f:
+        lines1 = f.readlines()
+    with open(file2, "r") as f:
+        lines2 = f.readlines()
+    old_top1 = []
+    new_top1 = []
+    for l1 in lines1:
+        new_top1.append(float(l1.split(":")[1].strip()))
+    for l2 in lines2:
+        old_top1.append(float(l2.split(":")[1].strip()))
+    status = new_top1[0] >= old_top1[0]
+    top1_diff = new_top1[0] - old_top1[0]
+    return status, top1_diff
+
 # top1andtop5 compare
 def compare_top1andtop5(file1, file2):
     with open(file1, "r") as f:
@@ -131,6 +147,50 @@ def compute_voc_miou(file1, file2):
     voc_miou_diff = new_voc_miou - old_voc_miou
     status = new_voc_miou >= old_voc_miou
     return status, voc_miou_diff
+
+def compute_total_text(file1, file2):
+    with open(file1, "r") as f:
+        lines1 = f.readlines()
+    with open(file2, "r") as f:
+        lines2 = f.readlines()
+    new_precision = float(lines1[0].split(" ")[2])
+    new_recall = float(lines1[1].split(" ")[2])
+    new_fmeasure = float(lines1[2].split(" ")[2])
+    old_precision = float(lines2[0].split(" ")[2])
+    old_recall =  float(lines2[1].split(" ")[2])
+    old_fmeasure = float(lines2[2].split(" ")[2])
+
+
+    status = new_precision >= old_precision
+    precision_diff = new_precision - old_precision
+    return status, precision_diff
+
+def summary_top1(testcase_name, file, metric, result, top1_diff):
+    header = ["testcase", "file", "metric", "status", "top1_diff"]
+    show_tb = prettytable.PrettyTable()
+    show_tb.align = "l"
+    show_tb.field_names = header
+    report_file = "%s/eval_top1_report.csv"%ROOT_DIR
+    if os.path.exists(report_file):
+        with open(report_file, "r") as f:
+            tb = prettytable.from_csv(f)
+            tb.align = "l"
+    else:
+        tb = prettytable.PrettyTable()
+        tb.field_names = header
+        tb.align = "l"
+
+    if result:
+        status = "pass"
+    else:
+        status = "fail"
+
+    show_tb.add_row ([testcase_name, file.split("/")[-1], metric, status, top1_diff])
+    tb.add_row ([testcase_name ,file.split("/")[-1], metric, status, top1_diff])
+
+    print(show_tb)
+    with open(report_file, "w") as f:
+        f.write(tb.get_csv_string())
 
 def summary_top1andtop5(testcase_name, file, metric, result, top1_diff, top5_diff):
     header = ["testcase", "file", "metric", "status", "top1_diff", "top5_diff"]
@@ -403,6 +463,33 @@ def summary_voc_miou(testcase_name, file, metric, result, voc_miou_diff):
     with open(report_file, "w") as f:
         f.write(tb.get_csv_string())
 
+def summary_total_text(testcase_name, file, metric, result, precision_diff):
+    header = ["testcase", "file", "metric", "status", "precision_diff"]
+    show_tb = prettytable.PrettyTable()
+    show_tb.align = "l"
+    show_tb.field_names = header
+    report_file = "%s/eval_total_text_report.csv"%ROOT_DIR
+    if os.path.exists(report_file):
+        with open(report_file, "r") as f:
+            tb = prettytable.from_csv(f)
+            tb.align = "l"
+    else:
+        tb = prettytable.PrettyTable()
+        tb.field_names = header
+        tb.align = "l"
+
+    if result:
+        status = "pass"
+    else:
+        status = "fail"
+
+    show_tb.add_row ([testcase_name, file.split("/")[-2], metric, status, precision_diff])
+    tb.add_row ([testcase_name ,file.split("/")[-2], metric, status, precision_diff])
+
+    print(show_tb)
+    with open(report_file, "w") as f:
+        f.write(tb.get_csv_string())
+
 def summary(testcase_name, file, metric, result):
     header = [ "testcase" , "file" , "metric", "similar", "status"]
     show_tb = prettytable.PrettyTable()
@@ -436,7 +523,10 @@ if __name__ == "__main__":
         result = "file: %s not exists."%output_ok_file
         summary(testcase_name, args.output_file, args.metric, result)
     else:
-        if args.metric == "top1andtop5":
+        if args.metric == "top1":
+            result, top1_diff = compare_top1(output_file, output_ok_file)
+            summary_top1(testcase_name, args.output_file, args.metric, result, top1_diff)
+        elif args.metric == "top1andtop5":
             result, top1_diff, top5_diff = compare_top1andtop5(output_file, output_ok_file)
             summary_top1andtop5(testcase_name, args.output_file, args.metric, result, top1_diff, top5_diff)
         elif args.metric == "1e5and1e4":
@@ -466,6 +556,9 @@ if __name__ == "__main__":
         elif args.metric == "mrpc":
             result, acc_diff, f1_diff = compute_mrpc(output_file, output_ok_file)
             summary_mrpc(testcase_name, args.output_file, args.metric, result, acc_diff, f1_diff)
+        elif args.metric == "total_text":
+            result, precision_diff = compute_total_text(output_file, output_ok_file)
+            summary_total_text(testcase_name, args.output_file, args.metric, result, precision_diff)
         else:
             result = "metric: %s not support."%args.metric
             summary(testcase_name, args.output_file, args.metric, result)

@@ -2,11 +2,18 @@
 set -e
 set -x
 
-if [ -d $PROJ_ROOT_PATH/data/models ];
+if [ -d $MODEL_PATH ];
 then
-    echo "folder $PROJ_ROOT_PATH/data/models already exist!!!"
+    echo "folder $MODEL_PATH already exist!!!"
 else
-    mkdir "$PROJ_ROOT_PATH/data/models"
+    mkdir -p "$MODEL_PATH"
+fi
+
+if [ -d $DATASETS_PATH ];
+then
+    echo "folder $DATASETS_PATH already exist!!!"
+else
+    mkdir -p "$DATASETS_PATH"
 fi
 
 cd $DATASETS_PATH

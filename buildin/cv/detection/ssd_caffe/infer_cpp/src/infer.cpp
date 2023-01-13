@@ -72,36 +72,34 @@ int main(int argc, char **argv){
 
     // 5. memory alloc
     // input tensor mlu ptrs
-    void *input_mlu_addr_ptr;
+    void *ptr = nullptr;
     auto input_dim_vec = model->GetInputDimension(0).GetDims();
     if (input_dim_vec[0] == -1) {
       input_dim_vec[0] = FLAGS_batch;
     }
     magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
     input_tensors[0]->SetDimensions(input_dim);
-    CNRT_CHECK(cnrtMalloc(&input_mlu_addr_ptr, input_tensors[0]->GetSize()));
-    MM_CHECK(input_tensors[0]->SetData(input_mlu_addr_ptr));
-
-    // output tensor mlu ptrs
-    void *output_mlu_addr_ptr = nullptr;
-    if (magicmind::Status::OK() == context->InferOutputShape(input_tensors, output_tensors)) {
-      for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
-        CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, output_tensors[output_id]->GetSize()));
-        MM_CHECK(output_tensors[output_id]->SetData(output_mlu_addr_ptr));
-      }
+    if (input_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+        CNRT_CHECK(cnrtMalloc(&ptr, input_tensors[0]->GetSize()));
+        MM_CHECK(input_tensors[0]->SetData(ptr));
     }
-    //else {
-    //  output_tensors.clear();
-    //  CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, max_box * 7 * sizeof(output_tensors[0]->GetDataType())));
-    //  MM_CHECK(output_tensors[0]->SetData(output_mlu_addr_ptr));
-    //  std::cout<<"!!!"<<output_tensors[0]->GetSize()<<std::endl;
-    //}
+    // output tensor mlu ptrs
+    bool dynamic_output = false;
+    if (magicmind::Status::OK() == context->InferOutputShape(input_tensors, output_tensors)) {
+      std::cout << "InferOutputShape successed" << std::endl;
+      if (output_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+        CNRT_CHECK(cnrtMalloc(&ptr, output_tensors[0]->GetSize()));
+        MM_CHECK(output_tensors[0]->SetData(ptr));
+      } 
+    } else {
+        std::cout << "InferOutputShape failed" << std::endl;
+        dynamic_output = true;
+    }
 
     //output_tensor cpu ptrs
     float *data_ptr = nullptr;
     data_ptr = new float[max_box * 7];
     int detection_num;
-    vector<vector<float>> results;
 
     // 6. load image
     std::cout << "================== Load Images ====================" << std::endl;
@@ -114,16 +112,18 @@ int main(int argc, char **argv){
     std::cout << "Total images : " << image_num << std::endl; 
     std::cout << "Start run..." << std::endl; 
     for (int i = 0 ; i < image_num ; i ++) {
+      vector<vector<float>> results;
       auto begin = image_paths[i].find_last_of('/');
       auto end = image_paths[i].find_last_of('.');
       auto len = end - begin - 1;
       string image_name = image_paths[i].substr(begin + 1, len);
-      std::cout << "Inference img : " << image_name << "\t\t\t" << i << "/" << image_num << std::endl;
+      std::cout << "Inference img : " << image_name << "\t\t\t" << i+1 << "/" << image_num << std::endl;
       Mat img = imread(image_paths[i]);
       Mat img_pro = process_img(img);
       CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(), img_pro.data, input_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_HOST2DEV));
 
       // 8. compute
+      // output_tensors.clear();
       MM_CHECK(context->Enqueue(input_tensors, &output_tensors, queue));
       CNRT_CHECK(cnrtQueueSync(queue));
 
@@ -157,20 +157,29 @@ int main(int argc, char **argv){
     }
 
     // 10. destroy resource
+    // destroy must do strictly as follow
+    // destroy tensor/address first
     delete[] data_ptr;
     for (auto tensor : input_tensors) {
+      if (tensor->GetMemoryLocation() == magicmind::TensorLocation::kMLU){
         cnrtFree(tensor->GetMutableData());
-        tensor->Destroy();
+      }
+      tensor->Destroy();
     }
     for (auto tensor : output_tensors) {
-	if (output_mlu_addr_ptr != nullptr){
-	    cnrtFree(tensor->GetMutableData());
-	}
-        tensor->Destroy();
+      if (!dynamic_output){
+        cnrtFree(tensor->GetMutableData());
+      }
+      tensor->Destroy();
     }
+    // destroy context
     context->Destroy();
+    // destory engine
     engine->Destroy();
+    // destroy model
     model->Destroy();
+    // destroy other
+    cnrtQueueDestroy(queue);
     return 0;
 }
 

@@ -6,7 +6,7 @@ if [ -d $DATASETS_PATH  ];
 then 
     echo "ILSVRC2012 datasets already exists."
 else
-    echo "Please follow the README.md to download the ILSVRC2012 datasets."
+    echo "Please use the URL in the end of README.md to download ILSVRC2012"
     exit -1
 fi
 
@@ -16,7 +16,7 @@ if [ -f $MODEL_PATH/deploy_resnext50-32x4d.prototxt ] \
 then 
     echo "The resnext50 model already exists."
 else
-    echo "Please follow the README.md to download the Model Zoo in $MODEL_PATH"
+    echo "Please use the URL in the end of README.md to download the Model, and move it to $MODEL_PATH"
     exit -1
 fi
 

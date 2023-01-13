@@ -177,8 +177,7 @@ int main(int argc, char **argv) {
     if (i == image_num) continue;
     std::string image_name = test->image_paths[i].substr(
         test->image_paths[i].find_last_of('/') + 1, 23);
-    std::cout << "Inference img : " << test->image_paths[i] << "\t\t\t" << i + 1
-              << "/" << image_num << std::endl;
+    std::cout << "Inference img : " << test->image_paths[i] << "\t\t\t" << i + 1 << "/" << image_num << std::endl;
     cv::Mat img = cv::imread(test->image_paths[i]);
     // pre-process
     if (img.data != NULL) {

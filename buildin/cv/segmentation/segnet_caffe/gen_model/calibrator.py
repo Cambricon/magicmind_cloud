@@ -2,14 +2,17 @@ import numpy as np
 import cv2
 import os
 import magicmind.python.runtime as mm
+import glob
 class CalibData(mm.CalibDataInterface):
-    def __init__(self, shape: mm.Dims, max_samples: int, img_dir: str, img_name_list: str):
+    def __init__(self, shape: mm.Dims, max_samples: int, img_dir: str):
         super().__init__()
         assert os.path.isdir(img_dir)
-        self.name_list_ = img_name_list
+        self.data_paths_ = glob.glob(img_dir + '/*.jpg')
+        t = glob.glob(img_dir + '/*.JPEG')
+        self.data_paths_ += t
         self.img_dir_ = img_dir
         self.shape_ = shape
-        self.max_samples_ = min(max_samples, len(self.name_list_))
+        self.max_samples_ = min(max_samples, len(self.data_paths_))
         self.cur_sample_ = None
         self.cur_data_index_ = 0
 
@@ -26,7 +29,7 @@ class CalibData(mm.CalibDataInterface):
         imgs = []
         dst_h, dst_w = self.shape_.GetDimValue(2), self.shape_.GetDimValue(3)
         for i in range(data_begin, data_end):
-            img = cv2.imread(self.img_dir_ + '/' + self.name_list_[i] + '.jpg')
+            img = cv2.imread(self.data_paths_[i])
             # resize
             img = cv2.resize(img, (dst_w, dst_h), interpolation=cv2.INTER_LINEAR)
             # mean std

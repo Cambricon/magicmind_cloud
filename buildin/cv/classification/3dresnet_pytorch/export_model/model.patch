@@ -1,0 +1,98 @@
+diff --git a/main.py b/main.py
+index f74aba4..92448c9 100644
+--- a/main.py
++++ b/main.py
+@@ -401,14 +401,29 @@ def main_worker(index, opt):
+         elif not opt.no_train and opt.lr_scheduler == 'plateau':
+             scheduler.step(prev_val_loss)
+ 
++    if opt.generate_pt:
++        model.eval()
++        trace_input = torch.randn(19, 3, 16, 112, 112).float()
++        model_mm = torch.jit.trace(model, trace_input, check_trace = False)
++        torch.jit.save(model_mm,"../../data/models/3dresnet.pt")
++        return
++
++
+     if opt.inference:
+         inference_loader, inference_class_names = get_inference_utils(opt)
+         inference_result_path = opt.result_path / '{}.json'.format(
+             opt.inference_subset)
+-
+-        inference.inference(inference_loader, model, inference_result_path,
+-                            inference_class_names, opt.inference_no_average,
+-                            opt.output_topk)
++        if opt.use_mlu:
++            import inference_mlu
++            model = opt.magicmind_model
++            inference_mlu.inference(inference_loader, model, inference_result_path,
++                                inference_class_names, opt.inference_no_average,
++                                opt.output_topk)
++    
++        else:
++            inference.inference(inference_loader, model, inference_result_path,
++                                inference_class_names, opt.inference_no_average,
++                                opt.output_topk)
+ 
+ 
+ if __name__ == '__main__':
+@@ -425,4 +440,4 @@ if __name__ == '__main__':
+         opt.world_size = opt.ngpus_per_node * opt.world_size
+         mp.spawn(main_worker, nprocs=opt.ngpus_per_node, args=(opt,))
+     else:
+-        main_worker(-1, opt)
+\ No newline at end of file
++        main_worker(-1, opt)
+diff --git a/models/resnet.py b/models/resnet.py
+index 5eef43c..c625a0c 100644
+--- a/models/resnet.py
++++ b/models/resnet.py
+@@ -146,7 +146,8 @@ class ResNet(nn.Module):
+                                        shortcut_type,
+                                        stride=2)
+ 
+-        self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
++        #self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
++        self.avgpool2d = nn.AdaptiveAvgPool2d((1,1))
+         self.fc = nn.Linear(block_inplanes[3] * block.expansion, n_classes)
+ 
+         for m in self.modules():
+@@ -205,7 +206,15 @@ class ResNet(nn.Module):
+         x = self.layer3(x)
+         x = self.layer4(x)
+ 
+-        x = self.avgpool(x)
++        #################### adaptive_avg_pool3d     ################
++        #x = self.avgpool(x)
++        #################### adaptive_avg_pool3d end ################
++
++        #################### adaptive_avg_pool2d     ################
++        x = x.view((x.shape[0], x.shape[1], x.shape[2], x.shape[3]*x.shape[4]))
++        x = self.avgpool2d(x)
++        x = x.unsqueeze(-1)
++        #################### adaptive_avg_pool2d end ################
+ 
+         x = x.view(x.size(0), -1)
+         x = self.fc(x)
+diff --git a/opts.py b/opts.py
+index 728e5b3..2d0d3f2 100644
+--- a/opts.py
++++ b/opts.py
+@@ -287,6 +287,17 @@ def parse_opts():
+                         default=-1,
+                         type=int,
+                         help='number of nodes for distributed training')
++    parser.add_argument('--generate_pt',
++                    action='store_true',
++                    help='If true, generate traced pt model for building magicmind model.')
++    parser.add_argument('--use_mlu',
++                    action='store_true',
++               help='If true, use magicmind model do inference.')
++    parser.add_argument(
++        '--magicmind_model',
++        default='magicmind model',
++        type=str,
++        help='magicmind model generated before')
+ 
+     args = parser.parse_args()
+ 

@@ -6,7 +6,7 @@ if [ -d $MODEL_PATH ];
 then
     echo "folder $MODEL_PATH already exists"
 else
-    mkdir $MODEL_PATH
+    mkdir -p $MODEL_PATH
 fi
 
 cd $MODEL_PATH
@@ -15,6 +15,7 @@ then
   echo "senet50 caffemodel already exists."
 else
   echo "Downloading senet50 caffemodel file on https://github.com/hujie-frank/SENet to SE-ResNet-50.caffemodel"
+  exit 1
 fi
 
 cd $MODEL_PATH
@@ -23,6 +24,7 @@ then
   echo "senet50 prototxt file already exists."
 else
   echo "Downloading senet50 prototxt file on https://github.com/hujie-frank/SENet to SE-ResNet-50.prototxt "
+  exit 1
 fi
 
 cd $DATASETS_PATH

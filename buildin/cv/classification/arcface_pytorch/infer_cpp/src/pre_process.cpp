@@ -8,8 +8,8 @@
  * @brief load all images(jpg) from image directory(FLAGS_image_dir)
  * @return Returns image paths
  */
-std::vector<std::string> LoadImages(const std::string image_dir, const std::string image_list, const int batch_size) {
-  std::vector<std::string> image_paths = LoadFileList(image_list);
+std::vector<std::string> LoadImages(const std::string image_dir, const std::string image_list, int image_num, const int batch_size) {
+  std::vector<std::string> image_paths = LoadFileList(image_list, image_num);
   // pad to multiple of batch_size.
   // The program will stuck when the number of input images is not an integer multiple of the batch size
   size_t pad_num = batch_size - image_paths.size() % batch_size;

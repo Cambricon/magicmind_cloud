@@ -65,3 +65,17 @@ def ndarray2mlu(array):
     _check_status(tensor.from_numpy(array))
     return tensor
 
+# For a single dimension this will return the min, opt, and max size when given
+# input of either one or three (comma delimited) values
+#   dim="1" or dim=1 returns (1, 1, 1)
+#   dim="1,4,5" returns (1, 4, 5)
+def parse_dynamic_size(dim):
+    split = str(dim).split(',')
+    assert len(split) in (1,3) , "Dynamic size input must be either 1 or 3 comma-separated integers"
+    ints = [int(i) for i in split]
+    
+    if len(ints) == 1:
+        ints *= 3
+
+    assert ints[0] <= ints[1] <= ints[2]
+    return tuple(ints)

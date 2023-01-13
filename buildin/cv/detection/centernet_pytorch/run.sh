@@ -2,27 +2,44 @@
 set -e
 set -x
 
+precision=force_float32
+shape_mutable=true
+batch_size=1
+save_img=true
+languages=infer_cpp
+img_num=10
+
+
 # 0. convert model
 cd $PROJ_ROOT_PATH/export_model 
-bash run.sh 1
+bash run.sh $batch_size
 
 # 1. gen_model
 cd $PROJ_ROOT_PATH/gen_model
-#bash run.sh quant_mode shape_mutable batch_size
-bash run.sh force_float32 true 1
+bash run.sh $precision $shape_mutable $batch_size
 
-# 2.1 build infer_cpp and infer
-cd $PROJ_ROOT_PATH/infer_cpp
-#bash run.sh quant_mode shape_mutable batch_size batch image_num
-bash run.sh force_float32 true 1 1000
 
-### 3.eval and perf
-#bash $PROJ_ROOT_PATH/benchmark/eval.sh quant_mode shape_mutable batch_size image_num
-bash $PROJ_ROOT_PATH/benchmark/eval.sh force_float32 true 1 1000
-#bash $PROJ_ROOT_PATH/benchmark/perf.sh quant_mode shape_mutable batch_size batch threads
-bash $PROJ_ROOT_PATH/benchmark/perf.sh force_float32 true 1 1 1
+### 2.1 infer_python
+if [ $languages == "infer_python" ];
+then
+    cd $PROJ_ROOT_PATH/infer_python
+    bash run.sh $precision $shape_mutable $save_img
+fi
 
-###4. compare eval and perf result
-python $MAGICMIND_CLOUD/test/compare_eval.py --metric cocomAP --output_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/log_eval --output_ok_file $PROJ_ROOT_PATH/data/output_ok/infer_cpp_output_force_float32_true_1_log_eval --model centernet_pytorch
-python $MAGICMIND_CLOUD/test/compare_perf.py --output_file $PROJ_ROOT_PATH/data/output/force_float32_true_1_log_perf --output_ok_file $PROJ_ROOT_PATH/data/output_ok/force_float32_true_1_log_perf --model centernet_pytorch
+### 2.2 infer_cpp
+if [ $languages == "infer_cpp" ];
+then
+    cd $PROJ_ROOT_PATH/infer_cpp
+    bash run.sh $precision $shape_mutable $save_img $img_num
+fi
 
+
+# ### 3.eval
+OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_${batch_size}
+echo "output dir: $OUTPUT_DIR"
+python $UTILS_PATH/compute_coco_mAP.py --file_list $UTILS_PATH/coco_file_list_5000.txt \
+                                       --result_dir $OUTPUT_DIR \
+                                       --ann_dir $DATASETS_PATH \
+                                       --data_type val2017 \
+                                       --json_name $OUTPUT_DIR \
+                                       --image_num $img_num

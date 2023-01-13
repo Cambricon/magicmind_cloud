@@ -3,11 +3,11 @@ set -e
 set -x
 
 
-if [ -d $PMODEL_PATH ];
+if [ -d $MODEL_PATH ];
 then
-    echo "folder $PMODEL_PATH already exists"
+    echo "folder $MODEL_PATH already exists"
 else
-    mkdir $MODEL_PATH
+    mkdir -p $MODEL_PATH
 fi
 
 cd $MODEL_PATH

@@ -1,5 +1,4 @@
 ### 在开始运行本仓库前先检查以下路径：
-echo "check below paths before run the sample!!!"
 export NEUWARE_HOME=/usr/local/neuware/
 ##MM_RUN路径
 export MM_RUN_PATH=$NEUWARE_HOME/bin
@@ -12,3 +11,11 @@ export DATASETS_PATH=/nfsdata/modelzoo/datasets/coco
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils
 #模型路径
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
+echo "check below paths before run this sample!!!"
+echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to path where you want to save datasets"
+echo "NEUWARE_HOME now is $NEUWARE_HOME"
+echo "MM_RUN_PATH now is $MM_RUN_PATH"
+echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"
+echo "PROJ_ROOT_PATH is $PROJ_ROOT_PATH"
+echo "MODEL_PATH is $MODEL_PATH"
+echo "UTILS_PATH is $UTILS_PATH"

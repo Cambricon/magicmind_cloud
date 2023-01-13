@@ -19,6 +19,7 @@ DEFINE_string(magicmind_model, "", "the magicmind model path");
 DEFINE_string(image_dir, "", "predict image file path");
 DEFINE_string(image_list, "", "predict image list");
 DEFINE_string(output_dir, "", "output path");
+DEFINE_int32(image_num, 1000, "image num");
 DEFINE_bool(save_img, false, "save img or not. default: false");
 
 int main(int argc, char **argv)
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
 
     // 7. load image and label
     LOG(INFO) << "================== Load Images ====================";
-    std::vector<std::string> image_paths = LoadImages(FLAGS_image_dir, FLAGS_image_list, input_dim[0]);
+    std::vector<std::string> image_paths = LoadImages(FLAGS_image_dir, FLAGS_image_list, FLAGS_image_num, input_dim[0]);
     if (image_paths.size() == 0)
     {
         LOG(INFO) << "No images found in dir [" << FLAGS_image_dir << "]. Support jpg.";

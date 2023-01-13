@@ -16,9 +16,9 @@ using namespace cv;
 
 DEFINE_int32(device_id, 0, "The device index of mlu");
 DEFINE_string(magicmind_model, "", "The magicmind model path");
-DEFINE_string(image_dir, "", "The image directory");
-DEFINE_string(output_dir, "", "The rendered images output directory");
-DEFINE_int32(batch, 1, "The batch size");
+DEFINE_string(data_folder, "", "The data folder");
+DEFINE_string(output_folder, "", "The rendered images output directory");
+DEFINE_int32(batch, 4, "The batch size");
 void softmax_pixel(float *ptr, int h, int w, int c)
 {
   for (int h_id = 0; h_id < h; h_id++)
@@ -65,9 +65,9 @@ int main(int argc, char **argv) {
 
   // 2. create model
   std::cout << "Load model..." << std::endl;
-  auto model = CreateIModel();
+  IModel *model = CreateIModel();
   CHECK_PTR(model);
-  MM_CHECK(model->DeserializeFromFile(FLAGS_magicmind_model.c_str()));
+  model->DeserializeFromFile(FLAGS_magicmind_model.c_str());
   PrintModelInfo(model);
 
   // 3.crete engine
@@ -90,15 +90,17 @@ int main(int argc, char **argv) {
   // MM_CHECK(context->InferOutputShape(input_tensors, output_tensors));
 
   // 6.input tensor memory alloc
-  void *input_mlu_addr_ptr;
+  void *ptr = nullptr;
   auto input_dim_vec = model->GetInputDimension(0).GetDims();
   if (input_dim_vec[0] == -1) {
     input_dim_vec[0] = FLAGS_batch;
   }
   magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
   input_tensors[0]->SetDimensions(input_dim);
-  CNRT_CHECK(cnrtMalloc(&input_mlu_addr_ptr, input_tensors[0]->GetSize()));
-  MM_CHECK(input_tensors[0]->SetData(input_mlu_addr_ptr));
+  if (input_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+    CNRT_CHECK(cnrtMalloc(&ptr, input_tensors[0]->GetSize()));
+    MM_CHECK(input_tensors[0]->SetData(ptr));
+  }
 
   //  output tensor memory alloc in device
   auto output_dim_vec = model->GetOutputDimension(0).GetDims();
@@ -106,22 +108,26 @@ int main(int argc, char **argv) {
     output_dim_vec[0] = FLAGS_batch;
   }
   magicmind::Dims output_dim = magicmind::Dims(output_dim_vec);
-  void *output_mlu_addr_ptr = nullptr;
+  bool dynamic_output = false;
   if (magicmind::Status::OK() == context->InferOutputShape(input_tensors, output_tensors)) {
+    std::cout << "InferOutputShape successed" << std::endl;
     for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
-      CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, output_tensors[output_id]->GetSize()));
-      MM_CHECK(output_tensors[output_id]->SetData(output_mlu_addr_ptr));
+      if (output_tensors[output_id]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+        CNRT_CHECK(cnrtMalloc(&ptr, output_tensors[output_id]->GetSize()));
+        MM_CHECK(output_tensors[output_id]->SetData(ptr));
+      }
     }
+  } else {
+      std::cout << "InferOutputShape failed" << std::endl;
+      dynamic_output = true;
   }
-  else {
-    std::cout << "InferOutputShape failed" << std::endl;
-  }
+
   // output tensor malloc in host
   float *output_cpu_ptrs = new float[output_tensors[0]->GetSize()/sizeof(output_tensors[0]->GetDataType())];
 
   // 7. load image
   std::cout << "================== Load Images ====================" << std::endl;
-  std::vector<cv::String> file_lists = GetFileList("/*data", FLAGS_image_dir);
+  std::vector<cv::String> file_lists = GetFileList("/*data", FLAGS_data_folder);
   std::cout << "File list size: " << file_lists.size() << std::endl;
   std::cout << "Start run..." << std::endl;
   std::vector<std::vector<int>> data_shapes;
@@ -136,7 +142,6 @@ int main(int argc, char **argv) {
     std::vector<float> data = ReadBinFile<float>(data_path);
     float *data_ptr = data.data();
     int image_elemt_size = (int)(data_shape[2] * data_shape[3]);
-    // std::cout << "datashape:" << data_shape[0] << " " << data_shape[1] << " " << data_shape[2] << " " << data_shape[3] << std::endl;
     for (int index = 0; index < data_shape[1]; index++) {
       auto img_data = data_ptr + index * image_elemt_size;
       cv::Mat img(data_shape[2], data_shape[3], CV_32FC1, img_data);
@@ -153,7 +158,22 @@ int main(int argc, char **argv) {
       for (int mirror_index = 0; mirror_index < FLAGS_batch; mirror_index++)
       {
         cv::Mat rgb(input_dim[1], input_dim[2], CV_32FC1);
-        padded_img.copyTo(rgb);
+        if (mirror_index % FLAGS_batch== 1)
+        {
+          cv::flip(padded_img, rgb, 0);
+        }
+        else if (mirror_index % FLAGS_batch == 2)
+        {
+          cv::flip(padded_img, rgb, 1);
+        }
+        else if (mirror_index % FLAGS_batch == 3)
+        {
+          cv::flip(padded_img, rgb, -1);
+        }
+        else
+        {
+          padded_img.copyTo(rgb);
+        }
 
         // 8. copy in
         CNRT_CHECK(cnrtMemcpy(((float *)input_tensors[0]->GetMutableData()) + mirror_index * input_tensors[0]->GetSize() / FLAGS_batch / sizeof(float),
@@ -185,7 +205,7 @@ int main(int argc, char **argv) {
       int count = data_shape[2] * data_shape[3] * 2;
       int pos = data_path.find_last_of('/');
       std::string data_file_name(data_path.substr(pos + 1));
-      if (!FLAGS_output_dir.empty()) {
+      if (!FLAGS_output_folder.empty()) {
         // seg_output
         // compute argmax
         std::vector<uint8_t> argmax_result;
@@ -198,12 +218,12 @@ int main(int argc, char **argv) {
           }
         }
         cv::Mat seg_img(data_shape[2], data_shape[3], CV_8UC1, argmax_result.data());
-        std::string seg_output_path = FLAGS_output_dir + "/" +
+        std::string seg_output_path = FLAGS_output_folder + "/" +
                                 data_file_name + "_output_" +
                                 std::to_string(index) + "_seg.jpg";
         cv::imwrite(seg_output_path, seg_img);
         // softmax_output
-        std::string softmax_output_path = FLAGS_output_dir + "/" +
+        std::string softmax_output_path = FLAGS_output_folder + "/" +
                                 data_file_name + "_output_" +
                                 std::to_string(index);
         WriteBinFile(softmax_output_path, count, crop_data);
@@ -212,17 +232,28 @@ int main(int argc, char **argv) {
   }
 
   // 8. destroy resource
+  // destroy must do strictly as follow
+  // destroy tensor/address first
   delete[] output_cpu_ptrs;
   for (auto tensor : input_tensors) {
-    cnrtFree(tensor->GetMutableData());
+    if (tensor->GetMemoryLocation() == magicmind::TensorLocation::kMLU){
+      cnrtFree(tensor->GetMutableData());
+    }
     tensor->Destroy();
   }
   for (auto tensor : output_tensors) {
-    cnrtFree(tensor->GetMutableData());
+    if (!dynamic_output) {
+      cnrtFree(tensor->GetMutableData());
+    }
     tensor->Destroy();
   }
+  // destroy context
   context->Destroy();
+  // destory engine
   engine->Destroy();
+  // destroy model
   model->Destroy();
+  // destroy other
+  cnrtQueueDestroy(queue);
   return 0;
 }

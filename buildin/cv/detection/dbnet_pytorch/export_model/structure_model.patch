@@ -1,0 +1,31 @@
+diff --git a/structure/model.py b/structure/model.py
+index 060191b..54d3108 100644
+--- a/structure/model.py
++++ b/structure/model.py
+@@ -33,7 +33,7 @@ class SegDetectorModel(nn.Module):
+     def __init__(self, args, device, distributed: bool = False, local_rank: int = 0):
+         super(SegDetectorModel, self).__init__()
+         from decoders.seg_detector_loss import SegDetectorLossBuilder
+-
++        torch.ops.load_library("./assets/ops/cpu_deform_conv/torchvision_cpu_dcn.so")
+         self.model = BasicModel(args)
+         # for loading models
+         self.model = parallelize(self.model, distributed, local_rank)
+@@ -53,6 +53,10 @@ class SegDetectorModel(nn.Module):
+         else:
+             data = batch.to(self.device)
+         data = data.float()
++        #sava pt
++        traced = torch.jit.trace(self.model, data)
++        torch.jit.save(traced,"../../data/models/dbnet.pt")
++        exit() 
+         pred = self.model(data, training=self.training)
+ 
+         if self.training:
+@@ -63,4 +67,4 @@ class SegDetectorModel(nn.Module):
+             loss_with_metrics = self.criterion(pred, batch)
+             loss, metrics = loss_with_metrics
+             return loss, pred, metrics
+-        return pred
+\ No newline at end of file
++        return pred

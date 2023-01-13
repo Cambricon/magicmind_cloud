@@ -6,84 +6,68 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
 
 ## 目录
 
-- [模型概述](#1.模型概述)
-- [前提条件](#2.前提条件)
-- [快速使用](#3.快速使用)
-  - [环境准备](#3.1环境准备)
-  - [下载仓库](#3.2下载仓库)
-  - [下载数据集，模型](#3.3下载数据集,模型)
-  - [编译 MagicMind 模型](#3.4编译MagicMind模型)
-  - [执行推理](#3.5执行推理)
-  - [一键运行](#3.6一键运行)
-- [高级说明](#4.高级说明)
-  - [gen_model 高级说明](#4.1gen_model高级说明)
-  - [infer_python 高级说明](#4.2infer_python高级说明)
-- [精度和性能 benchmark](#5.精度和性能benchmark)
-  - [性能 benchmark 结果](#5.1性能benchmark结果)
-  - [精度 benchmark 结果](#5.2精度benchmark结果)
-- [免责声明](#6.免责声明)
-- [Release notes](#7.Release_Notes)
+- [模型概述](#1模型概述)
+- [前提条件](#2前提条件)
+- [快速使用](#3快速使用)
+  - [环境准备](#31-环境准备)
+  - [下载仓库](#32-下载仓库)
+  - [准备数据集和模型](#33-准备数据集和模型)
+  - [编译 MagicMind 模型](#34-编译-magicmind-模型)
+  - [执行推理](#35-执行推理)
+  - [一键运行](#36-一键运行)
+- [高级说明](#4高级说明)
+  - [gen_model 代码解释](#41gen_model-代码解释)
+  - [infer_python 代码解释](#42infer_python-代码解释)
+- [精度和性能 benchmark](#5精度和性能-benchmark)
+  - [性能 benchmark 测试](#51-性能-benchmark-测试)
+  - [精度 benchmark 测试](#52-精度-benchmark-测试)
+- [免责声明](#6免责声明)
 
 ## 1.模型概述
 
-本例使用的 U2Net 实现来自 github 开源项目https://github.com/xuebinqin/U-2-Net。
+本例使用的 U2Net 实现来自 github 开源项目 https://github.com/xuebinqin/U-2-Net
 下面将展示如何将该项目中 Pytorch 实现的 U2Net 模型转换为 MagicMind 的模型。
 
 ## 2.前提条件
 
-- Linux 常见操作系统版本(如 Ubuntu16.04，Ubuntu18.04，CentOS7.x 等)，安装 docker(>=v18.00.0)应用程序；
-- 服务器装配好寒武纪计算版本 MLU370 S4 或 MLU370 X4，并安装好驱动(>=v4.20.6)；
-- 若不具备以上软硬件条件，可前往寒武纪云平台注册并试用@TODO
+请移至[主页面 README.md](../../../../README.md)的`2.前提条件`
 
 ## 3.快速使用
 
 ### 3.1 环境准备
 
-若基于寒武纪云平台环境可跳过该环节。否则需运行以下步骤：
-
-1.下载 MagicMind(version >= 0.13.0)镜像(下载链接待开放)，名字如下：
-
-magicmind_version_os.tar.gz
-
-2.加载：
-
-```bash
-docker load -i magicmind_version_os.tar.gz
-```
-
-3.运行：
-
-```bash
-docker run -it --name=dockername --network=host --cap-add=sys_ptrace -v /your/host/path/MagicMind:/MagicMind -v /usr/bin/cnmon:/usr/bin/cnmon --device=/dev/cambricon_dev0:/dev/cambricon_dev0 --device=/dev/cambricon_ctl -w /MagicMind/ magicmind_version_image_name:tag_name /bin/bash
-```
+请移至[主页面 README.md](../../../../README.md)的`3.环境准备`
 
 ### 3.2 下载仓库
 
 ```bash
 # 下载仓库
-git clone https://gitee.com/cambricon/magicmind_cloud.git
+git clone 本仓库
+cd magicmind_cloud/buildin/cv/segmentation/u2net_pytorch
 ```
 
-在开始运行代码前需要先检查 env.sh 里的环境变量，并且执行以下命令：
+在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `DATASETS_PATH`, 并且执行以下命令：
 
 ```bash
 source env.sh
 ```
 
-### 3.3 下载数据集,模型
+### 3.3 准备数据集和模型
+
+模型和数据集需要手动下载，下载地址在当前README结尾。
+下载之后模型需要放在环境变量 `MODEL_PATH` 指定目录下，数据集需要和 `DATASETS_PATH` 一致。
+模型和数据集下载并放至指定目录后，执行如下命令：
 
 ```bash
 cd $PROJ_ROOT_PATH/export_model
 bash run.sh
 ```
 
-数据集 MSRA-B 下载地址：https://mmcheng.net/msra10k/
-官方预训练模型下载地址：https://drive.google.com/file/d/1ao1ovG1Qtx4b7EoskHXmi2E9rp5CHLcZ/view?usp=sharing
-
 ### 3.4 编译 MagicMind 模型
 
 ```bash
 cd $PROJ_ROOT_PATH/gen_model
+#bash run.sh <precision> <batch_size>
 bash run.sh force_float32 1
 ```
 
@@ -91,6 +75,7 @@ bash run.sh force_float32 1
 
 ```bash
 cd $PROJ_ROOT_PATH/infer_python
+#bash run.sh <precision> <batch_size>
 bash run.sh force_float32 1
 ```
 
@@ -106,7 +91,7 @@ average mae: 8.7251, max fmeasure: 4.2186
 
 ## 4.高级说明
 
-### 4.1gen_model 高级说明
+### 4.1gen_model 代码解释
 
 Pytorch u2net 模型转换为 MagicMind u2net 模型分成以下几步：
 
@@ -121,11 +106,11 @@ Pytorch u2net 模型转换为 MagicMind u2net 模型分成以下几步：
 - `input_width`: W。
 - `input_height`: H。
 - `output_model`: 保存 MagicMind 模型路径。
-- `quant_mode`: 量化模式，如 force_float32，force_float16，qint16_mixed_float32。
+- `precision`: 精度模式，如 force_float32，force_float16，qint16_mixed_float32。
 - `file_list`: 用于量化的输入图片的路径。
 - `device`: 设备号, 默认 0。
 
-### 4.2infer_python 高级说明
+### 4.2infer_python 代码解释
 
 概述：
 本例使用 MagicMind PYTHON API 编写了名为 infer_python 的目标检测程序。infer_python 将展示如何使用 MagicMind PYTHON API 构建高效的 u2net 图像分类(图像预处理=>推理=>后处理)。
@@ -141,7 +126,7 @@ Pytorch u2net 模型转换为 MagicMind u2net 模型分成以下几步：
 
 ## 5.精度和性能 benchmark
 
-### 5.1 性能 benchmark 结果
+### 5.1 性能 benchmark 测试
 
 本仓库通过寒武纪提供的 Magicmind 性能测试工具 mm_run 展示性能数据
 
@@ -158,7 +143,7 @@ cd $PROJ_ROOT_PATH
 ./benchmark/perf.sh
 ```
 
-### 5.2 精度 benchmark 结果
+### 5.2 精度 benchmark 测试
 
 一键运行 benchmark 里的脚本跑出 u2net 在 MSRA-B 数据集上的 mae 和 fmeasure 如下：
 
@@ -167,26 +152,16 @@ cd $PROJ_ROOT_PATH
 ./benchmark/eval.sh
 ```
 
-| Model | Quant_Mode           | Batch_Size | Average MAE | Max Fmeasure | MLU 板卡类型 |
-| ----- | -------------------- | ---------- | ----------- | ------------ | ------------ |
-| u2net | force_float32        | 1          | 8.7251      | 4.2186       | MLU370 S4    |
-| u2net | force_float16        | 1          | 8.7322      | 4.2187       | MLU370 S4    |
-| u2net | qint16_mixed_float32 | 1          | 8.7088      | 4.2185       | MLU370 S4    |
+| Model | Precision           | Batch_Size | Average MAE | Max Fmeasure |
+| ----- | -------------------- | ---------- | ----------- | ------------ |
+| u2net | force_float32        | 1          | 8.7251      | 4.2186       |
+| u2net | force_float16        | 1          | 8.7322      | 4.2187       |
+| u2net | qint16_mixed_float32 | 1          | 8.7088      | 4.2185       |
 
-| Model | Quant_Mode          | Batch_Size | Average MAE | Max Fmeasure | MLU 板卡类型 |
-| ----- | ------------------- | ---------- | ----------- | ------------ | ------------ |
-| u2net | force_float32       | 1          | 8.7251      | 4.2186       | MLU370 X4    |
-| u2net | force_float16       | 1          | 8.7322      | 4.2187       | MLU370 X4    |
-| u2net | qint8_mixed_float16 | 1          | 8.7088      | 4.2185       | MLU370 X4    |
-
-## 6. 免责声明
+## 6.免责声明
 
 您明确了解并同意，以下链接中的软件、数据或者模型由第三方提供并负责维护。在以下链接中出现的任何第三方的名称、商标、标识、产品或服务并不构成明示或暗示与该第三方或其软件、数据或模型的相关背书、担保或推荐行为。您进一步了解并同意，使用任何第三方软件、数据或者模型，包括您提供的任何信息或个人数据（不论是有意或无意地），应受相关使用条款、许可协议、隐私政策或其他此类协议的约束。因此，使用链接中的软件、数据或者模型可能导致的所有风险将由您自行承担。
 
 - U2Net GITHUB 下载链接：https://github.com/xuebinqin/U-2-Net.git
 - 模型下载链接：https://drive.google.com/file/d/1ao1ovG1Qtx4b7EoskHXmi2E9rp5CHLcZ/view?usp=sharing
 - 数据集下载链接：https://mmcheng.net/msra10k/
-
-## 7.Release_Notes
-
-@TODO

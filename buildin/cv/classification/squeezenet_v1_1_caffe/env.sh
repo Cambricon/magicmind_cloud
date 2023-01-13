@@ -10,3 +10,11 @@ export DATASETS_PATH=/nfsdata/modelzoo/datasets/ILSVRC2012
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
 #cv类网络通用文件路径
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils
+echo "check below paths before run this sample!!!"
+echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to path where you want to save datasets"
+echo "NEUWARE_HOME now is $NEUWARE_HOME"
+echo "MM_RUN_PATH now is $MM_RUN_PATH"
+echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"
+echo "PROJ_ROOT_PATH is $PROJ_ROOT_PATH"
+echo "MODEL_PATH is $MODEL_PATH"
+echo "UTILS_PATH is $UTILS_PATH"

@@ -1,4 +1,17 @@
 #!/bin/bash
+if [ -d $MODEL_PATH ];
+then
+    echo "folder $MODEL_PATH already exist!!!"
+else
+    mkdir -p "$MODEL_PATH"
+fi
+
+if [ -d $DATASETS_PATH ];
+then
+    echo "folder $DATASETS_PATH already exist!!!"
+else
+    mkdir -p "$DATASETS_PATH"
+fi
 
 cd $MODEL_PATH
 if [ -f "frozen_graph.pb" ]; 

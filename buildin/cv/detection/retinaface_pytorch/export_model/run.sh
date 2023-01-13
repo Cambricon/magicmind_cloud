@@ -7,21 +7,10 @@ else
     BATCH_SIZE=$1
 fi
 
-# 1.下载数据集
-./get_datasets.sh
+# 1.下载数据集和权重文件
+bash get_datasets_and_models.sh
 
-# 2.下载权重文件
-mkdir -p $PROJ_ROOT_PATH/data/models
-cd $PROJ_ROOT_PATH/data/models
-if [ -f "Resnet50_Final.pth" ];
-then 
-    echo "Resnet50_Final.pth already exists."
-else 
-    echo "Downloading Resnet50_Final.pth file"
-    gdown -c https://drive.google.com/uc?id=14KX6VqF69MdSPk3Tr9PlDYbq7ArpdNUW -O Resnet50_Final.pth
-fi
-
-# 3.下载Retinaface源码
+# 2.下载Retinaface源码
 cd $PROJ_ROOT_PATH/export_model
 if [ -d "Pytorch_Retinaface" ];
 then
@@ -35,7 +24,7 @@ else
 fi
 cd ..
 
-# 4.patch
+# 3.patch
 if grep -q "leaky \= 0.0" Pytorch_Retinaface/models/net.py;
 then
     echo "retinaface has been already patched."
@@ -44,7 +33,7 @@ else
     git apply retinaface.diff
 fi
 
-# 5.trace model
+# 4.trace model
 cd $PROJ_ROOT_PATH/export_model 
 set +e
 mkdir -p /root/.cache/torch/hub/checkpoints/

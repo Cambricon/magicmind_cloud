@@ -1,34 +1,40 @@
 #!/bin/bash
 set -e
 set -x
+precision=force_float32
+shape_mutable=true
+batch_size=1
+conf=0.001
+iou=0.65
+max_det=300
+image_num=1000
+languages=infer_python
 
-# 0. convert model
-pip install -r requirement.txt
+# 0. export model
 cd $PROJ_ROOT_PATH/export_model 
-bash run.sh 1
+bash run.sh
 
-# 1. gen_model
+# 1. gen model
 cd $PROJ_ROOT_PATH/gen_model
-#bash run.sh quant_mode shape_mutable batch_size conf iou max_det
-bash run.sh force_float32 true 1 0.001 0.65 1000
+bash run.sh $precision $shape_mutable $batch_size $conf $iou $max_det
 
-# 2.1 build infer_cpp and infer
-cd $PROJ_ROOT_PATH/infer_cpp
-#bash run.sh quant_mode shape_mutable batch_size image_num
-bash run.sh force_float32 true 1 1000
-# 2.2 infer_python
-cd $PROJ_ROOT_PATH/infer_python
-#bash run.sh quant_mode shape_mutable batch_size batch image_num
-bash run.sh force_float32 true 1 1 1000
+# 2 infer
+if [ $languages == "infer_cpp" ];
+then
+  cd $PROJ_ROOT_PATH/infer_cpp
+  bash run.sh $precision $shape_mutable $image_num
+fi
+if [ $languages == "infer_python" ];
+then
+  cd $PROJ_ROOT_PATH/infer_python
+  bash run.sh $precision $shape_mutable $image_num
+fi
 
-## 3.eval and perf
-#bash $PROJ_ROOT_PATH/benchmark/eval.sh quant_mode shape_mutable batch_size image_num infer_python/infer_cpp
-bash $PROJ_ROOT_PATH/benchmark/eval.sh force_float32 true 1 1000 infer_python
-bash $PROJ_ROOT_PATH/benchmark/eval.sh force_float32 true 1 1000 infer_cpp
-#bash $PROJ_ROOT_PATH/benchmark/perf.sh quant_mode shape_mutable batch_size batch threads
-bash $PROJ_ROOT_PATH/benchmark/perf.sh force_float32 true 1 1 1
-
-###4. compare eval and perf result
-python $MAGICMIND_CLOUD/test/compare_eval.py --metric cocomAP --output_file $PROJ_ROOT_PATH/data/output/infer_python_output_force_float32_true_1/log_eval --output_ok_file $PROJ_ROOT_PATH/data/output_ok/infer_python_output_force_float32_true_1_log_eval --model yolov5_v6_1_pytorch
-python $MAGICMIND_CLOUD/test/compare_eval.py --metric cocomAP --output_file $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/log_eval --output_ok_file $PROJ_ROOT_PATH/data/output_ok/infer_python_output_force_float32_true_1_log_eval --model yolov5_v6_1_pytorch
-python $MAGICMIND_CLOUD/test/compare_perf.py --output_file $PROJ_ROOT_PATH/data/output/force_float32_true_1_log_perf --output_ok_file $PROJ_ROOT_PATH/data/output_ok/force_float32_true_1_log_perf --model yolov5_v6_1_pytorch 
+# 3.eval
+python $UTILS_PATH/compute_coco_mAP.py  --file_list $UTILS_PATH/coco_file_list_5000.txt \
+                                        --result_dir $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1 \
+                                        --ann_dir $DATASETS_PATH \
+                                        --data_type val2017 \
+                                        --json_name $PROJ_ROOT_PATH/data/output/yolov5_${precision}_${shape_mutable}_1.json \
+                                        --language $languages \
+                                        --image_num $image_num 2>&1 |tee $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1/log_eval

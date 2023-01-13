@@ -8,8 +8,6 @@ import logging
 import argparse
 import sys
 sys.path.append(os.path.join(os.getenv("MAGICMIND_CLOUD"), "test"))
-from record_result import write_result
-
 VOC_DATASETS_PATH = os.environ.get("DATASETS_PATH")
 PROJ_ROOT_PATH = os.environ.get("PROJ_ROOT_PATH")
 
@@ -94,4 +92,3 @@ if __name__ == "__main__":
         #record.write('===>' + name_classes[ind_class] + ':\t' + str(round(mIoUs[ind_class] * 100, 2)), True)
     #record.write('mIOU:' + str(round(np.nanmean(mIoUs) * 100, 2)), True)
     print('mIOU:' + str(round(np.nanmean(mIoUs) * 100, 2)))
-    write_result(**{"language": args.language,"dataset": "voc2012", "metric":"miou", "eval": np.nanmean(mIoUs)})

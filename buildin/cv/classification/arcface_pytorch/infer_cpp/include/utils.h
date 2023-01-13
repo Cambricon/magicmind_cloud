@@ -169,13 +169,17 @@ inline std::string GetFileName(const std::string &abs_path) {
   return abs_path.substr(slash_pos + 1, point_pos - slash_pos - 1);
 }
 
-inline std::vector<std::string> LoadFileList(const std::string &path) {
+inline std::vector<std::string> LoadFileList(const std::string &path, int num) {
   std::ifstream ifs(path);
   LOG_IF(FATAL, !ifs.is_open()) << "Open label file failed. path : " << path;
   std::vector<std::string> labels;
   std::string line;
+  int  count = 0;
   while (std::getline(ifs, line)) {
     labels.emplace_back(std::move(line));
+    ++count;
+    if(count == num)
+        break;
   }
   ifs.close();
   return labels;

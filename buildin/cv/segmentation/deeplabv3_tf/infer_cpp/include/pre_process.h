@@ -7,7 +7,7 @@
 
 std::vector<cv::Mat> LoadCocoImages(std::string coco_path, int count = 10);
 
-cv::Mat Preprocess(cv::Mat src_img, std::string shape_mutable);
+cv::Mat Preprocess(cv::Mat src_img);
 
 std::vector<cv::String> LoadImages(const std::string image_dir,
                                    const int batch_size, int image_num,

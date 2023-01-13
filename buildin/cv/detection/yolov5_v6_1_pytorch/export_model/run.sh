@@ -1,13 +1,26 @@
 #!/bin/bash
 set -e
 set -x
-BATCH_SIZE=$1
+
+if [ -d $PROJ_ROOT_PATH/data ];
+then
+    echo "folder $PROJ_ROOT_PATH/data already exist!!!"
+else
+    mkdir -p $PROJ_ROOT_PATH/data
+fi
+
+if [ -d $PROJ_ROOT_PATH/data/output ];
+then
+    echo "folder $PROJ_ROOT_PATH/data/output already exist!!!"
+else
+    mkdir -p $PROJ_ROOT_PATH/data/output
+fi
 
 if [ -d $MODEL_PATH ];
 then
     echo "folder $MODEL_PATH already exist!!!"
 else
-    mkdir "$MODEL_PATH"
+    mkdir -p $MODEL_PATH
 fi
 
 # 1.下载数据集和模型
@@ -48,5 +61,5 @@ fi
 # 5.trace model
 cd $PROJ_ROOT_PATH/export_model 
 echo "export model begin..."
-python $PROJ_ROOT_PATH/export_model/yolov5/export.py --weights $MODEL_PATH/yolov5m.pt --imgsz 640 640 --include torchscript --batch-size ${BATCH_SIZE}
+python $PROJ_ROOT_PATH/export_model/yolov5/export.py --weights $MODEL_PATH/yolov5m.pt --imgsz 640 640 --include torchscript --batch-size 1
 echo "export model end..."

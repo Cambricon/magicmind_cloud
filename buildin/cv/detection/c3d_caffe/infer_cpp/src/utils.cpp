@@ -5,15 +5,15 @@
 #include <vector>
 
 void PrintModelInfo(magicmind::IModel *model) {
-  LOG(INFO) << "==================Model info===================";
-  LOG(INFO) << "Input number : " << model->GetInputNum();
+  cout << "==================Model info===================";
+  cout << "Input number : " << model->GetInputNum() << endl;
   for (int i = 0; i < model->GetInputNum(); ++i)
-    LOG(INFO) << "input[" << i << "] : dimensions " << model->GetInputDimension(i)
-        << ", data type [" << model->GetInputDataType(i) << "]";
-  LOG(INFO) << "Output number : " << model->GetOutputNum();
+    cout << "input[" << i << "] : dimensions " << model->GetInputDimension(i)
+        << ", data type [" << model->GetInputDataType(i) << "]"<< endl;
+  cout << "Output number : " << model->GetOutputNum()<< endl;
   for (int i = 0; i < model->GetOutputNum(); ++i)
-    LOG(INFO) << "output[" << i << "] : dimensions " << model->GetOutputDimension(i)
-        << ", data type [" << model->GetOutputDataType(i) << "]";
+    cout << "output[" << i << "] : dimensions " << model->GetOutputDimension(i)
+        << ", data type [" << model->GetOutputDataType(i) << "]"<< endl;
 }
 
 // The implementation of this function shows the limitations of the current program on the model.

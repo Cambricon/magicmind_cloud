@@ -3,10 +3,15 @@ set -e
 set -x
 
 # download checkpoints
-if [ ! -d $PROJ_ROOT_PATH/data/models ];
+if [ ! -d $PROJ_ROOT_PATH/data ];
 then
-    mkdir $PROJ_ROOT_PATH/data/models
+    mkdir $PROJ_ROOT_PATH/data
 fi
+if [ ! -d $MODEL_PATH ];
+then
+    mkdir $MODEL_PATH
+fi
+
 cd $MODEL_PATH
 if [ -f nvidia_tacotron2pyt_fp16_20190427 ];
 then

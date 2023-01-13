@@ -73,21 +73,42 @@ int main(int argc,char **argv)
     MM_CHECK(context->CreateInputTensors(&input_tensors));
     MM_CHECK(context->CreateOutputTensors(&output_tensors));
 
+    int batch_size = FLAGS_batch_size;
     // malloc
-    void *mlu_input_addr_ptr;
-    CNRT_CHECK(cnrtMalloc(&mlu_input_addr_ptr, input_tensors[0]->GetSize()));
-    MM_CHECK(input_tensors[0]->SetData(mlu_input_addr_ptr));
+    void *mlu_ptr;
+    auto input_dim_vec = model->GetInputDimension(0).GetDims();
+    if (input_dim_vec[0] == -1) {
+        input_dim_vec[0] = batch_size;
+    }
 
-    void *mlu_output_1_addr_ptr;
-    CNRT_CHECK(cnrtMalloc(&mlu_output_1_addr_ptr, output_tensors[0]->GetSize()));
-    MM_CHECK(output_tensors[0]->SetData(mlu_output_1_addr_ptr));
-    
-    void *mlu_output_2_addr_ptr;
-    CNRT_CHECK(cnrtMalloc(&mlu_output_2_addr_ptr, output_tensors[1]->GetSize()));
-    MM_CHECK(output_tensors[1]->SetData(mlu_output_2_addr_ptr));
+    magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
+    input_tensors[0]->SetDimensions(input_dim);
+    if (input_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+        CNRT_CHECK(cnrtMalloc(&mlu_ptr, input_tensors[0]->GetSize()));
+        MM_CHECK(input_tensors[0]->SetData(mlu_ptr));
+    } 
+
+    bool dynamic_output = false;
+    if (magicmind::Status::OK() ==
+        context->InferOutputShape(input_tensors, output_tensors)) {
+        std::cout << "InferOutputShape successed" << std::endl;
+        if (output_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+            CNRT_CHECK(cnrtMalloc(&mlu_ptr, output_tensors[0]->GetSize()));
+            MM_CHECK(output_tensors[0]->SetData(mlu_ptr));
+        } else {
+            std::cout << "InferOutputShape failed" << std::endl;
+            dynamic_output = true;
+        }
+        if (output_tensors[1]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+            CNRT_CHECK(cnrtMalloc(&mlu_ptr, output_tensors[1]->GetSize()));
+            MM_CHECK(output_tensors[1]->SetData(mlu_ptr));
+        } else {
+            std::cout << "InferOutputShape failed" << std::endl;
+            dynamic_output = true;
+        }
+    }
 
     //Set Input data ptr
-    int batch_size = FLAGS_batch_size;
     uint8_t *input_data_ptr = new uint8_t[batch_size*img_h*img_w*img_c];
 
     //Set Output data ptr
@@ -105,7 +126,6 @@ int main(int argc,char **argv)
     // load labels 
     auto labels = LoadLabels(FLAGS_label_path);
     size_t image_num = image_paths.size();
-    cout << "Total images : " << image_num <<  endl;
 
     string save_pred_dir = FLAGS_output_pred_dir;
     string save_img_dir = FLAGS_output_img_dir;
@@ -124,6 +144,7 @@ int main(int argc,char **argv)
     if ( FLAGS_test_nums != -1 ){
         image_num = MINVALUE(FLAGS_test_nums,image_num);
     }
+    cout << "Total images : " << image_num <<  endl;
     for ( int i = 0; i <= image_num; i ++ ){
         if ( i != 0 && i % batch_size == 0 ){
             //Memcpy H2D
@@ -152,6 +173,7 @@ int main(int argc,char **argv)
                 break;
             }
         }
+        if ( i == image_num ) continue;
         cv::Mat src_img = cv::imread(image_paths[i]);
         if ( src_img.data != NULL ){
             image_name[ i % batch_size ] = image_paths[i];

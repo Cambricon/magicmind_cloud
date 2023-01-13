@@ -2,26 +2,32 @@
 set -e
 set -x
 
-QUANT_MODE=$1 #force_float32/force_float16/qint8_mixed_float16
-SHAPE_MUTABLE=$2 #true/false
-BATCH_SIZE=$3
-BATCH=$4
-SAVE_IMG=$5
-BATCH=1
+PRECISION=$1
+SHAPE_MUTABLE=$2
+SAVE_IMG=$3
 if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
 then
     mkdir "$PROJ_ROOT_PATH/data/output"
 fi
 
-if [ -d "$PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}" ];
+OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_1
+if [ -d $OUTPUT_DIR ];
 then
     echo "output dir already exits!!! no need to mkdir again!!!"
 else
-    mkdir "$PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}"
-    mkdir "$PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}/voc_preds"
-    echo "mkdir sucessed!!!"
+    mkdir $OUTPUT_DIR
+    mkdir $OUTPUT_DIR/voc_preds
+    echo "mkdir successed!!!"
 fi
-python infer.py --magicmind_model $PROJ_ROOT_PATH/data/models/ssd_caffe_model_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-                --devkit_path ${DATASETS_PATH}/VOCdevkit \
-                --result_path $PROJ_ROOT_PATH/data/output/infer_python_output_${QUANT_MODE}_${SHAPE_MUTABLE}_${BATCH}/voc_preds \
-                --save_img ${SAVE_IMG}
+
+if [ ${SHAPE_MUTABLE} == 'false' ];
+then
+    MAGICMIND_MODEL=$MODEL_PATH/ssd_caffe_model_${PRECISION}_${SHAPE_MUTABLE}_1
+else
+    MAGICMIND_MODEL=$MODEL_PATH/ssd_caffe_model_${PRECISION}_${SHAPE_MUTABLE}
+fi
+
+python infer.py --magicmind_model $MAGICMIND_MODEL \
+                --devkit_path $DATASETS_PATH/VOCdevkit \
+                --result_path $OUTPUT_DIR/voc_preds \
+                --save_img $SAVE_IMG

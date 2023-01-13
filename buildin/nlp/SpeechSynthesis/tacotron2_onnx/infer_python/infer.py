@@ -10,7 +10,7 @@ import os.path as path
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..'))
 from text2sequence import prepare_input_sequence
 sys.path.append("../")
-from gen_model.mm_utils import load_model, ndarray2mlu, _check_status, MeasureTime
+from gen_model.mm_utils import load_model, ndarray2mlu, _check_status, MeasureTime, parse_dynamic_size
 from decoder import load_decoder
 
 def parse_args(parser):
@@ -30,9 +30,9 @@ def parse_args(parser):
                         help='Number of warmup iterations')
     parser.add_argument('-il', '--input-length', type=int, default=64,
                         help='Input length')
-    parser.add_argument('-bs', '--batch-size', type=int, default=1,
-                        help='Batch size')
-    parser.add_argument('--quant_mode', type=str, default="force_float16",
+    parser.add_argument('-bs', '--batch-size', type=str, default="1",
+                        help='One or three comma separated integers specifying the batch size. Specify "min,opt,max" for dynamic shape')
+    parser.add_argument('--precision', type=str, default="force_float16",
                         help='float16 models or float32 models will be used.')
     parser.add_argument('--log_file', type=str, default='',
                         help='Benchmark log file, empty means log to std')
@@ -43,11 +43,11 @@ def parse_args(parser):
 
     return parser
 
-def load_models(device : mm.Device, models_dir : str, precision_str : str):
-    encoder_model_path = path.join(models_dir, 'encoder_' + precision_str + '_model')
-    decoder_model_path = path.join(models_dir, 'decoder_' + precision_str + '_model')
-    postnet_model_path = path.join(models_dir, 'postnet_' + precision_str + '_model')
-    waveglow_model_path = path.join(models_dir, 'waveglow_' + precision_str + '_model')
+def load_models(device : mm.Device, models_dir : str, precision_str : str, bs_min : int, bs_max : int):
+    encoder_model_path = path.join(models_dir, 'encoder_' + precision_str + "_" + str(bs_min) + "_" + str(bs_max) + '.graph')
+    decoder_model_path = path.join(models_dir, 'decoder_' + precision_str + "_" + str(bs_min) + "_" + str(bs_max) + '.graph')
+    postnet_model_path = path.join(models_dir, 'postnet_' + precision_str + "_" + str(bs_min) + "_" + str(bs_max) + '.graph')
+    waveglow_model_path = path.join(models_dir, 'waveglow_' + precision_str + "_" + str(bs_min) + "_" + str(bs_max) + '.graph')
     return load_model(device, encoder_model_path), load_decoder(device, decoder_model_path), \
         load_model(device, postnet_model_path), load_model(device, waveglow_model_path)
 
@@ -164,11 +164,12 @@ def run(args, device, pipe):
     _check_status(mmdev.active())
 
     # load MM models
-    encoder, decoder, postnet, waveglow = load_models(mmdev, args.models_dir, args.quant_mode)
+    bs_min, bs_opt, bs_max = parse_dynamic_size(args.batch_size)
+    encoder, decoder, postnet, waveglow = load_models(mmdev, args.models_dir, args.precision, bs_min, bs_max)
 
     texts = ["The forms of printed letters should be beautiful, and that their arrangement on the page should be reasonable and a help to the shapeliness of the letters themselves. The forms of printed letters should be beautiful, and that their arrangement on the page should be reasonable and a help to the shapeliness of the letters themselves."]
     texts = [texts[0][:args.input_length]]
-    texts = texts * args.batch_size
+    texts = texts * bs_opt
 
     for iter in range(args.num_iters + args.warmup_iters):
         measurements = {}

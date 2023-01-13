@@ -3,11 +3,11 @@ set -e
 set -x
 BATCH_SIZE=$1
 
+# 1.下载数据集和模型
+bash get_datasets_and_models.sh
+
 if [ ! -f $PROJ_ROOT_PATH/data/models/ctdet_coco_dlav0_1x_traced_${BATCH_SIZE}bs.pt ];
 then
-    # 1.下载数据集和模型
-    bash get_datasets_and_models.sh
-    
     # 2.下载centernet实现源码
     cd $PROJ_ROOT_PATH/export_model
     if [ -d "CenterNet-2b7692c377c6686fb35e473dac2de6105eed62c6" ];
@@ -37,7 +37,12 @@ then
       cd $PROJ_ROOT_PATH/export_model
       patch CenterNet-2b7692c377c6686fb35e473dac2de6105eed62c6/src/lib/models/model.py < centernet_model.diff
     fi
-    
+
+    if [ -f $PROJ_ROOT_PATH/data/models/dla34-ba72cf86.pth ];
+    then 
+       mkdir -p /root/.cache/torch/hub/checkpoints/
+       cp $PROJ_ROOT_PATH/data/models/dla34-ba72cf86.pth /root/.cache/torch/hub/checkpoints/
+    fi
     # 5.trace model
     echo "export model begin..."
     python $PROJ_ROOT_PATH/export_model/export.py --model_weight $MODEL_PATH/ctdet_coco_dlav0_1x.pth \

@@ -10,3 +10,12 @@ export nnUNet_raw_data_base=$DATASETS_PATH/nnUNet_raw_data_base
 export nnUNet_preprocessed=$DATASETS_PATH/nnUNet_preprocessed
 # nnUNet模型保存路径
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
+echo "check below paths before run this sample!!!"
+echo "NEUWARE_HOME now is $NEUWARE_HOME"
+echo "MM_RUN_PATH now is $MM_RUN_PATH"
+echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"
+echo "PROJ_ROOT_PATH is $PROJ_ROOT_PATH"
+echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to path where you want to save datasets"
+echo "nnUNet_raw_data_base is $nnUNet_raw_data_base"
+echo "nnUNet_preprocessed is $nnUNet_preprocessed"
+echo "MODEL_PATH is $MODEL_PATH"

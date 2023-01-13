@@ -6,7 +6,7 @@ if [ -d $MODEL_PATH ];
 then
     echo "folder $MODEL_PATH already exists"
 else
-    mkdir $MODEL_PATH
+    mkdir -p $MODEL_PATH
 fi
 
 cd $MODEL_PATH

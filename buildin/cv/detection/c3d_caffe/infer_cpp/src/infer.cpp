@@ -77,17 +77,32 @@ int main(int argc, char **argv)
     int batch_size = FLAGS_batch_size;
     int clip_steps = (FLAGS_sampling_rate-1)*clip_len;
     int n_classes = 101;
-    magicmind::Dims input_set_dims = magicmind::Dims({batch_size,clip_len,img_h,img_w,img_c});
-    input_tensors[0]->SetDimensions(input_set_dims);
-
-    //InferShape
-    magicmind::Status status = context->InferOutputShape(input_tensors, output_tensors);
-    LOG_IF(FATAL, !status.ok()) << "This program can not deal with the model which enabled [graph_shape_mutable]. mm err : " << status;
 
     // malloc
-    void *mlu_input_addr_ptr;
-    CNRT_CHECK(cnrtMalloc(&mlu_input_addr_ptr, input_tensors[0]->GetSize()));
-    MM_CHECK(input_tensors[0]->SetData(mlu_input_addr_ptr));
+    void *mlu_ptr;
+    auto input_dim_vec = model->GetInputDimension(0).GetDims();
+    if (input_dim_vec[0] == -1) {
+        input_dim_vec[0] = batch_size;
+    }
+    magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
+    input_tensors[0]->SetDimensions(input_dim);
+    if (input_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+        CNRT_CHECK(cnrtMalloc(&mlu_ptr, input_tensors[0]->GetSize()));
+        MM_CHECK(input_tensors[0]->SetData(mlu_ptr));
+    } 
+
+    bool dynamic_output = false;
+    if (magicmind::Status::OK() ==
+        context->InferOutputShape(input_tensors, output_tensors)) {
+        std::cout << "InferOutputShape successed" << std::endl;
+        if (output_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
+            CNRT_CHECK(cnrtMalloc(&mlu_ptr, output_tensors[0]->GetSize()));
+            MM_CHECK(output_tensors[0]->SetData(mlu_ptr));
+        } else {
+            std::cout << "InferOutputShape failed" << std::endl;
+            dynamic_output = true;
+        }
+    }
 
     //Set Input data ptr
     float *input_data_ptr = new float[batch_size*clip_len*img_h*img_w*img_c];
@@ -123,6 +138,7 @@ int main(int argc, char **argv)
     }
     for ( int i = 0 ; i < total_videos; i++ )
     {
+        cout << i + 1 << "/" << total_videos << endl;
         cv::VideoCapture capture;
         std::string real_path = FLAGS_dataset_dir + '/' + test->video_paths[i];
         if ( ! capture.open(real_path) ){
