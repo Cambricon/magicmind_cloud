@@ -1,0 +1,113 @@
+diff --git a/models/volo.py b/models/volo.py
+old mode 100644
+new mode 100755
+index 80911c1..8b932e9
+--- a/models/volo.py
++++ b/models/volo.py
+@@ -68,16 +68,31 @@ class OutlookAttention(nn.Module):
+         self.proj = nn.Linear(dim, dim)
+         self.proj_drop = nn.Dropout(proj_drop)
+ 
+-        self.unfold = nn.Unfold(kernel_size=kernel_size, padding=padding, stride=stride)
+         self.pool = nn.AvgPool2d(kernel_size=stride, stride=stride, ceil_mode=True)
++        C=256
++        filters = torch.zeros((C*self.kernel_size*self.kernel_size, C, self.kernel_size, self.kernel_size), dtype=torch.float)
++        for i in range(C):
++            for j in range(self.kernel_size):
++                for k in range(self.kernel_size):
++                    filters[i*self.kernel_size**2+j*self.kernel_size + k, i, j,k]=1
++        self.filters=filters
++        weight = np.zeros((C * self.kernel_size * self.kernel_size, C, self.kernel_size, self.kernel_size), dtype=np.float)
++        for i in range(C):
++            for j in range(self.kernel_size):
++                for k in range(self.kernel_size):
++                    weight[i*self.kernel_size**2+j*self.kernel_size+k, i, j, k] = 1
++        weight = torch.from_numpy(weight).float()
++        self.weight=weight
+ 
+     def forward(self, x):
+         B, H, W, C = x.shape
+ 
+         v = self.v(x).permute(0, 3, 1, 2)  # B, C, H, W
+ 
+-        h, w = math.ceil(H / self.stride), math.ceil(W / self.stride)
+-        v = self.unfold(v).reshape(B, self.num_heads, C // self.num_heads,
++        h, w = math.ceil(np.true_divide(H, self.stride)), math.ceil(np.true_divide(W, self.stride))
++        d = F.conv2d(v, weight=self.filters, stride=self.stride, padding=self.padding).reshape(B, 9*C, 196)
++
++        v = d.reshape(B, self.num_heads, C // self.num_heads,
+                                    self.kernel_size * self.kernel_size,
+                                    h * w).permute(0, 1, 4, 3, 2)  # B,H,N,kxk,C/H
+ 
+@@ -91,9 +106,10 @@ class OutlookAttention(nn.Module):
+ 
+         x = (attn @ v).permute(0, 1, 4, 3, 2).reshape(
+             B, C * self.kernel_size * self.kernel_size, h * w)
+-        x = F.fold(x, output_size=(H, W), kernel_size=self.kernel_size,
+-                   padding=self.padding, stride=self.stride)
+ 
++        # F.fold to F.conv_transpose2d
++        x = x.reshape(B, C * self.kernel_size * self.kernel_size, h, w)
++        x = F.conv_transpose2d(x, self.weight, stride=self.stride, padding=self.padding, output_padding=1)
+         x = self.proj(x.permute(0, 2, 3, 1))
+         x = self.proj_drop(x)
+ 
+diff --git a/validate.py b/validate.py
+old mode 100644
+new mode 100755
+index 85638ea..3d6a825
+--- a/validate.py
++++ b/validate.py
+@@ -47,6 +47,8 @@ parser.add_argument('--split', metavar='NAME', default='validation',
+                     help='dataset split (default: validation)')
+ parser.add_argument('--model', '-m', metavar='NAME', default='dpn92',
+                     help='model architecture (default: dpn92)')
++parser.add_argument('--pt_path', default='volo_d2.pt', type=str, metavar='PT_MODEL',
++                    help='Name of PT Model')
+ parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
+                     help='number of data loading workers (default: 2)')
+ parser.add_argument('-b', '--batch-size', default=256, type=int,
+@@ -150,7 +152,6 @@ def validate(args):
+ 
+     param_count = sum([m.numel() for m in model.parameters()])
+     _logger.info('Model %s created, param count: %d' % (args.model, param_count))
+-
+     data_config = resolve_data_config(vars(args), model=model, use_test_size=True)
+     test_time_pool = False
+     if not args.no_test_pool:
+@@ -160,7 +161,7 @@ def validate(args):
+         torch.jit.optimized_execution(True)
+         model = torch.jit.script(model)
+ 
+-    model = model.cuda()
++    model = model.cpu()
+     if args.apex_amp:
+         model = amp.initialize(model, opt_level='O1')
+ 
+@@ -170,8 +171,8 @@ def validate(args):
+     if args.num_gpu > 1:
+         model = torch.nn.DataParallel(model, device_ids=list(range(args.num_gpu)))
+ 
+-    criterion = nn.CrossEntropyLoss().cuda()
+-
++    criterion = nn.CrossEntropyLoss().cpu()
++ 
+     dataset = create_dataset(
+         root=args.data, name=args.dataset, split=args.split,
+         load_bytes=args.tf_preprocessing, class_map=args.class_map)
+@@ -210,9 +211,14 @@ def validate(args):
+     model.eval()
+     with torch.no_grad():
+         # warmup, reduce variability of first batch time, especially for comparing torchscript vs non
+-        input = torch.randn((args.batch_size,) + data_config['input_size']).cuda()
++        input = torch.randn((args.batch_size,) + data_config['input_size']).cpu()
+         if args.channels_last:
+             input = input.contiguous(memory_format=torch.channels_last)
++        model.cpu()
++        trace_model = torch.jit.trace(model, input)
++        torch.jit.save(trace_model, args.pt_path)
++        print("Successfully save traced model")
++        exit()
+         model(input)
+         end = time.time()
+         for batch_idx, (input, target) in enumerate(loader):

@@ -49,6 +49,7 @@ docker run -it --shm_size 10G --name=dockername \
 | ------------------------------------------------------------------ | --------- | --------- | --------- | --- | ------ |
 | [AlexNet](buildin/cv/classification/alexnet_bn_caffe)              | Caffe     | YES       | YES       | YES | NO     |
 | [ArcFace](buildin/cv/classification/arcface_pytorch)               | PyTorch   | YES       | YES       | YES | NO     |
+| [Conformer](buildin/cv/classification/conformer_pytorch)           | PyTorch   | YES       | YES       | YES | NO     |
 | [CRNN](buildin/cv/classification/crnn_pytorch)                     | PyTorch   | YES       | YES       | NO  | YES    |
 | [DenseNet121](buildin/cv/classification/densenet121_caffe)         | Caffe     | YES       | YES       | YES | NO     |
 | [GoogleNet_bn](buildin/cv/classification/googlenet_bn_caffe)       | Caffe     | YES       | YES       | YES | YES    |
@@ -61,6 +62,7 @@ docker run -it --shm_size 10G --name=dockername \
 | [SqueezeNet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [SqueezeNet_v1_1](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [VGG16](buildin/cv/classification/vgg16_caffe)                     | Caffe     | YES       | YES       | YES | YES    |
+| [VOLO_d2](buildin/cv/classification/volo_d2_pytorch)               | PyTorch   | YES       | YES       | YES | NO     |
 | [SwinTransformer](buildin/cv/classification/SwinTransformer_pytorch)|PyTorch   | YES       | YES       | NO  | YES    |
 | [3D-ResNet](buildin/cv/classification/3dresnet_pytorch)            | PyTorch   | YES       | YES       | NO  | YES    |
 

@@ -1,0 +1,201 @@
+diff --git a/engine.py b/engine.py
+index a2c16ae..998b2a1 100644
+--- a/engine.py
++++ b/engine.py
+@@ -72,7 +72,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
+ 
+ 
+ @torch.no_grad()
+-def evaluate(data_loader, model, device):
++def evaluate(data_loader, model, device, pt_path):
+     criterion = torch.nn.CrossEntropyLoss()
+ 
+     metric_logger = utils.MetricLogger(delimiter="  ")
+@@ -87,6 +87,10 @@ def evaluate(data_loader, model, device):
+ 
+         # compute output
+         with torch.cuda.amp.autocast():
++            trace_model = torch.jit.trace(model, images)
++            torch.jit.save(trace_model, pt_path)
++            print("Successfully save traced model")
++            exit()
+             output = model(images)
+             # Conformer
+             if isinstance(output, list):
+diff --git a/main.py b/main.py
+index f0872e6..532a0ed 100644
+--- a/main.py
++++ b/main.py
+@@ -31,6 +31,8 @@ def get_args_parser():
+     # Model parameters
+     parser.add_argument('--model', default='deit_base_patch16_224', type=str, metavar='MODEL',
+                         help='Name of model to train')
++    parser.add_argument('--pt_path', default='xxx.pt', type=str, metavar='PT_MODEL',
++                        help='Name of PT Model')
+     parser.add_argument('--input-size', default=224, type=int, help='images input size')
+ 
+     parser.add_argument('--drop', type=float, default=0.0, metavar='PCT',
+@@ -138,7 +140,7 @@ def get_args_parser():
+     parser.add_argument('--evaluate-freq', type=int, default=1, help='frequency of perform evaluation (default: 5)')
+     parser.add_argument('--output_dir', default='',
+                         help='path where to save, empty for no saving')
+-    parser.add_argument('--device', default='cuda',
++    parser.add_argument('--device', default='cpu',
+                         help='device to use for training / testing')
+     parser.add_argument('--seed', default=0, type=int)
+     parser.add_argument('--resume', default='', help='resume from checkpoint')
+@@ -174,30 +176,30 @@ def main(args):
+ 
+     cudnn.benchmark = True
+ 
+-    dataset_train, args.nb_classes = build_dataset(is_train=True, args=args)
+-    dataset_val, _ = build_dataset(is_train=False, args=args)
+-
+-    if True:  # args.distributed:
+-        num_tasks = utils.get_world_size()
+-        global_rank = utils.get_rank()
+-        if args.repeated_aug:
+-            sampler_train = RASampler(
+-                dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
+-            )
+-        else:
+-            sampler_train = torch.utils.data.DistributedSampler(
+-                dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
+-            )
+-    else:
+-        sampler_train = torch.utils.data.RandomSampler(dataset_train)
+-
+-    data_loader_train = torch.utils.data.DataLoader(
+-        dataset_train, sampler=sampler_train,
+-        batch_size=args.batch_size,
+-        num_workers=args.num_workers,
+-        pin_memory=args.pin_mem,
+-        drop_last=True,
+-    )
++    #dataset_train, args.nb_classes = build_dataset(is_train=True, args=args)
++    dataset_val, args.nb_classes = build_dataset(is_train=False, args=args)
++
++    #if True:  # args.distributed:
++    #    num_tasks = utils.get_world_size()
++    #    global_rank = utils.get_rank()
++    #    if args.repeated_aug:
++    #        sampler_train = RASampler(
++    #            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
++    #        )
++    #    else:
++    #        sampler_train = torch.utils.data.DistributedSampler(
++    #            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
++    #        )
++    #else:
++    #    sampler_train = torch.utils.data.RandomSampler(dataset_train)
++
++    #data_loader_train = torch.utils.data.DataLoader(
++    #    dataset_train, sampler=sampler_train,
++    #    batch_size=args.batch_size,
++    #    num_workers=args.num_workers,
++    #    pin_memory=args.pin_mem,
++    #    drop_last=True,
++    #)
+ 
+     data_loader_val = torch.utils.data.DataLoader(
+         dataset_val, batch_size=int(3.0 * args.batch_size),
+@@ -317,54 +319,54 @@ def main(args):
+                 utils._load_checkpoint_for_ema(model_ema, checkpoint['model_ema'])
+ 
+     if args.eval:
+-        test_stats = evaluate(data_loader_val, model, device)
++        test_stats = evaluate(data_loader_val, model, device, args.pt_path)
+         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
+         return
+ 
+-    print("Start training")
+-    start_time = time.time()
+-    max_accuracy = 0.0
+-    for epoch in range(args.start_epoch, args.epochs):
+-        if args.distributed:
+-            data_loader_train.sampler.set_epoch(epoch)
+-
+-        train_stats = train_one_epoch(
+-            model, criterion, data_loader_train,
+-            optimizer, device, epoch, loss_scaler,
+-            args.clip_grad, model_ema, mixup_fn,
+-            set_training_mode=args.finetune == ''  # keep in eval mode during finetuning
+-        )
+-
+-        lr_scheduler.step(epoch)
+-        if args.output_dir:
+-            checkpoint_paths = [output_dir / 'checkpoint.pth']
+-            for checkpoint_path in checkpoint_paths:
+-                utils.save_on_master({
+-                    'model': model_without_ddp.state_dict(),
+-                    'optimizer': optimizer.state_dict(),
+-                    'lr_scheduler': lr_scheduler.state_dict(),
+-                    'epoch': epoch,
+-                    'model_ema': get_state_dict(model_ema),
+-                    'args': args,
+-                }, checkpoint_path)
+-        if epoch % args.evaluate_freq == 0:
+-            test_stats = evaluate(data_loader_val, model, device)
+-            print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
+-            max_accuracy = max(max_accuracy, test_stats["acc1"])
+-            print(f'Max accuracy: {max_accuracy:.2f}%')
+-
+-            log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
+-                            **{f'test_{k}': v for k, v in test_stats.items()},
+-                            'epoch': epoch,
+-                            'n_parameters': n_parameters}
+-
+-            if args.output_dir and utils.is_main_process():
+-                with (output_dir / "log.txt").open("a") as f:
+-                    f.write(json.dumps(log_stats) + "\n")
+-
+-    total_time = time.time() - start_time
+-    total_time_str = str(datetime.timedelta(seconds=int(total_time)))
+-    print('Training time {}'.format(total_time_str))
++    #print("Start training")
++    #start_time = time.time()
++    #max_accuracy = 0.0
++    #for epoch in range(args.start_epoch, args.epochs):
++    #    if args.distributed:
++    #        data_loader_train.sampler.set_epoch(epoch)
++
++    #    train_stats = train_one_epoch(
++    #        model, criterion, data_loader_train,
++    #        optimizer, device, epoch, loss_scaler,
++    #        args.clip_grad, model_ema, mixup_fn,
++    #        set_training_mode=args.finetune == ''  # keep in eval mode during finetuning
++    #    )
++
++    #    lr_scheduler.step(epoch)
++    #    if args.output_dir:
++    #        checkpoint_paths = [output_dir / 'checkpoint.pth']
++    #        for checkpoint_path in checkpoint_paths:
++    #            utils.save_on_master({
++    #                'model': model_without_ddp.state_dict(),
++    #                'optimizer': optimizer.state_dict(),
++    #                'lr_scheduler': lr_scheduler.state_dict(),
++    #                'epoch': epoch,
++    #                'model_ema': get_state_dict(model_ema),
++    #                'args': args,
++    #            }, checkpoint_path)
++    #    if epoch % args.evaluate_freq == 0:
++    #        test_stats = evaluate(data_loader_val, model, device)
++    #        print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
++    #        max_accuracy = max(max_accuracy, test_stats["acc1"])
++    #        print(f'Max accuracy: {max_accuracy:.2f}%')
++
++    #        log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
++    #                        **{f'test_{k}': v for k, v in test_stats.items()},
++    #                        'epoch': epoch,
++    #                        'n_parameters': n_parameters}
++
++    #        if args.output_dir and utils.is_main_process():
++    #            with (output_dir / "log.txt").open("a") as f:
++    #                f.write(json.dumps(log_stats) + "\n")
++
++    #total_time = time.time() - start_time
++    #total_time_str = str(datetime.timedelta(seconds=int(total_time)))
++    #print('Training time {}'.format(total_time_str))
+ 
+ 
+ if __name__ == '__main__':

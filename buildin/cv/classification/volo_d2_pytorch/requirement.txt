@@ -1,0 +1,5 @@
+dataclasses
+timm==0.4.5
+tlt==0.1.0
+pyyaml
+apex-amp
