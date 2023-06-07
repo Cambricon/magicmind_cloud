@@ -1,0 +1,110 @@
+diff --git a/configs/_base_/datasets/coco_instance.py b/configs/_base_/datasets/coco_instance.py
+index 9901a858..e29d7bb6 100644
+--- a/configs/_base_/datasets/coco_instance.py
++++ b/configs/_base_/datasets/coco_instance.py
+@@ -1,6 +1,7 @@
+ # dataset settings
++import os
+ dataset_type = 'CocoDataset'
+-data_root = 'data/coco/'
++data_root = os.environ.get("DATASETS_PATH")+'/'
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+ train_pipeline = [
+@@ -47,3 +48,4 @@ data = dict(
+         img_prefix=data_root + 'val2017/',
+         pipeline=test_pipeline))
+ evaluation = dict(metric=['bbox', 'segm'])
++
+diff --git a/tools/deployment/test.py b/tools/deployment/test.py
+index db8d696a..d7c64eb6 100644
+--- a/tools/deployment/test.py
++++ b/tools/deployment/test.py
+@@ -11,6 +11,43 @@ from mmdet.datasets import (build_dataloader, build_dataset,
+                             replace_ImageToTensor)
+ from mmdet.utils import compat_cfg
+ 
++from mmdet.core.export.model_wrappers import DeployBaseDetector
++import magicmind.python.runtime as mm
++class MagicMindDetector(DeployBaseDetector):
++    """ Wrapper for detector's inference with MagicMind."""
++
++    def __init__(self, model_path, class_names, device_id):
++        super(MagicMindDetector, self).__init__(class_names, device_id)
++        self.mmsys = mm.System()
++        assert self.mmsys.initialize().ok()
++        self.dev = mm.Device()
++        self.dev.dev_id = device_id
++        self.dev.active()
++        self.queue = self.dev.create_queue()
++        self.model = mm.Model()
++        self.model.deserialize_from_file(model_path)
++        self.engine = self.model.create_i_engine()
++        self.context = self.engine.create_i_context()
++        self.inputs = self.context.create_inputs()
++
++    def __del__(self):
++        for t in self.inputs:
++            del t
++        del self.context
++        del self.engine
++        del self.model
++        del self.queue
++        del self.dev
++        self.mmsys.destory()
++
++    def forward_test(self, imgs, img_metas, **kwargs):
++        input_data = imgs[0]
++        inputs = self.inputs
++        assert inputs[0].from_numpy(input_data.numpy()).ok()
++        outputs = []
++        assert self.context.enqueue(inputs, outputs, self.queue).ok()
++        assert self.queue.sync().ok()
++        return [x.asnumpy() for x in outputs]
+ 
+ def parse_args():
+     parser = argparse.ArgumentParser(
+@@ -27,7 +64,7 @@ def parse_args():
+     parser.add_argument(
+         '--backend',
+         required=True,
+-        choices=['onnxruntime', 'tensorrt'],
++        choices=['onnxruntime', 'tensorrt', 'magicmind'],
+         help='Backend for input model to run. ')
+     parser.add_argument(
+         '--eval',
+@@ -106,7 +143,8 @@ def main():
+     data_loader = build_dataloader(
+         dataset,
+         samples_per_gpu=samples_per_gpu,
+-        workers_per_gpu=cfg.data.workers_per_gpu,
++        # workers_per_gpu=cfg.data.workers_per_gpu,
++        workers_per_gpu=2,
+         dist=False,
+         shuffle=False)
+ 
+@@ -118,6 +156,9 @@ def main():
+         from mmdet.core.export.model_wrappers import TensorRTDetector
+         model = TensorRTDetector(
+             args.model, class_names=dataset.CLASSES, device_id=0)
++    elif args.backend == 'magicmind':
++        model = MagicMindDetector(
++            args.model, class_names=dataset.CLASSES, device_id=0)
+ 
+     model = MMDataParallel(model, device_ids=[0])
+     outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
+@@ -144,14 +185,3 @@ def main():
+ if __name__ == '__main__':
+     main()
+ 
+-    # Following strings of text style are from colorama package
+-    bright_style, reset_style = '\x1b[1m', '\x1b[0m'
+-    red_text, blue_text = '\x1b[31m', '\x1b[34m'
+-    white_background = '\x1b[107m'
+-
+-    msg = white_background + bright_style + red_text
+-    msg += 'DeprecationWarning: This tool will be deprecated in future. '
+-    msg += blue_text + 'Welcome to use the unified model deployment toolbox '
+-    msg += 'MMDeploy: https://github.com/open-mmlab/mmdeploy'
+-    msg += reset_style
+-    warnings.warn(msg)

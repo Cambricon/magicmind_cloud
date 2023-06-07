@@ -9,13 +9,13 @@ from preprocess import preprocess
 from postprocess import postprocess
 import sys
 import os
-sys.path.append("../../../")
-from utils.utils import Record
+from utils import Record
 import collections
-import logging
+from mm_runner import MMRunner
+from logger import Logger
 import math
 import json
-
+logging = Logger()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--device_id", "--device_id", type = int, default = 0, help = "device_id")
@@ -359,61 +359,28 @@ def write_predictions(all_examples, all_features, all_results, n_best_size,
 if __name__ == "__main__":
     args = parser.parse_args()
     if not os.path.exists(args.magicmind_model):
-        print("please generate magicmind model first!!!")
+        logging.info("please generate magicmind model first!!!")
         exit()
-    model = mm.Model()
-    model.deserialize_from_file(args.magicmind_model)
-
-    def _check_status(status):
-        assert status.ok(), str(status)
+    model = MMRunner(mm_file=args.magicmind_model, device_id=args.device_id)
  
     input_ids, input_mask, segment_ids, eval_features, eval_examples = preprocess(args.vocab_file,
                 args.squad_json, args.batch_size, args.max_seq_length,
                 args.max_query_length, args.doc_stride, args.version_2_with_negative)
 
-    with mm.System() as mm_sys:
-        dev_count = mm_sys.device_count()
-        print("Device count: ", dev_count)
-        assert args.device_id < dev_count
-        # 打开MLU设备
-        dev = mm.Device()
-        dev.id = args.device_id
-        assert dev.active().ok()
-        # 创建Engine
-        econfig = mm.Model.EngineConfig()
-        econfig.device_type = "MLU"
-        engine = model.create_i_engine(econfig)
-        assert engine != None, "Failed to create engine"
-        # 创建Context
-        context = engine.create_i_context()
-        assert context != None
-        # 创建MLU任务队列
-        queue = dev.create_queue()
-        assert queue != None
-        
-        zipped_input = zip(input_ids, input_mask, segment_ids)
-        all_results = []
-        for index, feed in enumerate(zipped_input):
-            inputs = context.create_inputs()
-            assert len(inputs) == len(feed), \
-                    "This model has {} inputs, but {} feed provided".format(len(inputs), len(feed))            
-            for i in range(len(inputs)):
-                inputs[i].from_numpy(feed[i])
+    zipped_input = zip(input_ids, input_mask, segment_ids)
+    
+    all_results = []
+    inputs = [np.zeros((args.batch_size, args.max_seq_length), dtype=np.int64) for i in range(3)]
+    for index, feed in enumerate(zipped_input):
+        batch_size = feed[0].shape[0]
+        for i, data in enumerate(feed):
+          inputs[i][:batch_size, :] = feed[i]
+        outputs = model(inputs)
+        all_results.append({
+            'start_logits': outputs[0][:batch_size, :],
+            'end_logits': outputs[1][:batch_size, :]
+        })
 
-            outputs = context.create_outputs(inputs, suppress_infer_shape_error=True)
-            if isinstance(outputs,list):
-                for out in outputs:
-                    out.to(self._dev)
-            else:
-                outputs = []
-            _check_status(context.enqueue(inputs, outputs, queue))
-            _check_status(queue.sync())
-        
-            all_results.append({
-                'start_logits': outputs[0].asnumpy(),
-                'end_logits': outputs[1].asnumpy()
-            })
-            #break
     raw_results = postprocess(all_results, eval_features, args.max_seq_length)
     results = []
     for result in raw_results:

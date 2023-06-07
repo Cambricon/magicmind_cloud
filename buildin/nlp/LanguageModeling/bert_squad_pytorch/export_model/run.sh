@@ -2,17 +2,23 @@
 set -e
 set -x
 
-BATCH_SIZE=$1
-MAX_SEQ_LENGTH=$2
-if [ -f "$PROJ_ROOT_PATH/data/models/bert_squad_pytorch_${BATCH_SIZE}bs_${MAX_SEQ_LENGTH}.pt" ];
+MAX_SEQ_LENGTH=$1
+
+if [ ! -d ${MODEL_PATH} ];then
+  mkdir -p ${MODEL_PATH}
+fi
+
+TORCH_PT="${MODEL_PATH}/bert_squad_pytorch_${MAX_SEQ_LENGTH}.pt"
+
+if [ -f ${TORCH_PT} ];
 then
-  echo "$PROJ_ROOT_PATH/data/models/bert_squad_pytorch_${BATCH_SIZE}bs_${MAX_SEQ_LENGTH}.pt already exists."
+  echo "${TORCH_PT} already exists."
 else
-  echo "generate $PROJ_ROOT_PATH/data/models/bert_squad_pytorch_${BATCH_SIZE}bs_${MAX_SEQ_LENGTH}.pt"
+  echo "generate ${TORCH_PT}"
 
   # 1.下载数据集和模型
   cd $PROJ_ROOT_PATH/export_model
-  bash get_datasets_and_models.sh
+  bash get_datasets_and_models.sh ${MAX_SEQ_LENGTH}
   
   # 2.下载transformer v3.1.0实现源码
   cd $PROJ_ROOT_PATH/export_model
@@ -20,9 +26,10 @@ else
   # 3.安装transformers
   pip install transformers==3.1.0
   
-  # 4. export bert_squad.pt
-  python export.py --model_path $MODEL_PATH/bert-squad-training \
-                   --pt_model $PROJ_ROOT_PATH/data/models/bert_squad_pytorch_${BATCH_SIZE}bs_${MAX_SEQ_LENGTH}.pt \
-                   --batch_size ${BATCH_SIZE} \
+  if [ ! -f ${TORCH_PT} ]; 
+  then
+    python export.py --model_path ${MODEL_PATH}/bert-squad-training \
+                   --pt_model ${TORCH_PT} \
                    --max_seq_length ${MAX_SEQ_LENGTH}
+  fi
 fi

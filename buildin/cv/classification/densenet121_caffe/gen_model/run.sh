@@ -1,29 +1,26 @@
 #!/bin/bash
-PRECISION=$1 
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-PROTOTXT=DenseNet_121.prototxt
-CAFFEMODEL=DenseNet_121.caffemodel
+set -e
+set -x
 
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/densenet121_caffe_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$MODEL_PATH/densenet121_caffe_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+img_h=224
+img_w=224
 
-if [ ! -f $MAGICMIND_MODEL ];
-then
-    python gen_model.py  --caffe_model $MODEL_PATH/$CAFFEMODEL \
-                         --prototxt $MODEL_PATH/$PROTOTXT \
-                         --output_model $MAGICMIND_MODEL \
-                         --image_dir $DATASETS_PATH \
-                         --precision $PRECISION \
-                         --shape_mutable $SHAPE_MUTABLE \
-                         --batch_size $BATCH_SIZE \
-                         --input_width 224 \
-                         --input_height 224 \
-                         --device_id 0
-else
-    echo "mm_model: $MAGICMIND_MODEL already exist."
-fi
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size} 3 ${img_h} ${img_w} \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${ILSVRC2012_DATASETS_PATH} \
+                    --caffemodel ${MODEL_PATH}/DenseNet_121.caffemodel \
+                    --prototxt ${MODEL_PATH}/DenseNet_121.prototxt \
+                    --input_layout NHWC \
+                    --means 103.94 116.78 123.68 \
+                    --vars 3460.20415225 3460.20415225 3460.20415225 \
+                    --dim_range_min 1 3 ${img_h} ${img_w} \
+                    --dim_range_max 64 3 ${img_h} ${img_w} \
+                    --type64to32_conversion "true" \
+                    --conv_scale_fold "true" 
+

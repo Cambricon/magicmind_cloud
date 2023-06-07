@@ -3,34 +3,12 @@ import argparse
 from bert4keras.tokenizers import Tokenizer
 from bert4keras.snippets import sequence_padding
 import magicmind.python.runtime as mm
+from mm_runner import MMRunner
+from logger import Logger
+logging = Logger()
 maxlen = 64
 
-def init_model(graph_path, device_id=0):
-    model = mm.Model()
-    model.deserialize_from_file(graph_path)
-    # Switch device
-    dev = mm.Device()
-    dev.id = device_id
-    assert dev.active().ok()
-    # Create engine, contex and queue
-    engine = model.create_i_engine()
-    context = engine.create_i_context()
-    queue = dev.create_queue()
-
-    return context, queue
-
-def run_infer(data, context, queue):
-    inputs = context.create_inputs()
-    outputs = []
-    inputs[0].from_numpy(data[1])
-    inputs[1].from_numpy(data[0])
-    assert context.enqueue(inputs, outputs, queue).ok()
-    assert queue.sync().ok()
-    res0 = outputs[0].asnumpy()
-    return res0
-
-
-def similarity(text1, text2, tokenizer, context, queue):
+def similarity(text1, text2, tokenizer, model):
     """"计算text1与text2的相似度
     """
     texts = [text1, text2]
@@ -41,9 +19,8 @@ def similarity(text1, text2, tokenizer, context, queue):
         S.append(s)
     X = sequence_padding(X)
     S = sequence_padding(S)
-    Z = run_infer([X, S],context, queue)
+    Z = model([S, X])[0]
     Z /= (Z**2).sum(axis=1, keepdims=True)**0.5
-    # print((Z[0] * Z[1]).sum())
     return (Z[0] * Z[1]).sum()
 
 
@@ -54,14 +31,14 @@ def main():
     args.add_argument("--device_id", type=int, default=0, help="which device use")
     args = args.parse_args()
 
-    tokenizer = Tokenizer(args.vocab_file, do_lower_case=True)  # 建立分词器
-    context, queue = init_model(args.magicmind_model, device_id=0)    
+    tokenizer = Tokenizer(args.vocab_file, do_lower_case=True)  # 建立分词器 
+    model = MMRunner(mm_file=args.magicmind_model, device_id=args.device_id)  
 
     strings_1 = [u'今天天气不错', u'今天天气不错',u'我喜欢北京',u'我喜欢北京']
     strings_2 = [u'今天天气很好', u'今天天气不好', u'我很喜欢北京', u'我不喜欢北京']
     for i in range(len(strings_1)):
-        smi = similarity(strings_1[i], strings_2[i], tokenizer, context, queue)
-        print(strings_1[i],strings_2[i], "similarity is :", smi)    
+        smi = similarity(strings_1[i], strings_2[i], tokenizer, model)
+        logging.info('{}, {}, similarity is : {}'.format(strings_1[i], strings_2[i], smi))
 
 if __name__ == "__main__":
     main()

@@ -19,7 +19,7 @@ else
   wget https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet50-v1-7.onnx
 fi
 
-cd $DATASETS_PATH
+cd $ILSVRC2012_DATASETS_PATH
 if [ ! -f ILSVRC2012_val_00000001.JPEG ];
 then
     echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/"

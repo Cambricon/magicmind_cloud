@@ -1,34 +1,41 @@
 #!/bin/bash
 set -e
-
-PRECISION=$1
-BATCH_SIZE=$2
+set -x
 
 MM_RUN(){
-    PRECISION=$1
-    BATCH_SIZE=$2
-        
-    echo "Begin to inference in MLU device."
-    $MM_RUN_PATH/mm_run \
-        --magicmind_model $PROJ_ROOT_PATH/data/models/arcface_${PRECISION}_${BATCH_SIZE}.mm \
-        --iterations 100 \
-        --batch_size ${BATCH_SIZE} 2>&1 |tee $PROJ_ROOT_PATH/data/output/${PRECISION}_${BATCH_SIZE}_log_perf
+    magicmind_model=$1
+    batch_size=$2
+    ${MM_RUN_PATH}/mm_run   --magicmind_model ${magicmind_model} \
+                            --batch_size ${batch_size} \
+                            --devices 0 
 }
 
-if [ ! -d $PROJ_ROOT_PATH/data/output ];
-then
-    mkdir -p $PROJ_ROOT_PATH/data/output
-fi
-precisions=('force_float32' 'force_float16' 'qint8_mixed_float16')
-batchs=(1 32 64)
-bash $PROJ_ROOT_PATH/export_model/run.sh
-for precision in ${precisions[@]};
-do
-  for batch in ${batchs[@]};
-  do 
-    cd $PROJ_ROOT_PATH/gen_model
-    bash run.sh $precision $batch
-    echo "mm_run $precision $batch"
-    MM_RUN $precision $batch
-  done
+dynamic_shape=false
+# 1. export model
+cd ${PROJ_ROOT_PATH}/export_model 
+bash run.sh
+
+
+for precision in qint8_mixed_float16 force_float16 force_float32
+do 
+    for dynamic_shape in false 
+    do 
+        for batch_size in 1 32 64
+        do 
+            magicmind_model=${MODEL_PATH}/arcface_pytorch_model_${precision}_${dynamic_shape}
+            if [ ${dynamic_shape} == 'false' ];then
+                magicmind_model="${magicmind_model}_${batch_size}"
+            fi
+            # gen model
+            if [ ! -f ${magicmind_model} ];then
+                cd ${PROJ_ROOT_PATH}/gen_model
+                bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape} 
+            else
+                echo "MagicMind model: ${magicmind_model} already exists!"
+            fi
+            # run model
+            MM_RUN ${magicmind_model} ${batch_size}
+        done 
+    done 
 done
+

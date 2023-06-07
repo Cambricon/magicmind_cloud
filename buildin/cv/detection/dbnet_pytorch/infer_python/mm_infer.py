@@ -1,9 +1,10 @@
-import magicmind.python.runtime as mm
 import numpy as np
-import time
-import os
 import torch
 
+from mm_runner import MMRunner
+from logger import Logger
+
+log = Logger()
 class MM_Model(object):
     def __init__(self, model_path):
         #mlu
@@ -34,15 +35,20 @@ class MM_Model(object):
         return host_out
 
 def main(args):
-    dbnet = MM_Model(args.model_path)    
+    dbnet = MMRunner(mm_file=args.magicmind_model, device_id=args.device_id)    
     input = np.random.randint(255,size=(args.batch_size, 3, args.input_height, args.input_width)).astype(np.float32)
-    outputs = dbnet.forward_db(input)
+    
+    outputs = dbnet(input)
     db_output = outputs[0].astype(np.float32)
 
 if __name__ == '__main__':
-    parser.add_argument('--model_path', type=str, default = '../../data/models/dbnet_pt_model_force_float32_1_1280_800_model', help='model path')
+    parser.add_argument('--magicmind_model', type=str, default = '../../data/models/dbnet_pt_model_force_float32_1_1280_800_model', help='model path')
+    parser.add_argument("--device_id", "--device_id", type=int, default=0, help="device_id")
     parser.add_argument('--batch_size', dest = 'batch_size', default = 1, type = int, help = 'input batch size')
     parser.add_argument('--input_width', dest = 'input_width', default = 800, type = int, help = 'model input width')
     parser.add_argument('--input_height', dest = 'input_height', default = 1280, type = int, help = 'model input height')
     args = parser.parse_args()
+    if not os.path.exists(args.magicmind_model):
+        log.error(args.magicmind_model + " does not exist.")
+        exit()
     main(args)

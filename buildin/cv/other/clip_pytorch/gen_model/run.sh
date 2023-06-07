@@ -1,34 +1,29 @@
-#bin/bash
+#!/bin/bash
 set -e
 set -x
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
 
-#example<<bash run.sh force_float16 false 4
-if [ ! -d $PROJ_ROOT_PATH/data/mm_model ];then
-    mkdir -p $PROJ_ROOT_PATH/data/mm_model
-fi
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
 
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$PROJ_ROOT_PATH/data/mm_model/clip_onnx_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$PROJ_ROOT_PATH/data/mm_model/clip_onnx_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size} 3 224 224 \
+                    --input_dims 100 77 \
+                    --batch_size ${batch_size} 100 \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${CIFAR100_DATASETS_PATH} \
+                    --dim_range_min 1 3 224 224 \
+                    --dim_range_max 64 3 224 224 \
+                    --dim_range_min 100 77 \
+                    --dim_range_max 100 77 \
+                    --onnx $MODEL_PATH/clip.onnx \
+                    --type64to32_conversion "true" \
+                    --conv_scale_fold "true"  \
+                    --device_id 0
 
-if [ -f $MAGICMIND_MODEL ];
-then
-    echo "magicmind model: $MAGICMIND_MODEL already exist!"
-else 
-    echo "generate Magicmind model begin..."
-    cd $PROJ_ROOT_PATH/gen_model/
-    python gen_model.py --precision ${PRECISION}  --batch_size $BATCH_SIZE --shape_mutable ${SHAPE_MUTABLE} \
-                                                    --onnx_model $PROJ_ROOT_PATH/data/models/clip.onnx \
-                                                    --datasets_dir $DATASETS_PATH/cifar-100-python \
-                                                    --mm_model $MAGICMIND_MODEL
-    echo "Generate model done, model save to $MAGICMIND_MODEL"
-fi
+
 
 
 

@@ -8,8 +8,8 @@ import glob
 class CalibData(mm.CalibDataInterface):
     def __init__(self, shape: mm.Dims, max_samples: int, img_list):
         super().__init__()
-        self.data_paths_ = img_list
-        print("calibrate samples : ", len(self.data_paths_))
+        self.data_paths_ = glob.glob(img_list + "/images/*/*.jpg")
+        # print("calibrate samples : ", len(self.data_paths_))
         self.shape_ = shape
         self.max_samples_ = min(max_samples, len(self.data_paths_))
         self.cur_sample_ = None

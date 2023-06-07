@@ -1,28 +1,27 @@
 #!/bin/bash
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-CONF_THRES=$4
-IOU_THRES=$5
-MAX_DET=$6
-if [ $SHAPE_MUTABLE == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/retinaface_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$MODEL_PATH/retinaface_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
+set -e 
+set -x
 
-if [ ! -f $MAGICMIND_MODEL ];
-then
-    python $PROJ_ROOT_PATH/gen_model/gen_model.py --pt_model $PROJ_ROOT_PATH/data/models/retinaface_traced.pt \
-                                                  --output_model $MAGICMIND_MODEL \
-                                                  --image_dir $DATASETS_PATH/WIDER_val \
-                                                  --precision $PRECISION \
-                                                  --shape_mutable $SHAPE_MUTABLE \
-                                                  --batch_size $BATCH_SIZE \
-                                                  --conf_thres $CONF_THRES \
-                                                  --iou_thres $IOU_THRES \
-                                                  --max_det $MAX_DET
-else
-    echo "mm_model: $MAGICMIND_MODEL already exists."
-fi
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+
+python gen_model.py --pytorch_pt ${PROJ_ROOT_PATH}/data/models/retinaface_traced.pt \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${WIDERFACE_DATASETS_PATH}/WIDER_val \
+                    --precision ${precision} \
+                    --input_dims ${batch_size} 3 672 1024  \
+                    --dynamic_shape ${dynamic_shape} \
+                    --type64to32_conversion true \
+                    --conv_scale_fold true \
+                    --dim_range_min 1 3 672 1024 \
+                    --dim_range_max 64 3 672 1024 \
+                    --weight_quant_granularity per_axis \
+                    --means 104 117 123 \
+                    --vars 1 1 1 \
+                    --input_layout NHWC \
+                    --mlu_arch mtp_372 
+
+
+

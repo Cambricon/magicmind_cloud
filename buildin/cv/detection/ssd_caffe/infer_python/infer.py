@@ -26,7 +26,7 @@ def parse_args():
 def get_results(path, pred_dir, save_img):
     model = mm.Model()
     model.deserialize_from_file(args.magicmind_model)
-    threshold = 0.05
+    threshold = 0.01
     input_size = [300, 300]
 
     def preprocess_images(image_path: str, dst_size: list):
@@ -46,10 +46,10 @@ def get_results(path, pred_dir, save_img):
 
     # 读取测试图片文件名
     filenames = []
-    with open(os.path.join(path,'VOC2012/ImageSets/Main/val.txt'), 'r') as f:
+    with open(os.path.join(path,'VOC2007/ImageSets/Main/test.txt'), 'r') as f:
         filenames = f.readlines()
     # 生成图片列表文件
-    images_path = [os.path.join(path, 'VOC2012/JPEGImages/' + filename.strip() + '.jpg')\
+    images_path = [os.path.join(path, 'VOC2007/JPEGImages/' + filename.strip() + '.jpg')\
               for filename in filenames]
     #创建保存结果的文件夹
 
@@ -58,7 +58,7 @@ def get_results(path, pred_dir, save_img):
     if not folder: 
         os.makedirs(pred_dir)
     for t in _classes:
-        voc_preds_files.append(open(pred_dir + '/comp3_det_val_' + t + '.txt', 'w'))
+        voc_preds_files.append(open(pred_dir + '/comp3_det_test_' + t + '.txt', 'w'))
     total_num = images_path.__len__()
     print('total image number:{}'.format(total_num))
     with mm.System():
@@ -96,10 +96,10 @@ def get_results(path, pred_dir, save_img):
                 
                 if (threshold > bbox[2]): continue
 
-                left = int(bbox[3] * float(img.shape[2]) * scale[1])  # left
-                top = int(bbox[4] * float(img.shape[1]) * scale[0])  # top
-                right = int(bbox[5] * float(img.shape[2]) * scale[1])  # right
-                bottom = int(bbox[6] * float(img.shape[1]) * scale[0])  # bottom
+                left = float(bbox[3] * float(img.shape[2]) * scale[1])  # left
+                top = float(bbox[4] * float(img.shape[1]) * scale[0])  # top
+                right = float(bbox[5] * float(img.shape[2]) * scale[1])  # right
+                bottom = float(bbox[6] * float(img.shape[1]) * scale[0])  # bottom
                 
                 if left >= right or top >= bottom : continue
                 # check border
@@ -119,10 +119,10 @@ def get_results(path, pred_dir, save_img):
                 voc_preds_files[category].write('\n')
 
                 if save_img:
-                    cv2.rectangle(ori, (left, top), (right, bottom), (255, 255, 255))
+                    cv2.rectangle(ori, (int(left), int(top)), (int(right), int(bottom)), (255, 255, 255))
                     text = _classes[category] + ": " + str(bbox[2])
                     text_size, _ = cv2.getTextSize(text, 0, 0.5, 1)
-                    cv2.putText(ori, text, (left, top + text_size[1]), 0, 0.5, (255, 255, 255), 1)
+                    cv2.putText(ori, text, (int(left), int(top) + text_size[1]), 0, 0.5, (255, 255, 255), 1)
             if save_img:
                 cv2.imwrite(os.path.join(pred_dir, filenames[i].strip() + '.jpg'), ori)
 

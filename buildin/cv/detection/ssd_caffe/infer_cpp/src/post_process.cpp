@@ -23,12 +23,12 @@ bool post_process(cv::Mat &img, std::vector<std::vector<float>> results, std::ve
         ymin = ymin * ratio_h * dst_h;
         xmax = xmax * ratio_w * dst_w;
         ymax = ymax * ratio_h * dst_h;
-        if (score < 0.05) continue;
+        if (score < 0.01) continue;
         if (xmin >= xmax || ymin >= ymax) continue;
-        xmin = std::max(0, int(xmin));
-        xmax = std::min(int(xmax), src_w);
-        ymin = std::max(0, int(ymin));
-        ymax = std::min(int(ymax), src_h);
+        xmin = std::max(float(0), xmin);
+        xmax = std::min(xmax, float(src_w));
+        ymin = std::max(float(0), ymin);
+        ymax = std::min(ymax, float(src_h));
         std::string filename = voc_preds_files[detect_class];
         std::ofstream file_map(filename, std::ios::app);
         file_map << name << " " 
@@ -39,14 +39,14 @@ bool post_process(cv::Mat &img, std::vector<std::vector<float>> results, std::ve
                  << ymax << "\n"; 
         file_map.close();
         if (save_img) {
-            cv::rectangle(img, cv::Rect(cv::Point(xmin, ymin), cv::Point(xmax, ymax)), cv::Scalar(0, 255, 0));
+            cv::rectangle(img, cv::Rect(cv::Point(int(xmin), int(ymin)), cv::Point(int(xmax), int(ymax))), cv::Scalar(0, 255, 0));
             auto fontface = cv::FONT_HERSHEY_TRIPLEX;
             double fontscale = 0.5;
             int thickness = 1;
             int baseline = 0;
             std::string text = imagenet_name_map[detect_class] + ": " + std::to_string(score);
             cv::Size text_size = cv::getTextSize(text, fontface, fontscale, thickness, &baseline);
-            cv::putText(img, text, cv::Point(xmin, ymin + text_size.height), fontface, fontscale, cv::Scalar(255, 255, 255), thickness);
+            cv::putText(img, text, cv::Point(int(xmin), int(ymin) + text_size.height), fontface, fontscale, cv::Scalar(255, 255, 255), thickness);
         }
     }
     if (save_img) {
@@ -54,4 +54,3 @@ bool post_process(cv::Mat &img, std::vector<std::vector<float>> results, std::ve
     }
     return true;
 }
-

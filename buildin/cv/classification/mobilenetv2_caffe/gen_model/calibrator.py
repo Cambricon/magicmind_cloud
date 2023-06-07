@@ -1,24 +1,32 @@
 import magicmind.python.runtime as mm
 import numpy as np
 import glob
-import os 
+import os
 import cv2
 
+
 class CalibData(mm.CalibDataInterface):
-    def __init__(self, shape: mm.Dims, max_samples: int, img_dir: str,new_size,need_insert_bn_,MEAN_,STD_):
+    def __init__(
+        self,
+        shape: mm.Dims,
+        max_samples: int,
+        img_dir: str,
+        new_size: int,
+        means: list,
+        vars_: list,
+    ):
         super().__init__()
         assert os.path.isdir(img_dir)
-        self.data_paths_ = glob.glob(img_dir + '/*.jpg')
-        t = glob.glob(img_dir + '/*.JPEG')
+        self.data_paths_ = glob.glob(img_dir + "/*.jpg")
+        t = glob.glob(img_dir + "/*.JPEG")
         self.data_paths_ += t
         self.shape_ = shape
         self.max_samples_ = min(max_samples, len(self.data_paths_))
         self.cur_sample_ = None
         self.cur_data_index_ = 0
         self.new_size = new_size
-        self.need_insert_bn = need_insert_bn_
-        self.mean = MEAN_
-        self.std = STD_
+        self.means = means
+        self.std = np.sqrt(vars_)
 
     def get_shape(self):
         return self.shape_
@@ -28,7 +36,7 @@ class CalibData(mm.CalibDataInterface):
 
     def get_sample(self):
         return self.cur_sample_
-    
+
     def preprocess_images(self, data_begin: int, data_end: int) -> np.ndarray:
         imgs = []
         dst_h, dst_w = self.shape_.GetDimValue(2), self.shape_.GetDimValue(3)
@@ -37,21 +45,29 @@ class CalibData(mm.CalibDataInterface):
             # resize to NEW_SIZE
             origin_h, origin_w = img.shape[:2]
             scale = self.new_size / min(origin_h, origin_w)
-            img = cv2.resize(img, (round(scale * origin_w), round(scale * origin_h)), interpolation=cv2.INTER_LINEAR)
+            img = cv2.resize(
+                img,
+                (round(scale * origin_w), round(scale * origin_h)),
+                interpolation=cv2.INTER_LINEAR,
+            )
             # center crop
             roi_y1 = round((img.shape[0] - self.new_size) / 2)
             roi_y2 = roi_y1 + dst_h
-            roi_x1 = round((img.shape[1] - self.new_size)  / 2)
+            roi_x1 = round((img.shape[1] - self.new_size) / 2)
             roi_x2 = roi_x1 + dst_w
             img = img[roi_y1:roi_y2, roi_x1:roi_x2]
             # mean std
             img = img.astype(np.float32)
-            if self.need_insert_bn:
-                img -= self.mean
-                img /= self.std
+            # if self.need_insert_bn:
+            #    img -= self.mean
+            #    img /= self.std
+
+            # cambricon-note: always use insert_bn
+            img -= self.means
+            img /= self.std
             # HWC to CHW
             img = img.transpose(2, 0, 1)
-            imgs.append(np.ascontiguousarray(img)[np.newaxis,:])
+            imgs.append(np.ascontiguousarray(img)[np.newaxis, :])
         # batch
         return np.ascontiguousarray(np.concatenate(tuple(imgs), axis=0))
 

@@ -21,12 +21,12 @@ fi
 echo "modify $FILE4"
 sed -i "s/layers/layer/" $FILE4
 
-if [ ! -d $DATASETS_PATH ];then
-    mkdir -p $DATASETS_PATH
+if [ ! -d $ILSVRC2012_DATASETS_PATH ];then
+    mkdir -p $ILSVRC2012_DATASETS_PATH
 fi
-cd $DATASETS_PATH
+cd $ILSVRC2012_DATASETS_PATH
 if [ ! -f ILSVRC2012_val_00000001.JPEG ];
 then
-    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/ to $DATASETS_PATH"
+    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/ to $ILSVRC2012_DATASETS_PATH"
     exit 1
 fi

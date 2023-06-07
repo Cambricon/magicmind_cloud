@@ -11,7 +11,7 @@
 
 float Preprocess(cv::Mat img, const magicmind::Dims &input_dim, uint8_t *dst);
 
-std::vector<std::string> LoadImages(const std::string image_dir, const std::string image_list, const int batch_size);
+std::vector<std::string> LoadImages(const std::string image_dir, const std::string image_list);
 
 #endif //_PRE_PROCESS_H
 

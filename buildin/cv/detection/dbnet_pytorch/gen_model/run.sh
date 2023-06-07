@@ -1,25 +1,30 @@
 #!/bin/bash
-PRECISION=$1
-SHAPE_MUTABLE=$2
-N=$3
-H=$4
-W=$5
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/dbnet_pt_model_${PRECISION}_${SHAPE_MUTABLE}_${N}_${H}_${W}
-else 
-    MAGICMIND_MODEL=$MODEL_PATH/dbnet_pt_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
-if [ ! -f $MAGICMIND_MODEL ];
-then
-    python gen_model.py     --pt_model $MODEL_PATH/dbnet.pt \
-                            --dataset_dir $DATASETS_PATH/total_text/test_images \
-                            --output_model $MAGICMIND_MODEL \
-                            --precision ${PRECISION} \
-                            --shape_mutable ${SHAPE_MUTABLE} \
-                            --input_height ${H} \
-                            --input_width ${W} \
-                            --batch_size ${N}
-else
-    echo "mm_model: $MAGICMIND_MODEL already exist."
-fi
+set -e
+set -x
+
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+
+
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size} 3 800 1280 \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --dim_range_min 1 3 800 256 \
+                    --dim_range_max 64 3 800 3072 \
+                    --image_dir $TOTAL_TEXT_DATASETS_PATH/total_text/test_images \
+                    --pytorch_pt $MODEL_PATH/dbnet.pt \
+                    --mlu_arch mtp_372 \
+                    --mean 123.675 116.28 103.53 \
+                    --vars 65025 65025 65025 \
+                    --type64to32_conversion true \
+                    --conv_scale_fold true \
+                    --input_layout NHWC
+
+
+
+
+                    
+                    

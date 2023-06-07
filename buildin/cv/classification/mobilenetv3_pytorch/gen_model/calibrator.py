@@ -2,10 +2,32 @@ import magicmind.python.runtime as mm
 import numpy as np
 import glob
 import os 
-import cv2
+from PIL import Image
+from torchvision import transforms
+
+resize_h, resize_w = (256, 256)
+crop_h, crop_w = (224, 224)
+mean = [0.485, 0.456, 0.406]
+std = [0.229, 0.224, 0.225]
+
+def pre_process(input_image, transpose):
+    normalize = transforms.Normalize(mean, std)
+    preprocess = transforms.Compose(
+        [
+            transforms.Resize(resize_h),
+            transforms.CenterCrop(crop_h),
+            transforms.ToTensor(),
+            normalize,
+        ]
+    )
+    input_tensor = preprocess(input_image)
+    input_numpy = input_tensor.numpy()
+    if transpose:
+        input_numpy = np.transpose(input_numpy, (1, 2, 0))
+    return input_numpy
 
 class CalibData(mm.CalibDataInterface):
-    def __init__(self, shape: mm.Dims, max_samples: int, img_dir: str,new_size,need_insert_bn_,MEAN_,STD_):
+    def __init__(self, shape: mm.Dims, max_samples: int, img_dir: str):
         super().__init__()
         assert os.path.isdir(img_dir)
         self.data_paths_ = glob.glob(img_dir + '/*.jpg')
@@ -15,10 +37,6 @@ class CalibData(mm.CalibDataInterface):
         self.max_samples_ = min(max_samples, len(self.data_paths_))
         self.cur_sample_ = None
         self.cur_data_index_ = 0
-        self.new_size = new_size
-        self.need_insert_bn = need_insert_bn_
-        self.mean = MEAN_
-        self.std = STD_
 
     def get_shape(self):
         return self.shape_
@@ -31,28 +49,11 @@ class CalibData(mm.CalibDataInterface):
     
     def preprocess_images(self, data_begin: int, data_end: int) -> np.ndarray:
         imgs = []
-        dst_h, dst_w = self.shape_.GetDimValue(2), self.shape_.GetDimValue(3)
         for i in range(data_begin, data_end):
-            img = cv2.imread(self.data_paths_[i])
-            # resize to NEW_SIZE
-            origin_h, origin_w = img.shape[:2]
-            scale = self.new_size / min(origin_h, origin_w)
-            img = cv2.resize(img, (round(scale * origin_w), round(scale * origin_h)), interpolation=cv2.INTER_LINEAR)
-            # center crop
-            roi_y1 = round((img.shape[0] - self.new_size) / 2)
-            roi_y2 = roi_y1 + dst_h
-            roi_x1 = round((img.shape[1] - self.new_size)  / 2)
-            roi_x2 = roi_x1 + dst_w
-            img = img[roi_y1:roi_y2, roi_x1:roi_x2]
-            # BGR to RGB
-            img = img[:, :, ::-1]
-            # mean std
-            img = img.astype(np.float32)
-            if self.need_insert_bn:
-                img -= self.mean
-                img /= self.std
-            # HWC to CHW
-            img = img.transpose(2, 0, 1)
+            img = Image.open(self.data_paths_[i])
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+            img = pre_process(img,transpose = True)
             imgs.append(np.ascontiguousarray(img)[np.newaxis,:])
         # batch
         return np.ascontiguousarray(np.concatenate(tuple(imgs), axis=0))

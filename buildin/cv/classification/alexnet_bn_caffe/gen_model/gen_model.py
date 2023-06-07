@@ -79,6 +79,7 @@ def calibrate(args, network : mm.Network, config : mm.BuilderConfig, need_insert
         print("Device count: ", dev_count)
         if args.device_id >= dev_count:
             print("Invalid device set!")
+            abort()
         # 打开MLU设备
         dev = mm.Device()
         dev.id = args.device_id

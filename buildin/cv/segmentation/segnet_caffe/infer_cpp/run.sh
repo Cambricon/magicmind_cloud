@@ -1,31 +1,38 @@
 #!/bin/bash
-set -e
 set -x
-PRECISION=$1  
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
+magicmind_model=${1}
+batch_size=${2}
+image_num=${3:-0}
+tmp_name=$(basename ${magicmind_model})
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/${tmp_name}_infer_cpp_res"
 
-if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
+if [ ! -d ${infer_res_dir} ];
 then
-    mkdir "$PROJ_ROOT_PATH/data/output"
+  mkdir -p ${infer_res_dir}
 fi
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/infer_cpp_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-if [ ! -d $OUTPUT_DIR ];
-then
-    mkdir $OUTPUT_DIR
-    echo "mkdir sucessed!!!"
-else
-    echo "output dir exits!!! no need to mkdir again!!!"
+
+cd ${PROJ_ROOT_PATH}/infer_cpp/
+if [ ! -f infer ];then
+    bash build.sh
 fi
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/segnet_caffe_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$MODEL_PATH/segnet_caffe_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
-bash build.sh
-$PROJ_ROOT_PATH/infer_cpp/infer --magicmind_model $MAGICMIND_MODEL \
-                                --image_dir $DATASETS_PATH/VOCdevkit/VOC2012/JPEGImages/ \
-                                --image_list $DATASETS_PATH/VOCdevkit/VOC2012/ImageSets/Segmentation/val.txt \
-                                --output_dir $OUTPUT_DIR \
-                                --save_txt true
+
+cur_path=$(pwd)
+./infer --magicmind_model ${magicmind_model} \
+        --batch_size ${batch_size} \
+        --image_dir ${VOC2012_DATASETS_PATH}/VOCdevkit/VOC2012/JPEGImages \
+        --image_list ${VOC2012_DATASETS_PATH}/VOCdevkit/VOC2012/ImageSets/Segmentation/val.txt \
+        --output_dir ${infer_res_dir} \
+        --image_num ${image_num} 
+
+
+# get metric res
+function compute_voc_miou(){
+    infer_res_dir=${1}
+    log_file=${infer_res_dir}/log_eval
+    python ${UTILS_PATH}/compute_voc_mIOU_segnet.py \
+             --output_dir ${infer_res_dir} 2>&1 |tee ${log_file}
+
+}
+
+compute_voc_miou  ${infer_res_dir} 
+

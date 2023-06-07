@@ -12,12 +12,12 @@ std::vector<std::string> LoadImages(const std::string image_dir,int batch_size) 
             exit(1);
     }
     std::string glob_path = std::string(abs_path);
-    std::ifstream in(image_dir+"/VOC2012/ImageSets/Main/val.txt");
+    std::ifstream in(image_dir+"/VOC2007/ImageSets/Main/test.txt");
     std::string image_name;
     std::string image_path;
     std::vector<std::string> image_paths;
     while(getline(in, image_name)) {
-        image_path = glob_path + "/VOC2012/JPEGImages/" + image_name + ".jpg";
+        image_path = glob_path + "/VOC2007/JPEGImages/" + image_name + ".jpg";
         image_paths.push_back(image_path);
     }
     // pad to multiple of batch_size.

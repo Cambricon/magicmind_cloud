@@ -39,8 +39,8 @@ def main():
     args = parser.parse_args()
     # init mm model
     model1 = MagicmindModel(model_path=args.magicmind_model_1, device_id=0)
-    model2 = MagicmindModel(args.magicmind_model_1, 0)
-    model3 = MagicmindModel(args.magicmind_model_1, 0)
+    model2 = MagicmindModel(args.magicmind_model_2, 0)
+    model3 = MagicmindModel(args.magicmind_model_3, 0)
 
     image,pose = load_data_npz(args.image_dir)
     x_data = []

@@ -1,5 +1,4 @@
-#include "../include/pre_process.hpp"
-#include "../include/utils.hpp"
+#include "pre_process.hpp"
 
 /**
  * @brief load all images(jpg) from image directory(FLAGS_image_dir)
@@ -22,15 +21,6 @@ std::vector<std::string> LoadImages(const std::string image_dir, int batch_size,
         image_paths.push_back(image_path);
         count += 1;
         if (count >= image_num) {break;}
-    }
-    // pad to multiple of batch_size.
-    // The program will stuck when the number of input images is not an integer multiple of the batch size
-    size_t pad_num = batch_size - image_paths.size() % batch_size;
-    if (pad_num != batch_size) {
-        std::cout << "There are " << image_paths.size() << " images in total, add " << pad_num
-            << " more images to make the number of images is an integral multiple of batchsize[" << batch_size << "].";
-        while (pad_num--)
-            image_paths.emplace_back(*image_paths.rbegin());
     }
     return image_paths;
 }

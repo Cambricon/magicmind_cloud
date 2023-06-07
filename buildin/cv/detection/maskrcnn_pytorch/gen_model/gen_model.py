@@ -5,11 +5,11 @@ import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "model build")
     parser.add_argument('--precision', type=str,   default='force_float16', required=True ,help='Quant_mode')
-    parser.add_argument('--batch_size', type=int,   default=8, required=True ,help='batch_size')
+    parser.add_argument('--batch_size', type=int,   default=1, required=True ,help='batch_size')
     parser.add_argument('--shape_mutable', type=str, default="", required=True ,help='shape_mutable')
     parser.add_argument('--onnx_model', type=str, default="", required=True ,help='onnx_model')
     parser.add_argument('--mm_model', type=str, default="", required=True ,help='mm_model')
-    parser.add_argument('--input_size', type=int, default="", required=True ,help='input_size')
+    parser.add_argument('--input_size', type=int, default=224, required=True ,help='input_size')
     args = parser.parse_args()
 
     DEV_ID = 0
@@ -33,8 +33,8 @@ if __name__ == "__main__":
         assert config.parse_from_string('{ \
         "dim_range": {  \
         "0": {  \
-            "min": [1,3,800,800],  \
-            "max": [32,3,800,800]  \
+            "min": [1,3,224,224],  \
+            "max": [16,3,1344,1920]  \
         }}}').ok()
     else:
         assert config.parse_from_string('{"graph_shape_mutable": false}').ok()
@@ -48,6 +48,7 @@ if __name__ == "__main__":
         print("Device count: ", dev_count)
         if DEV_ID >= dev_count:
             print("Invalid DEV_ID set!")
+            abort()
         dev = mm.Device()
         dev.id = DEV_ID
         assert dev.active().ok()

@@ -1,7 +1,13 @@
 #!/bin/bash
+
 set -e
-set -x
+
 BATCH_SIZE=$1
+
+echo "*******************************************"
+echo "          export model begin               "
+echo "*******************************************"
+
 
 # 1.下载数据集和模型
 bash get_datasets_and_models.sh
@@ -48,7 +54,7 @@ then
     python $PROJ_ROOT_PATH/export_model/export.py --model_weight $MODEL_PATH/ctdet_coco_dlav0_1x.pth \
     					      --input_width 512 \
     					      --input_height 512 \
-    					      --batch_size ${BATCH_SIZE} \
+    					      --batch_size 1 \
     					      --traced_pt $PROJ_ROOT_PATH/data/models/ctdet_coco_dlav0_1x_traced_${BATCH_SIZE}bs.pt
     echo "export model end..."
 fi

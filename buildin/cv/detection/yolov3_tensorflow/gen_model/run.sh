@@ -1,23 +1,24 @@
 #!/bin/bash
-if [ ! -d $PROJ_ROOT_PATH/data/mm_model ];
-then
-    mkdir -p $PROJ_ROOT_PATH/data/mm_model
-fi
+set -e
+set -x
 
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+img_h=416
+img_w=416
+input_names="input/input_data"
 
-if [ -f $PROJ_ROOT_PATH/data/mm_model/yolov3_tf_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} ];
-then
-    echo "magicmind model: $PROJ_ROOT_PATH/data/mm_model/yolov3_tf_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} already exist!"
-else 
-    echo "generate Magicmind model begin..."
-    cd $PROJ_ROOT_PATH/gen_model/
-    python gen_model.py --precision ${PRECISION}  --batch_size $BATCH_SIZE --shape_mutable ${SHAPE_MUTABLE} \
-                                                  --tf_pb  $PROJ_ROOT_PATH/data/models/yolov3_coco_mmpost.pb \
-                                                  --datasets_dir $DATASETS_PATH/val2017 \
-                                                  --mm_model $PROJ_ROOT_PATH/data/mm_model/yolov3_tf_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-    echo "Generate model done, model save to $PROJ_ROOT_PATH/data/mm_model/yolov3_tf_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
-fi
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size}  ${img_h} ${img_w} 3 \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${COCO_DATASETS_PATH}/val2017 \
+                    --tf_pb ${MODEL_PATH}/yolov3_coco_mmpost.pb \
+                    --input_names ${input_names} \
+                    --output_names "conv_sbbox/BiasAdd" "conv_mbbox/BiasAdd" "conv_lbbox/BiasAdd" \
+                    --computation_preference fast   \
+                    --dim_range_min 1 3 ${img_h} ${img_w} \
+                    --dim_range_max 32 3 ${img_h} ${img_w} 
 

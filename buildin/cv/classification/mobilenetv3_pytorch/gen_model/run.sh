@@ -1,29 +1,25 @@
-#bin/bash
+#!/bin/bash
 set -e
 set -x
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-#example<<bash run.sh force_float16 false 4
-if [ ! -d $PROJ_ROOT_PATH/data/mm_model ];then
-    mkdir -p $PROJ_ROOT_PATH/data/mm_model
-fi
 
-if [ -f $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} ];
-then
-    echo "magicmind model: $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} already exist!"
-else 
-    echo "generate Magicmind model begin..."
-    cd $PROJ_ROOT_PATH/gen_model/
-    python gen_model.py --precision ${PRECISION} \
-                        --shape_mutable ${SHAPE_MUTABLE} \
-                        --batch_size $BATCH_SIZE  \
-                        --pt_model $PROJ_ROOT_PATH/data/models/mobilenet-v3_small.torchscript.pt \
-                        --datasets_dir $DATASETS_PATH/ \
-                        --mm_model $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-    echo "Generate model done, model save to $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
-fi
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+img_h=224
+img_w=224
 
 
-
-        
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size} 3 ${img_h} ${img_w} \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${ILSVRC2012_DATASETS_PATH} \
+                    --pytorch_pt ${MODEL_PATH}/mobilenet-v3_small.torchscript.pt \
+                    --input_layout NHWC \
+                    --means 123.675 116.28 103.53 \
+                    --vars 3409.976025 3262.6944 3291.890625 \
+                    --dim_range_min 1 3 ${img_h} ${img_w} \
+                    --dim_range_max 64 3 ${img_h} ${img_w} \
+                    --type64to32_conversion "true" \
+                    --conv_scale_fold "true" 

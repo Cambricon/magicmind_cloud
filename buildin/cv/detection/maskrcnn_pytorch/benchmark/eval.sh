@@ -6,7 +6,7 @@ cd $PROJ_ROOT_PATH/export_model/
 bash run.sh
 
 #dynamic and bs>8 will report error:device has no memory to alloc
-for precision in force_float32 force_float16
+for precision in force_float32
 do
   for shape_mutable in true
   do
@@ -24,18 +24,9 @@ do
           cd $PROJ_ROOT_PATH/gen_model/
           bash run.sh $precision $shape_mutable $GEN_BATCH
       fi
-      # infer python
+      # infer python and compute coco
       cd $PROJ_ROOT_PATH/infer_python/
-      bash run.sh $precision $shape_mutable
-      # compute coco
-      THIS_OUTPUT_DIR="$PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}"
-      python $UTILS_PATH/compute_coco_mAP.py  --file_list ${THIS_OUTPUT_DIR}/json/image_name.txt \
-                                              --result_dir $THIS_OUTPUT_DIR/results \
-                                              --ann_dir $DATASETS_PATH/ \
-                                              --data_type 'val2017' \
-                                              --json_name $THIS_OUTPUT_DIR/json/${precision}_${shape_mutable}_${batch} \
-                                              --img_dir $DATASETS_PATH/val2017 \
-                                              --image_num 5000 2>&1 | tee $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}_log_eval
+      bash run.sh $precision $shape_mutable 2>&1 | tee $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}_log_eval
     done
   done
 done

@@ -13,7 +13,7 @@ then
     python gen_model.py  --caffe_model $MODEL_PATH/mobilenet_iter_73000.caffemodel \
                          --prototxt $MODEL_PATH/deploy.prototxt \
                          --output_model $MAGICMIND_MODEL \
-                         --image_dir $DATASETS_PATH/VOCdevkit/VOC2012/JPEGImages \
+                         --image_dir $DATASETS_PATH/VOCdevkit/VOC2007/JPEGImages \
                          --precision $PRECISION \
                          --shape_mutable $SHAPE_MUTABLE \
                          --batch_size $BATCH_SIZE \

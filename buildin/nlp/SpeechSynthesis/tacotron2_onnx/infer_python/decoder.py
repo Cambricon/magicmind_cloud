@@ -1,11 +1,8 @@
 import magicmind.python.runtime as mm
 import numpy as np
-import sys
-sys.path.append("../")
-from gen_model.mm_utils import NNModel, _check_status
-
+from mm_runner import MMRunner
 # used to init decoder inputs
-def load_decoder_input_model(device : mm.Device):
+def load_decoder_input_model(device_id):
     dtype = mm.DataType.FLOAT32
 
     network = mm.Network()
@@ -13,9 +10,9 @@ def load_decoder_input_model(device : mm.Device):
     zero_const_int = network.add_i_const_node(mm.DataType.INT32, mm.Dims([]), [0])
     one_const_1_dim = network.add_i_const_node(mm.DataType.INT32, mm.Dims([1]), [1])
     zero_const_1_dim = network.add_i_const_node(mm.DataType.INT32, mm.Dims([1]), [0])
-    memory_size = network.add_input(mm.DataType.INT32, mm.Dims([]))
+    memory_size = network.add_input(mm.DataType.INT32, mm.Dims([1]))
     sequence_lengths = network.add_input(mm.DataType.INT32)
-    max_sequence_len = network.add_input(mm.DataType.INT32, mm.Dims([]))
+    max_sequence_len = network.add_input(mm.DataType.INT32, mm.Dims([1]))
 
     '''
     mask, implementation:
@@ -41,13 +38,14 @@ def load_decoder_input_model(device : mm.Device):
     builder_config = mm.BuilderConfig()
     model = builder.build_model("decoder_input", network, builder_config)
     assert model is not None, 'build decoder input model failed'
-    return NNModel(device, model)
+    assert model.serialize_to_file("./decoder_input_model").ok()
+    return MMRunner(mm_file="./decoder_input_model", device_id=device_id)
 
 # mel_outputs = mel_outputs[:,:,:torch.max(mel_lengths)] mm implementation
 # input1: mel_outputs from decoder
 # input2: mel_lengths from decoder
 # output: mels(postnet input)
-def load_melcrop_model(device : mm.Device):
+def load_melcrop_model(device_id):
     network = mm.Network()
     mel_inputs = network.add_input(mm.DataType.FLOAT32)
     mel_lengths = network.add_input(mm.DataType.INT32)
@@ -68,66 +66,5 @@ def load_melcrop_model(device : mm.Device):
     assert builder is not None
     model = builder.build_model('melcrop', network, config)
     assert model is not None, 'build melcrop model failed'
-    return NNModel(device, model)
-
-class Decoder(NNModel):
-    def __init__(self, device : mm.Device, mm_model : mm.Model):
-        super(Decoder, self).__init__(device, mm_model)
-        self.decoder_input_model = load_decoder_input_model(device)
-        self.melcrop_model = load_melcrop_model(device)
-
-    def init_decoder_inputs(self, memory, processed_memory, memory_lengths, max_memory_len, measurements):
-        
-        bs = memory.shape[0]
-        seq_len = memory.shape[1]
-        attention_rnn_dim = 1024
-        decoder_rnn_dim = 1024
-        encoder_embedding_dim = 512
-        n_mel_channels = 80
-
-        tensor_shapes = [mm.Dims((bs, n_mel_channels)),         # decoder_input
-                         mm.Dims((bs, attention_rnn_dim)),      # attention_hidden
-                         mm.Dims((bs, attention_rnn_dim)),      # attention_cell
-                         mm.Dims((bs, decoder_rnn_dim)),        # decoder_hidden
-                         mm.Dims((bs, decoder_rnn_dim)),        # decoder_cell
-                         mm.Dims((bs, seq_len)),                # attention_weights
-                         mm.Dims((bs, seq_len)),                # attention_weights_cum
-                         mm.Dims((bs, encoder_embedding_dim))]  # attention_context
-        total_size = 0
-        for shape in tensor_shapes:
-            total_size += shape.GetElementCount()
-        total_size *= 4  # for float32
-
-        input_tensors = self.decoder_input_model.get_raw_input_tensors()
-        # _check_status(input_tensors[0].from_numpy(np.array([total_size], dtype=np.int32)))
-        _check_status(input_tensors[0].memcpy_from_host(np.array([total_size], dtype=np.int32)))
-        input_tensors[1] = memory_lengths
-        # _check_status(input_tensors[2].from_numpy(np.array([max_memory_len], dtype=np.int32)))
-        _check_status(input_tensors[2].memcpy_from_host(np.array([max_memory_len], dtype=np.int32)))
-
-        output_tensors = self.decoder_input_model.execute(input_tensors)
-
-        mask = output_tensors[1]
-        decoder_input_tensors = self.get_raw_input_tensors()
-        base_addr = output_tensors[0].data_address()
-        for i in range(len(tensor_shapes)):
-            decoder_input_tensors[i].set_data_address(base_addr, tensor_shapes[i].GetDims())
-            base_addr += (tensor_shapes[i].GetElementCount() * 4)
-        decoder_input_tensors[8] = memory
-        decoder_input_tensors[9] = processed_memory
-        decoder_input_tensors[10] = mask
-
-        # hold output_tensors before del decoder_input_tensors(memory in decoder_input_tensors was allocated by output_tensors)
-        self.init_model_outputs = output_tensors
-        return decoder_input_tensors
-
-    def melcrop(self, mel, mel_lengths):
-        return self.melcrop_model.execute([mel, mel_lengths])[0]
-
-def load_decoder(device : mm.Device, path : str):
-    ''' load model from disk '''
-    model = mm.Model()
-    _check_status(model.deserialize_from_file(path))
-    return Decoder(device, model)
-
-
+    assert model.serialize_to_file("./melcrop_model").ok()
+    return MMRunner(mm_file="./melcrop_model", device_id=device_id)

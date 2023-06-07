@@ -1,22 +1,27 @@
 #!/bin/bash
 set -e
+set -x
 
-PRECISION=$1 #force_float32/force_float16/qint8_mixed_float16
-BATCH_SIZE=$2
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
 
-if [ ! -f $PROJ_ROOT_PATH/data/models/3dresnet_${PRECISION}_${BATCH_SIZE}.mm ];then
-    echo "generate Magicmind model begin..."
-    if [ ! -d $PROJ_ROOT_PATH/data/models/ ];then
-        mkdir -p $PROJ_ROOT_PATH/data/models/
-    fi
-    python gen_model.py \
-        --pt_model $MODEL_PATH/3dresnet.pt \
-        --output_model  $PROJ_ROOT_PATH/data/models/3dresnet_${PRECISION}_${BATCH_SIZE}.mm \
-        --precision ${PRECISION} \
-        --shape_mutable true \
-        --batch_size ${BATCH_SIZE} \
-	--image_dir $DATASETS_PATH/kinetics_videos/jpg/  
-    echo "3dresnet.mm model saved in data/models/"
-else
-    echo "mm_model: $PROJ_ROOT_PATH/data/models/3dresnet_${PRECISION}_${BATCH_SIZE}.mm already exist."
-fi
+
+python gen_model.py --precision ${precision} \
+                    --batch_size ${batch_size} \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${KINETICS_DATASETS_PATH}/kinetics_videos/jpg/ \
+                    --input_dims ${batch_size} 3 16 112 112 \
+                    --dim_range_min  1 3 16 112 112 \
+                    --dim_range_max  64 3 16 112 112 \
+                    --pytorch_pt ${MODEL_PATH}/3dresnet.pt \
+                    --type64to32_conversion true \
+                    --conv_scale_fold true
+
+
+
+
+
+

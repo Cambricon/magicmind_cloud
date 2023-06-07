@@ -1,0 +1,202 @@
+diff -Nur /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/eval.py ./PaddleOCR/tools/eval.py
+--- /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/eval.py	2023-04-14 06:31:35.575603004 +0000
++++ ./PaddleOCR/tools/eval.py	2023-04-18 06:12:37.586726692 +0000
+@@ -31,6 +31,7 @@
+ from ppocr.utils.save_load import load_model
+ import tools.program as program
+ 
++from mm_runner import MMRunner
+ 
+ def main():
+     global_config = config['Global']
+@@ -116,14 +117,15 @@
+     else:
+         scaler = None
+ 
+-    best_model_dict = load_model(
+-        config, model, model_type=config['Architecture']["model_type"])
+-    if len(best_model_dict):
+-        logger.info('metric in ckpt ***************')
+-        for k, v in best_model_dict.items():
+-            logger.info('{}:{}'.format(k, v))
++    # best_model_dict = load_model(
++    #     config, model, model_type=config['Architecture']["model_type"])
++    # if len(best_model_dict):
++    #     logger.info('metric in ckpt ***************')
++    #     for k, v in best_model_dict.items():
++    #         logger.info('{}:{}'.format(k, v))
+ 
+     # start eval
++    model = MMRunner(mm_file=config['Global']['checkpoints'], device_id=0)
+     metric = program.eval(model, valid_dataloader, post_process_class,
+                           eval_class, model_type, extra_input, scaler,
+                           amp_level, amp_custom_black_list)
+diff -Nur /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/infer/predict_cls.py ./PaddleOCR/tools/infer/predict_cls.py
+--- /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/infer/predict_cls.py	2023-04-14 06:31:35.575603004 +0000
++++ ./PaddleOCR/tools/infer/predict_cls.py	2023-04-18 07:12:21.576108356 +0000
+@@ -31,7 +31,7 @@
+ from ppocr.postprocess import build_post_process
+ from ppocr.utils.logging import get_logger
+ from ppocr.utils.utility import get_image_file_list, check_and_read
+-
++from mm_runner import MMRunner
+ logger = get_logger()
+ 
+ 
+@@ -45,8 +45,9 @@
+             "label_list": args.label_list,
+         }
+         self.postprocess_op = build_post_process(postprocess_params)
+-        self.predictor, self.input_tensor, self.output_tensors, _ = \
+-            utility.create_predictor(args, 'cls', logger)
++        # self.predictor, self.input_tensor, self.output_tensors, _ = \
++        #     utility.create_predictor(args, 'cls', logger)
++        self.predictor = MMRunner(args.cls_model_dir, 0)
+         self.use_onnx = args.use_onnx
+ 
+     def resize_norm_img(self, img):
+@@ -107,10 +108,11 @@
+                 outputs = self.predictor.run(self.output_tensors, input_dict)
+                 prob_out = outputs[0]
+             else:
+-                self.input_tensor.copy_from_cpu(norm_img_batch)
+-                self.predictor.run()
+-                prob_out = self.output_tensors[0].copy_to_cpu()
+-                self.predictor.try_shrink_memory()
++                # self.input_tensor.copy_from_cpu(norm_img_batch)
++                # self.predictor.run()
++                # prob_out = self.output_tensors[0].copy_to_cpu()
++                # self.predictor.try_shrink_memory()
++                prob_out = self.predictor([norm_img_batch])[0]
+             cls_result = self.postprocess_op(prob_out)
+             elapse += time.time() - starttime
+             for rno in range(len(cls_result)):
+diff -Nur /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/infer/predict_det.py ./PaddleOCR/tools/infer/predict_det.py
+--- /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/infer/predict_det.py	2023-04-14 06:31:35.575603004 +0000
++++ ./PaddleOCR/tools/infer/predict_det.py	2023-04-18 07:00:09.327947033 +0000
+@@ -31,6 +31,7 @@
+ from ppocr.data import create_operators, transform
+ from ppocr.postprocess import build_post_process
+ import json
++from mm_runner import MMRunner
+ logger = get_logger()
+ 
+ 
+@@ -138,9 +139,9 @@
+ 
+         self.preprocess_op = create_operators(pre_process_list)
+         self.postprocess_op = build_post_process(postprocess_params)
+-        self.predictor, self.input_tensor, self.output_tensors, self.config = utility.create_predictor(
+-            args, 'det', logger)
+-
++        # self.predictor, self.input_tensor, self.output_tensors, self.config = utility.create_predictor(
++        #     args, 'det', logger)
++        self.predictor = MMRunner(args.det_model_dir, 0)
+         if self.use_onnx:
+             img_h, img_w = self.input_tensor.shape[2:]
+             if img_h is not None and img_w is not None and img_h > 0 and img_w > 0:
+@@ -239,12 +240,12 @@
+             input_dict[self.input_tensor.name] = img
+             outputs = self.predictor.run(self.output_tensors, input_dict)
+         else:
+-            self.input_tensor.copy_from_cpu(img)
+-            self.predictor.run()
+-            outputs = []
+-            for output_tensor in self.output_tensors:
+-                output = output_tensor.copy_to_cpu()
+-                outputs.append(output)
++            # self.input_tensor.copy_from_cpu(img)
++            # self.predictor.run()
++            outputs = self.predictor([img])
++            # for output_tensor in self.output_tensors:
++            #     output = output_tensor.copy_to_cpu()
++            #     outputs.append(output)
+             if self.args.benchmark:
+                 self.autolog.times.stamp()
+ 
+diff -Nur /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/infer/predict_rec.py ./PaddleOCR/tools/infer/predict_rec.py
+--- /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/infer/predict_rec.py	2023-04-14 06:31:35.575603004 +0000
++++ ./PaddleOCR/tools/infer/predict_rec.py	2023-04-18 07:10:24.843008799 +0000
+@@ -31,7 +31,7 @@
+ from ppocr.postprocess import build_post_process
+ from ppocr.utils.logging import get_logger
+ from ppocr.utils.utility import get_image_file_list, check_and_read
+-
++from mm_runner import MMRunner
+ logger = get_logger()
+ 
+ 
+@@ -116,8 +116,9 @@
+                 "use_space_char": args.use_space_char
+             }
+         self.postprocess_op = build_post_process(postprocess_params)
+-        self.predictor, self.input_tensor, self.output_tensors, self.config = \
+-            utility.create_predictor(args, 'rec', logger)
++        # self.predictor, self.input_tensor, self.output_tensors, self.config = \
++        #     utility.create_predictor(args, 'rec', logger)
++        self.predictor = MMRunner(args.rec_model_dir, 0)
+         self.benchmark = args.benchmark
+         self.use_onnx = args.use_onnx
+         if args.benchmark:
+@@ -604,12 +605,12 @@
+                                                  input_dict)
+                     preds = outputs[0]
+                 else:
+-                    self.input_tensor.copy_from_cpu(norm_img_batch)
+-                    self.predictor.run()
+-                    outputs = []
+-                    for output_tensor in self.output_tensors:
+-                        output = output_tensor.copy_to_cpu()
+-                        outputs.append(output)
++                    # self.input_tensor.copy_from_cpu(norm_img_batch)
++                    # self.predictor.run()
++                    outputs = self.predictor([norm_img_batch])
++                    # for output_tensor in self.output_tensors:
++                    #     output = output_tensor.copy_to_cpu()
++                    #     outputs.append(output)
+                     if self.benchmark:
+                         self.autolog.times.stamp()
+                     if len(outputs) != 1:
+diff -Nur /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/program.py ./PaddleOCR/tools/program.py
+--- /magicmind/workspace/2023/modelzoo_refactor/PaddleOCR/tools/program.py	2023-04-14 06:31:35.579603038 +0000
++++ ./PaddleOCR/tools/program.py	2023-04-18 06:12:11.678169379 +0000
+@@ -485,7 +485,7 @@
+          scaler=None,
+          amp_level='O2',
+          amp_custom_black_list=[]):
+-    model.eval()
++    # model.eval()
+     with paddle.no_grad():
+         total_frame = 0.0
+         total_time = 0.0
+@@ -523,7 +523,7 @@
+                 preds = to_float32(preds)
+             else:
+                 if model_type == 'table' or extra_input:
+-                    preds = model(images, data=batch[1:])
++                    preds = model([images.numpy()])[0]
+                 elif model_type in ["kie"]:
+                     preds = model(batch)
+                 elif model_type in ['can']:
+@@ -532,8 +532,11 @@
+                     preds = model(batch)
+                     sr_img = preds["sr_img"]
+                     lr_img = preds["lr_img"]
++                elif model_type in ['rec']:
++                    preds = model([images.numpy()])[0]
+                 else:
+-                    preds = model(images)
++                    preds = {}
++                    preds['maps'] = model([images.numpy()])[0]
+ 
+             batch_numpy = []
+             for item in batch:
+@@ -565,7 +568,7 @@
+         metric = eval_class.get_metric()
+ 
+     pbar.close()
+-    model.train()
++    # model.train()
+     metric['fps'] = total_frame / total_time
+     return metric
+ 

@@ -16,7 +16,7 @@ class CalibData(mm.CalibDataInterface):
         self.cur_sample_ = None
         self.cur_data_index_ = 0
         self.model, self.preprocess = clip.load("ViT-B/32", device="cpu")
-        self.cifar100 = CIFAR100(root=os.path.expanduser(os.environ.get('DATASETS_PATH')), download=True, train=False,transform=self.preprocess)
+        self.cifar100 = CIFAR100(root=os.path.expanduser(os.environ.get('CIFAR100_DATASETS_PATH')), download=True, train=False,transform=self.preprocess)
         self.max_samples_ = max_samples
         self.text_inputs = torch.cat([clip.tokenize(f"a photo of a {c}") for c in self.cifar100.classes]).to("cpu")
         self.index = index

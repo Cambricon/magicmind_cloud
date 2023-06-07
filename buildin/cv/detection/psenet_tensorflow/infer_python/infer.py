@@ -200,6 +200,7 @@ def main(argv=None):
             for i in range(len(boxes)):
                 # to avoid submitting errors
                 box = boxes[i]
+                box = box.astype(np.int32)
                 if np.linalg.norm(box[0] - box[1]) < 5 or np.linalg.norm(box[3]-box[0]) < 5:
                     continue
                 num += 1                

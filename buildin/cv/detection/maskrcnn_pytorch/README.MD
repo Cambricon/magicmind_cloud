@@ -25,7 +25,7 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
 
 ## 1.模型概述
 
-本例使用的 maskrcnn 实现来自 github 开源项目https://github.com/open-mmlab/mmdetection。 下面将展示如何将该项目中 Pytorch 实现的 maskrcnn 模型转换为 MagicMind 的模型。
+本例使用的 maskrcnn 实现来自 github 开源项目https://github.com/open-mmlab/mmdetection 项目使用的backbone配置文件为mask_rcnn_r50_fpn_1x_coco.py 下面将展示如何将该项目中 Pytorch 实现的 maskrcnn 模型转换为 MagicMind 的模型。
 
 ## 2.前提条件
 
@@ -76,33 +76,20 @@ cd $PROJ_ROOT_PATH/infer_python
 bash run.sh force_float32 true
 ```
 
-计算精度:
-
+精度结果:
 ```
-python $UTILS_PATH/compute_coco_mAP.py  --file_list $PROJ_ROOT_PATH/data/output/force_float32_true_1/json/image_name.txt \
-                                        --result_dir $PROJ_ROOT_PATH/data/output/force_float32_true_1/results \
-                                        --ann_dir $DATASETS_PATH/ \
-                                        --data_type 'val2017' \
-                                        --json_name $PROJ_ROOT_PATH/data/output/force_float32_true_1/json/force_float32_true_1 \
-                                        --img_dir $DATASETS_PATH/val2017 \
-                                        --image_num 1000
-```
-
-结果:
-
-```
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.335
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.510
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.367
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.148
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.355
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.511
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.288
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.407
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.414
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.179
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.435
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.612
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.381
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.588
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.413
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.219
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.409
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.494
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.523
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.523
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.523
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.328
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.556
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.660
 ```
 
 ### 3.6 一键运行
@@ -122,7 +109,7 @@ Pytorch maskrcnn 模型转换为 MagicMind maskrcnn 模型分成以下几步：
 
 - `onnx_model`: maskrcnn onnx 的网络模型路径。
 - `mm_model`: 保存 MagicMind 模型路径。
-- `input_size`: 输入图像尺寸大小 默认为 800x800
+- `input_size`: 输入图像尺寸大小 默认为 224x224
 - `precision`: 精度模式，如 force_float32，force_float16，qint8_mixed_float16。
 - `shape_mutable`: 是否生成可变 batch_size 的 MagicMind 模型。
 - `batch_size`: 生成可变模型时 batch_size 可以随意取值，生成不可变模型时 batch_size 的取值需要对应 pt 的输入维度。
@@ -136,20 +123,11 @@ Pytorch maskrcnn 模型转换为 MagicMind maskrcnn 模型分成以下几步：
 
 参数说明:
 
-- device_id: MLU 设备号
-- batch_size: 模型 batch_size
-- magicmind_model: MagicMind 模型路径。
-- image_dir: 数据集路径
-- label_dir：coco.names 文件
-- output_img_dir:推理输出-画框结果图像路径
-- output_maskimg_dir:推理输出-实例分割结果图像路径
-- output_pred_dir：推理输出-结果文件路径
-- save_imgname_dir：推理输出-所有经过推理的图像名称会被放置于一个名称为 image_name.txt 文件当中，用于精度验证。
-- save_img：是否存储推理输出画框图像 1 存储 0 不存储
-- score_th：score 阈值 默认 0.3
-- input_size: 输入图像尺寸大小 默认为 800x800
-- save_mask:是否存储推理 mask 结果 1 存储 0 不存储
-- test_nums: 输入数据数量 默认-1 表示检查全部输入数据
+- `config`: COCO数据集配置文件
+- `model`: MagicMind 模型路径。
+- `eval`: maskrcnn评估指标 可选bbox segm
+- `out`: 结果输出文件 .pkl
+- `device_id`: MLU Device ID
 
 ## 5.精度和性能 benchmark
 
@@ -179,12 +157,11 @@ cd $PROJ_ROOT_PATH
 bash benchmark/eval.sh
 ```
 
-通过5.2精度benchmark测试的脚本跑出 maskrcnn 在 coco val2017 数据集上1000张测试图片的 mAP 如下：
+通过5.2精度benchmark测试的脚本跑出 maskrcnn 在 coco val2017 数据集上5000张测试图片的 mAP 如下：
 _待更新_
 | Model | BATCH_SIZE | Percision | BBox mAP(0.50:0.95)(%) | BBox mAP(0.50)(%) |
 | --------- | ---------- | ---------- | --------- | --------- |
-| maskrcnn | 1 | fp32 | 31.9 | 49.2 | 
-| maskrcnn | 1 | fp16 | 16.1 | 28.2 | 
+| maskrcnn | 1 | fp32 | 38.1 | 58.8 | 
 
 ## 6.免责声明
 

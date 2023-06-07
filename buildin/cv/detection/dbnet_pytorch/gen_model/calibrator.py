@@ -7,7 +7,7 @@ import math
 import magicmind.python.runtime as mm
 def preprocess_image(img, dst_shape) -> np.ndarray:
     # resize
-    img = cv2.resize(img, (dst_shape[1], dst_shape[0]), cv2.INTER_LINEAR)
+    img = cv2.resize(img, (dst_shape[1], dst_shape[0]), interpolation=cv2.INTER_LINEAR)
     # BGR to RGB
     img = img[:, :, ::-1]
     # normalize

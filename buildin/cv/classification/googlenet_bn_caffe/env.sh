@@ -1,21 +1,31 @@
-### ÔÚ¿ªÊ¼ÔËĞĞ±¾²Ö¿âÇ°ÏÈ¼ì²éÒÔÏÂÂ·¾¶£º
-export NEUWARE_HOME=/usr/local/neuware/
-##MM_RUNÂ·¾¶
-export MM_RUN_PATH=$NEUWARE_HOME/bin
-#±¾sample¹¤×÷Â·¾¶
-export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
-export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/classification/googlenet_bn_caffe
-#Êı¾İ¼¯Â·¾¶
-export DATASETS_PATH=/nfsdata/modelzoo/datasets/ILSVRC2012
-#Ä£ĞÍÂ·¾¶
-export MODEL_PATH=$PROJ_ROOT_PATH/data/models
-#cvÀàÍøÂçÍ¨ÓÃÎÄ¼şÂ·¾¶
-export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils
-echo "check below paths before run this sample!!!"
-echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to path where you want to save datasets"
-echo "NEUWARE_HOME now is $NEUWARE_HOME"
-echo "MM_RUN_PATH now is $MM_RUN_PATH"
-echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"
-echo "PROJ_ROOT_PATH is $PROJ_ROOT_PATH"
-echo "MODEL_PATH is $MODEL_PATH"
-echo "UTILS_PATH is $UTILS_PATH"
+# å¼€å§‹è¿è¡Œæœ¬ä»“åº“å‰,å…ˆæ£€æŸ¥æ•°æ®é›†è·¯å¾„æ˜¯å¦å­˜åœ¨
+# è‹¥ä¸å­˜åœ¨åˆ™æ ¹æ®æ‚¨çš„å®é™…è·¯å¾„ä¿®æ”¹
+#export ILSVRC2012_DATASETS_PATH=
+if [ -z ${ILSVRC2012_DATASETS_PATH} ] || [ ! -d ${ILSVRC2012_DATASETS_PATH} ];then
+    echo "Error: ILSVRC2012_DATASETS_PATH is not found, please set it and export it to env!"
+fi
+
+export NEUWARE_HOME=/usr/local/neuware
+export MM_RUN_PATH=${NEUWARE_HOME}/bin
+#æœ¬sampleå·¥ä½œè·¯å¾„
+export PROJ_ROOT_PATH=$(cd $(dirname "${BASH_SOURCE[0]}");pwd)
+export MAGICMIND_CLOUD=${PROJ_ROOT_PATH%buildin*}
+export MODEL_PATH=${PROJ_ROOT_PATH}/data/models
+
+# CVç±»ç½‘ç»œé€šç”¨æ–‡ä»¶è·¯å¾„
+export UTILS_PATH=${MAGICMIND_CLOUD}/buildin/cv/utils
+
+# Pythonå…¬å…±ç»„ä»¶è·¯å¾„
+export PYTHON_COMMON_PATH=${MAGICMIND_CLOUD}/buildin/python_common
+# CPPå…¬å…±æ¥å£è·¯å¾„
+export CPP_COMMON_PATH=$MAGICMIND_CLOUD/buildin/cpp_common
+
+has_add_common_path=$(echo ${PYTHONPATH}|grep "${PYTHON_COMMON_PATH}")
+if [ -z ${has_add_common_path} ];then
+    export PYTHONPATH=${PYTHONPATH}:${PYTHON_COMMON_PATH}
+fi
+
+has_add_util_path=$(echo ${PYTHONPATH}|grep "${UTILS_PATH}")
+if [ -z ${has_add_util_path} ];then
+    export PYTHONPATH=${PYTHONPATH}:${UTILS_PATH}
+fi

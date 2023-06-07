@@ -1,0 +1,203 @@
+diff --git a/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py b/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py
+index aa0e523f..7a61c9a4 100644
+--- a/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py
++++ b/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py
+@@ -3,13 +3,14 @@ _base_ = [
+     '../../_base_/default_runtime.py'
+ ]
+ 
++import os
+ # dataset settings
+ dataset_type = 'RawframeDataset'
+ data_root = 'data/kinetics400/rawframes_train'
+-data_root_val = 'data/kinetics400/rawframes_val'
++data_root_val = os.getenv("KINETICS_POSTPROCESS_DATASETS_PATH")
+ ann_file_train = 'data/kinetics400/kinetics400_train_list_rawframes.txt'
+-ann_file_val = 'data/kinetics400/kinetics400_val_list_rawframes.txt'
+-ann_file_test = 'data/kinetics400/kinetics400_val_list_rawframes.txt'
++ann_file_val  = os.path.join(os.getenv("UTILS_PATH"),"kinetics_val_list.txt")
++ann_file_test = os.path.join(os.getenv("UTILS_PATH"),"kinetics_val_list.txt")
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
+ train_pipeline = [
+diff --git a/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py b/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py
+index 7e455a7c..223656be 100644
+--- a/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py
++++ b/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py
+@@ -2,12 +2,14 @@ _base_ = [
+     '../../_base_/models/slowfast_r50.py', '../../_base_/default_runtime.py'
+ ]
+ 
++import os
++# dataset settings
+ dataset_type = 'RawframeDataset'
+ data_root = 'data/kinetics400/rawframes_train'
+-data_root_val = 'data/kinetics400/rawframes_val'
++data_root_val = os.getenv("KINETICS_POSTPROCESS_DATASETS_PATH")
+ ann_file_train = 'data/kinetics400/kinetics400_train_list_rawframes.txt'
+-ann_file_val = 'data/kinetics400/kinetics400_val_list_rawframes.txt'
+-ann_file_test = 'data/kinetics400/kinetics400_val_list_rawframes.txt'
++ann_file_val  = os.path.join(os.getenv("UTILS_PATH"),"kinetics_val_list.txt")
++ann_file_test = os.path.join(os.getenv("UTILS_PATH"),"kinetics_val_list.txt")
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
+ train_pipeline = [
+diff --git a/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py b/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py
+index 76195eb8..8d376ca9 100644
+--- a/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py
++++ b/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py
+@@ -3,13 +3,15 @@ _base_ = [
+     '../../_base_/default_runtime.py'
+ ]
+ 
++import os
+ # dataset settings
+ dataset_type = 'RawframeDataset'
+ data_root = 'data/kinetics400/rawframes_train'
+-data_root_val = 'data/kinetics400/rawframes_val'
++data_root_val = os.getenv("KINETICS_POSTPROCESS_DATASETS_PATH")
+ ann_file_train = 'data/kinetics400/kinetics400_train_list_rawframes.txt'
+-ann_file_val = 'data/kinetics400/kinetics400_val_list_rawframes.txt'
+-ann_file_test = 'data/kinetics400/kinetics400_val_list_rawframes.txt'
++ann_file_val  = os.path.join(os.getenv("UTILS_PATH"),"kinetics_val_list.txt")
++ann_file_test = os.path.join(os.getenv("UTILS_PATH"),"kinetics_val_list.txt")
++
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
+ train_pipeline = [
+diff --git a/mmaction/models/recognizers/recognizer3d.py b/mmaction/models/recognizers/recognizer3d.py
+index 8133e7c1..8e2784d1 100644
+--- a/mmaction/models/recognizers/recognizer3d.py
++++ b/mmaction/models/recognizers/recognizer3d.py
+@@ -100,26 +100,28 @@ class Recognizer3D(BaseRecognizer):
+ 
+     def forward_dummy(self, imgs, softmax=False):
+         """Used for computing network FLOPs.
+-
++    
+         See ``tools/analysis/get_flops.py``.
+-
++    
+         Args:
+             imgs (torch.Tensor): Input images.
+-
++    
+         Returns:
+             Tensor: Class score.
+         """
+         assert self.with_cls_head
++        num_segs = imgs.shape[1]
+         imgs = imgs.reshape((-1, ) + imgs.shape[2:])
+         x = self.extract_feat(imgs)
+-
++    
+         if self.with_neck:
+             x, _ = self.neck(x)
+-
++    
+         outs = self.cls_head(x)
++        outs = self.average_clip(outs, num_segs)
+         if softmax:
+             outs = nn.functional.softmax(outs)
+-        return (outs, )
++        return outs
+ 
+     def forward_gradcam(self, imgs):
+         """Defines the computation performed at every call when using gradcam
+diff --git a/tools/test.py b/tools/test.py
+index 6b52e9fd..98a8da9e 100644
+--- a/tools/test.py
++++ b/tools/test.py
+@@ -98,6 +98,11 @@ def parse_args():
+         '--tensorrt',
+         action='store_true',
+         help='Whether to test with TensorRT engine or not')
++    
++    parser.add_argument('--magicmind',action='store_true',help='Whether to test with magicmind engine or not')
++    parser.add_argument("--device_id" , "--device_id" , type = int, default = 0, help = "device_id")
++    parser.add_argument("--batch_size", "--batch_size", type = int, default = 1, help = "batch_size")
++
+     args = parser.parse_args()
+     if 'LOCAL_RANK' not in os.environ:
+         os.environ['LOCAL_RANK'] = str(args.local_rank)
+@@ -222,6 +227,40 @@ def inference_tensorrt(ckpt_path, distributed, data_loader, batch_size):
+             prog_bar.update()
+     return results
+ 
++def inference_magicmind(args, cfg, distributed, data_loader, batch_size):
++    """Get predictions by MagicMind.
++
++    For now, multi-gpu mode and dynamic tensor shape are not supported.
++    """
++    
++    if args.average_clips is not None:
++        # You can set average_clips during testing, it will override the
++        # original setting
++        if cfg.model.get('test_cfg') is None and cfg.get('test_cfg') is None:
++            cfg.model.setdefault('test_cfg',
++                                 dict(average_clips=args.average_clips))
++        else:
++            if cfg.model.get('test_cfg') is not None:
++                cfg.model.test_cfg.average_clips = args.average_clips
++            else:
++                cfg.test_cfg.average_clips = args.average_clips
++            
++    assert not distributed, 'MagicMind inference only supports single gpu mode.'
++    from mm_runner import MMRunner
++    model = MMRunner( mm_file = args.checkpoint,device_id = args.device_id)
++    
++    # get predictions
++    results = []
++    dataset = data_loader.dataset
++    prog_bar = mmcv.ProgressBar(len(dataset))
++    for data in data_loader:
++        inputs = [ data['imgs'].cpu().numpy() ]
++        outputs = model(inputs)
++        results.extend(outputs[0])
++        batch_size = len(next(iter(data.values())))
++        for _ in range(batch_size):
++            prog_bar.update()
++    return results
+ 
+ def inference_onnx(ckpt_path, distributed, data_loader, batch_size):
+     """Get predictions by ONNX.
+@@ -269,9 +308,9 @@ def inference_onnx(ckpt_path, distributed, data_loader, batch_size):
+ def main():
+     args = parse_args()
+ 
+-    if args.tensorrt and args.onnx:
++    if args.tensorrt and args.onnx and args.magicmind :
+         raise ValueError(
+-            'Cannot set onnx mode and tensorrt mode at the same time.')
++            'Cannot set onnx mode and tensorrt and magicmind mode at the same time.')
+ 
+     cfg = Config.fromfile(args.config)
+ 
+@@ -338,20 +377,23 @@ def main():
+     # build the dataloader
+     dataset = build_dataset(cfg.data.test, dict(test_mode=True))
+     dataloader_setting = dict(
+-        videos_per_gpu=cfg.data.get('videos_per_gpu', 1),
++        videos_per_gpu=args.batch_size,
+         workers_per_gpu=cfg.data.get('workers_per_gpu', 1),
+         dist=distributed,
+         shuffle=False)
+-    dataloader_setting = dict(dataloader_setting,
+-                              **cfg.data.get('test_dataloader', {}))
++    # dataloader_setting = dict(dataloader_setting,
++    #                           **cfg.data.get('test_dataloader', {}))
+     data_loader = build_dataloader(dataset, **dataloader_setting)
+-
++    
+     if args.tensorrt:
+         outputs = inference_tensorrt(args.checkpoint, distributed, data_loader,
+                                      dataloader_setting['videos_per_gpu'])
+     elif args.onnx:
+         outputs = inference_onnx(args.checkpoint, distributed, data_loader,
+                                  dataloader_setting['videos_per_gpu'])
++    elif args.magicmind:
++        outputs = inference_magicmind(args,cfg, distributed, data_loader,
++                                 args.batch_size)
+     else:
+         outputs = inference_pytorch(args, cfg, distributed, data_loader)
+ 

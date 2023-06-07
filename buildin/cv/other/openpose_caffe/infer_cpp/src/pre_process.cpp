@@ -1,23 +1,15 @@
 #include "pre_process.h"
 #include "utils.h"
-#include <glog/logging.h>
+//#include <glog/logging.h>
+#include <macros.h>
 
 
 /**
  * @brief load all images(jpg) from image directory(FLAGS_image_dir)
  * @return Returns image paths
  */
-std::vector<std::string> LoadImages(const std::string image_dir, const std::string image_list, const int batch_size) {
+std::vector<std::string> LoadImages(const std::string image_dir, const std::string image_list) {
   std::vector<std::string> image_paths = LoadFileList(image_list);
-  // pad to multiple of batch_size.
-  // The program will stuck when the number of input images is not an integer multiple of the batch size
-  size_t pad_num = batch_size - image_paths.size() % batch_size;
-  if (pad_num != batch_size) {
-    LOG(INFO) << "There are " << image_paths.size() << " images in total, add " << pad_num
-        << " more images to make the number of images is an integral multiple of batchsize[" << batch_size << "].";
-    while (pad_num--)
-      image_paths.emplace_back(*image_paths.rbegin());
-  }
   return image_paths;
 }
 

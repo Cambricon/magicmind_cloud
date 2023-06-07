@@ -2,16 +2,24 @@
 export NEUWARE_HOME=/usr/local/neuware
 export MM_RUN_PATH=$NEUWARE_HOME/bin
 #本sample工作路径
-export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
-export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/nlp/SpeechSynthesis/tacotron2_onnx
-#模型路径
-export MODEL_PATH=$PROJ_ROOT_PATH/data/models/
+export PROJ_ROOT_PATH=$(cd $(dirname "${BASH_SOURCE[0]}");pwd)
+export MAGICMIND_CLOUD=${PROJ_ROOT_PATH%buildin*}
+export MODEL_PATH=${PROJ_ROOT_PATH}/data/models
+
 #nlp类网络通用文件路径
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/nlp/utils
-echo "check below paths before run this sample!!!"
-echo "NEUWARE_HOME now is $NEUWARE_HOME"
-echo "MM_RUN_PATH now is $MM_RUN_PATH"
-echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"
-echo "PROJ_ROOT_PATH is $PROJ_ROOT_PATH"
-echo "MODEL_PATH is $MODEL_PATH"
-echo "UTILS_PATH is $UTILS_PATH"
+
+# Python公共组件路径
+export PYTHON_COMMON_PATH=${MAGICMIND_CLOUD}/buildin/python_common
+# CPP公共接口路径
+export CPP_COMMON_PATH=$MAGICMIND_CLOUD/buildin/cpp_common
+
+has_add_common_path=$(echo ${PYTHONPATH}|grep "${PYTHON_COMMON_PATH}")
+if [ -z ${has_add_common_path} ];then
+    export PYTHONPATH=${PYTHONPATH}:${PYTHON_COMMON_PATH}
+fi
+
+has_add_util_path=$(echo ${PYTHONPATH}|grep "${UTILS_PATH}")
+if [ -z ${has_add_util_path} ];then
+    export PYTHONPATH=${PYTHONPATH}:${UTILS_PATH}
+fi

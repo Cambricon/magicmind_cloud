@@ -1,0 +1,718 @@
+diff --git a/configs/_base_/datasets/coco_detection.py b/configs/_base_/datasets/coco_detection.py
+index 149f590b..c7311dea 100644
+--- a/configs/_base_/datasets/coco_detection.py
++++ b/configs/_base_/datasets/coco_detection.py
+@@ -1,6 +1,10 @@
+ # dataset settings
++import os
+ dataset_type = 'CocoDataset'
+-data_root = 'data/coco/'
++data_root = os.environ.get("COCO_DATASETS_PATH")+'/'
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+ train_pipeline = [
+@@ -17,10 +21,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h,w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+diff --git a/configs/_base_/datasets/coco_instance.py b/configs/_base_/datasets/coco_instance.py
+index 9901a858..ad82627a 100644
+--- a/configs/_base_/datasets/coco_instance.py
++++ b/configs/_base_/datasets/coco_instance.py
+@@ -1,6 +1,10 @@
+ # dataset settings
++import os
+ dataset_type = 'CocoDataset'
+-data_root = 'data/coco/'
++data_root = os.environ.get("COCO_DATASETS_PATH")+'/'
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+ train_pipeline = [
+@@ -17,10 +21,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h,w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+@@ -29,7 +33,7 @@ test_pipeline = [
+         ])
+ ]
+ data = dict(
+-    samples_per_gpu=2,
++    samples_per_gpu=1,
+     workers_per_gpu=2,
+     train=dict(
+         type=dataset_type,
+@@ -47,3 +51,4 @@ data = dict(
+         img_prefix=data_root + 'val2017/',
+         pipeline=test_pipeline))
+ evaluation = dict(metric=['bbox', 'segm'])
++
+diff --git a/configs/cascade_rcnn/cascade_rcnn_r50_caffe_fpn_1x_coco.py b/configs/cascade_rcnn/cascade_rcnn_r50_caffe_fpn_1x_coco.py
+index 696bcfb9..704072c7 100644
+--- a/configs/cascade_rcnn/cascade_rcnn_r50_caffe_fpn_1x_coco.py
++++ b/configs/cascade_rcnn/cascade_rcnn_r50_caffe_fpn_1x_coco.py
+@@ -1,5 +1,8 @@
+ _base_ = './cascade_rcnn_r50_fpn_1x_coco.py'
+-
++import os 
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
+ model = dict(
+     backbone=dict(
+         norm_cfg=dict(requires_grad=False),
+@@ -25,10 +28,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h,w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+diff --git a/configs/detr/detr_r50_8x2_150e_coco.py b/configs/detr/detr_r50_8x2_150e_coco.py
+index 892447de..1f211561 100644
+--- a/configs/detr/detr_r50_8x2_150e_coco.py
++++ b/configs/detr/detr_r50_8x2_150e_coco.py
+@@ -1,6 +1,10 @@
+ _base_ = [
+     '../_base_/datasets/coco_detection.py', '../_base_/default_runtime.py'
+ ]
++import os 
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
+ model = dict(
+     type='DETR',
+     backbone=dict(
+@@ -120,10 +124,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h, w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=1),
+diff --git a/configs/dyhead/atss_r50_caffe_fpn_dyhead_1x_coco.py b/configs/dyhead/atss_r50_caffe_fpn_dyhead_1x_coco.py
+index 223b6532..520b84ac 100644
+--- a/configs/dyhead/atss_r50_caffe_fpn_dyhead_1x_coco.py
++++ b/configs/dyhead/atss_r50_caffe_fpn_dyhead_1x_coco.py
+@@ -2,6 +2,11 @@ _base_ = [
+     '../_base_/datasets/coco_detection.py',
+     '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+ ]
++import os 
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
++
+ model = dict(
+     type='ATSS',
+     backbone=dict(
+@@ -95,10 +100,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h, w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True, backend='pillow'),
++            dict(type='Resize', keep_ratio=False, backend='pillow'),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=128),
+diff --git a/configs/efficientnet/retinanet_effb3_fpn_crop896_8x4_1x_coco.py b/configs/efficientnet/retinanet_effb3_fpn_crop896_8x4_1x_coco.py
+index c90bc167..de2dabb2 100644
+--- a/configs/efficientnet/retinanet_effb3_fpn_crop896_8x4_1x_coco.py
++++ b/configs/efficientnet/retinanet_effb3_fpn_crop896_8x4_1x_coco.py
+@@ -3,6 +3,11 @@ _base_ = [
+     '../_base_/datasets/coco_detection.py', '../_base_/default_runtime.py'
+ ]
+ 
++import os 
++img_size1 = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size1 = img_size1.split(',')
++h,w = int(img_size1[0]),int(img_size1[1])
++
+ cudnn_benchmark = True
+ norm_cfg = dict(type='BN', requires_grad=True)
+ checkpoint = 'https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b3_3rdparty_8xb32-aa_in1k_20220119-5b4887a0.pth'  # noqa
+@@ -33,7 +38,7 @@ model = dict(
+ # dataset settings
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+-img_size = (896, 896)
++img_size = (h, w)
+ train_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(type='LoadAnnotations', with_bbox=True),
+@@ -56,7 +61,7 @@ test_pipeline = [
+         img_scale=img_size,
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size=img_size),
+diff --git a/configs/htc/htc_r50_fpn_1x_coco.py b/configs/htc/htc_r50_fpn_1x_coco.py
+index 1e8e18a0..df440e4e 100644
+--- a/configs/htc/htc_r50_fpn_1x_coco.py
++++ b/configs/htc/htc_r50_fpn_1x_coco.py
+@@ -1,4 +1,10 @@
++import os
+ _base_ = './htc_without_semantic_r50_fpn_1x_coco.py'
++data_root = os.environ.get("COCO_DATASETS_PATH")+'/'
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
++
+ model = dict(
+     roi_head=dict(
+         semantic_roi_extractor=dict(
+@@ -37,10 +43,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h, w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip', flip_ratio=0.5),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+diff --git a/configs/htc/htc_without_semantic_r50_fpn_1x_coco.py b/configs/htc/htc_without_semantic_r50_fpn_1x_coco.py
+index 565104f4..4127355d 100644
+--- a/configs/htc/htc_without_semantic_r50_fpn_1x_coco.py
++++ b/configs/htc/htc_without_semantic_r50_fpn_1x_coco.py
+@@ -2,6 +2,11 @@ _base_ = [
+     '../_base_/datasets/coco_instance.py',
+     '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+ ]
++import os 
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
++
+ # model settings
+ model = dict(
+     type='HybridTaskCascade',
+@@ -221,10 +226,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h, w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip', flip_ratio=0.5),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+diff --git a/configs/regnet/faster_rcnn_regnetx-3.2GF_fpn_1x_coco.py b/configs/regnet/faster_rcnn_regnetx-3.2GF_fpn_1x_coco.py
+index 88d270e3..c922248e 100644
+--- a/configs/regnet/faster_rcnn_regnetx-3.2GF_fpn_1x_coco.py
++++ b/configs/regnet/faster_rcnn_regnetx-3.2GF_fpn_1x_coco.py
+@@ -3,6 +3,11 @@ _base_ = [
+     '../_base_/datasets/coco_detection.py',
+     '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+ ]
++import os 
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
++
+ model = dict(
+     backbone=dict(
+         _delete_=True,
+@@ -39,10 +44,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h, w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+diff --git a/configs/resnest/mask_rcnn_s50_fpn_syncbn-backbone+head_mstrain_1x_coco.py b/configs/resnest/mask_rcnn_s50_fpn_syncbn-backbone+head_mstrain_1x_coco.py
+index 4e50deac..0b617060 100644
+--- a/configs/resnest/mask_rcnn_s50_fpn_syncbn-backbone+head_mstrain_1x_coco.py
++++ b/configs/resnest/mask_rcnn_s50_fpn_syncbn-backbone+head_mstrain_1x_coco.py
+@@ -1,4 +1,9 @@
+ _base_ = '../mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py'
++import os 
++img_size = os.environ.get("MMDETECTION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
++
+ norm_cfg = dict(type='SyncBN', requires_grad=True)
+ model = dict(
+     backbone=dict(
+@@ -47,10 +52,10 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
++        img_scale=(h, w),
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+diff --git a/mmdet/apis/test.py b/mmdet/apis/test.py
+index 973d3623..667da45a 100644
+--- a/mmdet/apis/test.py
++++ b/mmdet/apis/test.py
+@@ -18,63 +18,67 @@ def single_gpu_test(model,
+                     data_loader,
+                     show=False,
+                     out_dir=None,
+-                    show_score_thr=0.3):
++                    show_score_thr=0.3,
++                    iter_num = 5000):
+     model.eval()
+     results = []
+     dataset = data_loader.dataset
+     PALETTE = getattr(dataset, 'PALETTE', None)
+-    prog_bar = mmcv.ProgressBar(len(dataset))
++    prog_bar = mmcv.ProgressBar(iter_num)
++    
++    iter_idx = 0
+     for i, data in enumerate(data_loader):
+-        with torch.no_grad():
+-            result = model(return_loss=False, rescale=True, **data)
+-
+-        batch_size = len(result)
+-        if show or out_dir:
+-            if batch_size == 1 and isinstance(data['img'][0], torch.Tensor):
+-                img_tensor = data['img'][0]
+-            else:
+-                img_tensor = data['img'][0].data[0]
+-            img_metas = data['img_metas'][0].data[0]
+-            imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
+-            assert len(imgs) == len(img_metas)
+-
+-            for i, (img, img_meta) in enumerate(zip(imgs, img_metas)):
+-                h, w, _ = img_meta['img_shape']
+-                img_show = img[:h, :w, :]
+-
+-                ori_h, ori_w = img_meta['ori_shape'][:-1]
+-                img_show = mmcv.imresize(img_show, (ori_w, ori_h))
+-
+-                if out_dir:
+-                    out_file = osp.join(out_dir, img_meta['ori_filename'])
++        if iter_idx < iter_num:
++            with torch.no_grad():
++                result = model(return_loss=False, rescale=True, **data)
++            batch_size = len(result)
++            if show or out_dir:
++                if batch_size == 1 and isinstance(data['img'][0], torch.Tensor):
++                    img_tensor = data['img'][0]
+                 else:
+-                    out_file = None
+-
+-                model.module.show_result(
+-                    img_show,
+-                    result[i],
+-                    bbox_color=PALETTE,
+-                    text_color=PALETTE,
+-                    mask_color=PALETTE,
+-                    show=show,
+-                    out_file=out_file,
+-                    score_thr=show_score_thr)
+-
+-        # encode mask results
+-        if isinstance(result[0], tuple):
+-            result = [(bbox_results, encode_mask_results(mask_results))
+-                      for bbox_results, mask_results in result]
+-        # This logic is only used in panoptic segmentation test.
+-        elif isinstance(result[0], dict) and 'ins_results' in result[0]:
+-            for j in range(len(result)):
+-                bbox_results, mask_results = result[j]['ins_results']
+-                result[j]['ins_results'] = (bbox_results,
+-                                            encode_mask_results(mask_results))
++                    img_tensor = data['img'][0].data[0]
++                img_metas = data['img_metas'][0].data[0]
++                imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
++                assert len(imgs) == len(img_metas)
++
++                for i, (img, img_meta) in enumerate(zip(imgs, img_metas)):
++                    h, w, _ = img_meta['img_shape']
++                    img_show = img[:h, :w, :]
++
++                    ori_h, ori_w = img_meta['ori_shape'][:-1]
++                    img_show = mmcv.imresize(img_show, (ori_w, ori_h))
++
++                    if out_dir:
++                        out_file = osp.join(out_dir, img_meta['ori_filename'])
++                    else:
++                        out_file = None
++
++                    model.module.show_result(
++                        img_show,
++                        result[i],
++                        bbox_color=PALETTE,
++                        text_color=PALETTE,
++                        mask_color=PALETTE,
++                        show=show,
++                        out_file=out_file,
++                        score_thr=show_score_thr)
+ 
+-        results.extend(result)
++            # encode mask results
++            if isinstance(result[0], tuple):
++                result = [(bbox_results, encode_mask_results(mask_results))
++                        for bbox_results, mask_results in result]
++            # This logic is only used in panoptic segmentation test.
++            elif isinstance(result[0], dict) and 'ins_results' in result[0]:
++                for j in range(len(result)):
++                    bbox_results, mask_results = result[j]['ins_results']
++                    result[j]['ins_results'] = (bbox_results,
++                                                encode_mask_results(mask_results))
++
++            results.extend(result)
+ 
+-        for _ in range(batch_size):
+-            prog_bar.update()
++            for _ in range(batch_size):
++                prog_bar.update()
++        iter_idx += batch_size
+     return results
+ 
+ 
+diff --git a/mmdet/core/export/model_wrappers.py b/mmdet/core/export/model_wrappers.py
+index c7be2df7..1f03ee56 100644
+--- a/mmdet/core/export/model_wrappers.py
++++ b/mmdet/core/export/model_wrappers.py
+@@ -181,3 +181,17 @@ class TensorRTDetector(DeployBaseDetector):
+             outputs = [outputs[name] for name in self.model.output_names]
+         outputs = [out.detach().cpu().numpy() for out in outputs]
+         return outputs
++
++class MagicMindDetector(DeployBaseDetector):
++    """ Wrapper for detector's inference with MagicMind."""
++    def __init__(self, mm_file,class_names,device_id):
++        import magicmind.python.runtime as mm
++        from mm_runner import MMRunner
++        
++        super(MagicMindDetector, self).__init__(class_names,device_id)
++        self.model = MMRunner(mm_file = mm_file ,device_id = device_id)   
++        
++    def forward_test(self, imgs, img_metas, **kwargs):
++        input_data = imgs[0]
++        inputs = [ input_data.numpy() ]
++        return self.model(inputs)
+diff --git a/mmdet/datasets/coco.py b/mmdet/datasets/coco.py
+index d20a121c..649e5586 100644
+--- a/mmdet/datasets/coco.py
++++ b/mmdet/datasets/coco.py
+@@ -221,10 +221,10 @@ class CocoDataset(CustomDataset):
+             _bbox[3] - _bbox[1],
+         ]
+ 
+-    def _proposal2json(self, results):
++    def _proposal2json(self, results,result_num):
+         """Convert proposal results to COCO json style."""
+         json_results = []
+-        for idx in range(len(self)):
++        for idx in range(result_num):
+             img_id = self.img_ids[idx]
+             bboxes = results[idx]
+             for i in range(bboxes.shape[0]):
+@@ -236,10 +236,10 @@ class CocoDataset(CustomDataset):
+                 json_results.append(data)
+         return json_results
+ 
+-    def _det2json(self, results):
++    def _det2json(self, results,result_num):
+         """Convert detection results to COCO json style."""
+         json_results = []
+-        for idx in range(len(self)):
++        for idx in range(result_num):
+             img_id = self.img_ids[idx]
+             result = results[idx]
+             for label in range(len(result)):
+@@ -253,11 +253,11 @@ class CocoDataset(CustomDataset):
+                     json_results.append(data)
+         return json_results
+ 
+-    def _segm2json(self, results):
++    def _segm2json(self, results,result_num):
+         """Convert instance segmentation results to COCO json style."""
+         bbox_json_results = []
+         segm_json_results = []
+-        for idx in range(len(self)):
++        for idx in range(result_num):
+             img_id = self.img_ids[idx]
+             det, seg = results[idx]
+             for label in range(len(det)):
+@@ -291,7 +291,7 @@ class CocoDataset(CustomDataset):
+                     segm_json_results.append(data)
+         return bbox_json_results, segm_json_results
+ 
+-    def results2json(self, results, outfile_prefix):
++    def results2json(self, results, outfile_prefix,result_num):
+         """Dump the detection results to a COCO style json file.
+ 
+         There are 3 types of results: proposals, bbox predictions, mask
+@@ -312,19 +312,19 @@ class CocoDataset(CustomDataset):
+         """
+         result_files = dict()
+         if isinstance(results[0], list):
+-            json_results = self._det2json(results)
++            json_results = self._det2json(results,result_num)
+             result_files['bbox'] = f'{outfile_prefix}.bbox.json'
+             result_files['proposal'] = f'{outfile_prefix}.bbox.json'
+             mmcv.dump(json_results, result_files['bbox'])
+         elif isinstance(results[0], tuple):
+-            json_results = self._segm2json(results)
++            json_results = self._segm2json(results,result_num)
+             result_files['bbox'] = f'{outfile_prefix}.bbox.json'
+             result_files['proposal'] = f'{outfile_prefix}.bbox.json'
+             result_files['segm'] = f'{outfile_prefix}.segm.json'
+             mmcv.dump(json_results[0], result_files['bbox'])
+             mmcv.dump(json_results[1], result_files['segm'])
+         elif isinstance(results[0], np.ndarray):
+-            json_results = self._proposal2json(results)
++            json_results = self._proposal2json(results,result_num)
+             result_files['proposal'] = f'{outfile_prefix}.proposal.json'
+             mmcv.dump(json_results, result_files['proposal'])
+         else:
+@@ -355,7 +355,7 @@ class CocoDataset(CustomDataset):
+         ar = recalls.mean(axis=1)
+         return ar
+ 
+-    def format_results(self, results, jsonfile_prefix=None, **kwargs):
++    def format_results(self, results, jsonfile_prefix=None, result_num = 5000, **kwargs):
+         """Format the results to json (standard format for COCO evaluation).
+ 
+         Args:
+@@ -371,16 +371,16 @@ class CocoDataset(CustomDataset):
+                 for saving json files when jsonfile_prefix is not specified.
+         """
+         assert isinstance(results, list), 'results must be a list'
+-        assert len(results) == len(self), (
+-            'The length of results is not equal to the dataset len: {} != {}'.
+-            format(len(results), len(self)))
++        # assert len(results) == len(self), (
++        #     'The length of results is not equal to the dataset len: {} != {}'.
++        #     format(len(results), len(self)))
+ 
+         if jsonfile_prefix is None:
+             tmp_dir = tempfile.TemporaryDirectory()
+             jsonfile_prefix = osp.join(tmp_dir.name, 'results')
+         else:
+             tmp_dir = None
+-        result_files = self.results2json(results, jsonfile_prefix)
++        result_files = self.results2json(results, jsonfile_prefix,result_num)
+         return result_files, tmp_dir
+ 
+     def evaluate_det_segm(self,
+@@ -392,7 +392,8 @@ class CocoDataset(CustomDataset):
+                           classwise=False,
+                           proposal_nums=(100, 300, 1000),
+                           iou_thrs=None,
+-                          metric_items=None):
++                          metric_items=None,
++                          result_num = 5000):
+         """Instance segmentation and object detection evaluation in COCO
+         protocol.
+ 
+@@ -482,7 +483,7 @@ class CocoDataset(CustomDataset):
+ 
+             cocoEval = COCOeval(coco_gt, coco_det, iou_type)
+             cocoEval.params.catIds = self.cat_ids
+-            cocoEval.params.imgIds = self.img_ids
++            cocoEval.params.imgIds = self.img_ids[0:result_num]
+             cocoEval.params.maxDets = list(proposal_nums)
+             cocoEval.params.iouThrs = iou_thrs
+             # mapping of cocoEval.stats
+@@ -591,6 +592,7 @@ class CocoDataset(CustomDataset):
+ 
+     def evaluate(self,
+                  results,
++                 result_num = 5000,
+                  metric='bbox',
+                  logger=None,
+                  jsonfile_prefix=None,
+@@ -638,11 +640,11 @@ class CocoDataset(CustomDataset):
+         coco_gt = self.coco
+         self.cat_ids = coco_gt.get_cat_ids(cat_names=self.CLASSES)
+ 
+-        result_files, tmp_dir = self.format_results(results, jsonfile_prefix)
++        result_files, tmp_dir = self.format_results(results, jsonfile_prefix,result_num=result_num)
+         eval_results = self.evaluate_det_segm(results, result_files, coco_gt,
+                                               metrics, logger, classwise,
+                                               proposal_nums, iou_thrs,
+-                                              metric_items)
++                                              metric_items,result_num=result_num)
+ 
+         if tmp_dir is not None:
+             tmp_dir.cleanup()
+diff --git a/tools/deployment/pytorch2onnx.py b/tools/deployment/pytorch2onnx.py
+index ee856ccb..33a1018e 100644
+--- a/tools/deployment/pytorch2onnx.py
++++ b/tools/deployment/pytorch2onnx.py
+@@ -11,8 +11,7 @@ from mmcv import Config, DictAction
+ 
+ from mmdet.core.export import build_model_from_cfg, preprocess_example_input
+ from mmdet.core.export.model_wrappers import ONNXRuntimeDetector
+-
+-
++          
+ def pytorch2onnx(model,
+                  input_img,
+                  input_shape,
+@@ -33,6 +32,7 @@ def pytorch2onnx(model,
+     }
+     # prepare input
+     one_img, one_meta = preprocess_example_input(input_config)
++    
+     img_list, img_meta_list = [one_img], [[one_meta]]
+ 
+     if skip_postprocess:
+@@ -71,8 +71,6 @@ def pytorch2onnx(model,
+         dynamic_axes = {
+             input_name: {
+                 0: 'batch',
+-                2: 'height',
+-                3: 'width'
+             },
+             'dets': {
+                 0: 'batch',
+@@ -94,7 +92,7 @@ def pytorch2onnx(model,
+         output_names=output_names,
+         export_params=True,
+         keep_initializers_as_inputs=True,
+-        do_constant_folding=True,
++        do_constant_folding=False,
+         verbose=show,
+         opset_version=opset_version,
+         dynamic_axes=dynamic_axes)
+@@ -305,13 +303,14 @@ if __name__ == '__main__':
+         input_shape = (1, 3) + tuple(args.shape)
+     else:
+         raise ValueError('invalid input shape')
+-
++    print(input_shape)
+     # build the model and load checkpoint
+     model = build_model_from_cfg(args.config, args.checkpoint,
+                                  args.cfg_options)
+ 
+     if not args.input_img:
+         args.input_img = osp.join(osp.dirname(__file__), '../../demo/demo.jpg')
++        
+ 
+     normalize_cfg = parse_normalize_cfg(cfg.test_pipeline)
+ 
+diff --git a/tools/deployment/test.py b/tools/deployment/test.py
+index db8d696a..3c8bf325 100644
+--- a/tools/deployment/test.py
++++ b/tools/deployment/test.py
+@@ -27,7 +27,7 @@ def parse_args():
+     parser.add_argument(
+         '--backend',
+         required=True,
+-        choices=['onnxruntime', 'tensorrt'],
++        choices=['onnxruntime', 'tensorrt','magicmind'],
+         help='Backend for input model to run. ')
+     parser.add_argument(
+         '--eval',
+@@ -60,6 +60,9 @@ def parse_args():
+         help='custom options for evaluation, the key-value pair in xxx=yyy '
+         'format will be kwargs for dataset.evaluate() function')
+ 
++    parser.add_argument("--device_id", "--device_id", type = int, default = 0, help = "device_id")
++    parser.add_argument("--batch_size", "--batch_size", type = int, default = 1, help = "batch_size")
++    parser.add_argument("--img_num", "--img_num", type = int, default = 5000, help = "img_num")
+     args = parser.parse_args()
+     return args
+ 
+@@ -105,8 +108,8 @@ def main():
+     dataset = build_dataset(cfg.data.test)
+     data_loader = build_dataloader(
+         dataset,
+-        samples_per_gpu=samples_per_gpu,
+-        workers_per_gpu=cfg.data.workers_per_gpu,
++        samples_per_gpu=args.batch_size,
++        workers_per_gpu=2,
+         dist=False,
+         shuffle=False)
+ 
+@@ -118,17 +121,22 @@ def main():
+         from mmdet.core.export.model_wrappers import TensorRTDetector
+         model = TensorRTDetector(
+             args.model, class_names=dataset.CLASSES, device_id=0)
++    elif args.backend == 'magicmind':
++        from mmdet.core.export.model_wrappers import MagicMindDetector
++        model = MagicMindDetector(
++            mm_file = args.model, class_names = dataset.CLASSES, device_id=args.device_id)
+ 
+-    model = MMDataParallel(model, device_ids=[0])
++    model = MMDataParallel(model, device_ids=[args.device_id])
+     outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
+-                              args.show_score_thr)
++                              args.show_score_thr,args.img_num)
+ 
+     if args.out:
+         print(f'\nwriting results to {args.out}')
+         mmcv.dump(outputs, args.out)
+     kwargs = {} if args.eval_options is None else args.eval_options
++    
+     if args.format_only:
+-        dataset.format_results(outputs, **kwargs)
++        dataset.format_results(outputs,result_num=args.img_num)
+     if args.eval:
+         eval_kwargs = cfg.get('evaluation', {}).copy()
+         # hard-code way to remove EvalHook args
+@@ -137,7 +145,7 @@ def main():
+                 'rule'
+         ]:
+             eval_kwargs.pop(key, None)
+-        eval_kwargs.update(dict(metric=args.eval, **kwargs))
++        eval_kwargs.update(dict(metric=args.eval,result_num = args.img_num,**kwargs))
+         print(dataset.evaluate(outputs, **eval_kwargs))
+ 
+ 

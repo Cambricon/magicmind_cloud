@@ -2,21 +2,14 @@
 set -e
 set -x
 
-if [ -d $PROJ_ROOT_PATH/data ];
+if [ -d ${MODEL_PATH} ];
 then
-    echo "folder $PROJ_ROOT_PATH/data already exists"
+    echo "folder ${MODEL_PATH} already exists"
 else
-    mkdir $PROJ_ROOT_PATH/data
+    mkdir -p ${MODEL_PATH}
 fi
 
-if [ -d $MODEL_PATH ];
-then
-    echo "folder $MODEL_PATH already exists"
-else
-    mkdir $MODEL_PATH
-fi
-
-cd $MODEL_PATH
+cd ${MODEL_PATH}
 if [ -f "segnet_pascal.caffemodel" ];
 then
   echo "segnet caffemodel already exists."
@@ -25,7 +18,6 @@ else
   wget -c http://mi.eng.cam.ac.uk/~agk34/resources/SegNet/segnet_pascal.caffemodel
 fi
 
-cd $MODEL_PATH
 if [ -f "segnet_pascal.prototxt" ];
 then
   echo "senet50 prototxt file already exists."
@@ -34,7 +26,7 @@ else
   wget -c https://raw.githubusercontent.com/alexgkendall/SegNet-Tutorial/2d0457ca20a7d22a81f07316bc04b2f26992730c/Example_Models/segnet_pascal.prototxt
 fi
 
-cd $DATASETS_PATH
+cd ${VOC2012_DATASETS_PATH}
 if [ ! -d VOCdevkit ];
 then
   echo "Downloading VOCtrainval_11-May-2012.tar"

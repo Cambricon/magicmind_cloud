@@ -1,0 +1,348 @@
+diff --git a/mmpose/apis/test.py b/mmpose/apis/test.py
+index 3843b5a5..cc4428a2 100644
+--- a/mmpose/apis/test.py
++++ b/mmpose/apis/test.py
+@@ -9,8 +9,18 @@ import torch
+ import torch.distributed as dist
+ from mmcv.runner import get_dist_info
+ 
++from mmpose.core.evaluation import (aggregate_scale, aggregate_stage_flip,
++                                    flip_feature_maps, get_group_preds,
++                                    split_ae_outputs)
++from mmpose.core.post_processing.group import HeatmapParser
+ 
+-def single_gpu_test(model, data_loader):
++
++def single_gpu_test(model, data_loader,
++                    backend = "pytorch",
++                    batch_size = 1,
++                    iter_num = 5000,
++                    cfg = None,
++                    return_heatmap = False):
+     """Test model with a single gpu.
+ 
+     This method tests model with a single gpu and displays test progress bar.
+@@ -18,25 +28,157 @@ def single_gpu_test(model, data_loader):
+     Args:
+         model (nn.Module): Model to be tested.
+         data_loader (nn.Dataloader): Pytorch data loader.
+-
+-
+     Returns:
+         list: The prediction results.
+     """
+-
+-    model.eval()
++    if backend == "pytorch":
++        model.eval()
+     results = []
+     dataset = data_loader.dataset
+-    prog_bar = mmcv.ProgressBar(len(dataset))
++    prog_bar = mmcv.ProgressBar(iter_num)
++    
++    iter_idx = 0
+     for data in data_loader:
+-        with torch.no_grad():
+-            result = model(return_loss=False, **data)
+-        results.append(result)
++        if iter_idx < iter_num:
++            with torch.no_grad():
++                if backend == "pytorch":
++                    result = model(return_loss=False, **data)
++                elif backend == "magicmind":
++                    img_tensor = data['img']
++                    assert img_tensor.size(0) == len(data['img_metas'].data[0])
++                    img_metas = data['img_metas'].data[0][0]
++                    aug_data = img_metas['aug_data']
++                    test_scale_factor = img_metas['test_scale_factor']
++                    base_size = img_metas['base_size']
++                    center = img_metas['center']
++                    scale = img_metas['scale']
++                    
++                    scale_heatmaps_list = []
++                    scale_tags_list = []
++                    result = {}
++                    
++                    for idx, s in enumerate(sorted(test_scale_factor, reverse=True)):
++                        image_resized = aug_data[idx].to(img_tensor.device)
++                        inputs = [ image_resized.numpy() ]
++                        outputs = model(inputs)
++                        outputs = [ torch.from_numpy(outputs[0]) ]
++                        heatmaps, tags = split_ae_outputs(
++                                outputs, cfg.model.test_cfg['num_joints'],
++                                cfg.model.test_cfg['with_heatmaps'], cfg.model.test_cfg['with_ae'],
++                                cfg.model.test_cfg.get('select_output_index', range(len(outputs))))
++
++                        if cfg.model.test_cfg.get('flip_test', True):
++                            # use flip test
++                            inputs = [ torch.flip(image_resized, [3]).numpy() ]
++                            outputs = model(inputs)
++                            outputs_flipped = [ torch.from_numpy(outputs[0]) ]
++
++                            heatmaps_flipped, tags_flipped = split_ae_outputs(
++                                outputs_flipped, cfg.model.test_cfg['num_joints'],
++                                cfg.model.test_cfg['with_heatmaps'], cfg.model.test_cfg['with_ae'],
++                                cfg.model.test_cfg.get('select_output_index',
++                                                range(len(outputs))))
++                            heatmaps_flipped = flip_feature_maps(
++                                heatmaps_flipped, flip_index=img_metas['flip_index'])
++                            if cfg.model.test_cfg['tag_per_joint']:
++                                tags_flipped = flip_feature_maps(
++                                    tags_flipped, flip_index=img_metas['flip_index'])
++                            else:
++                                tags_flipped = flip_feature_maps(
++                                    tags_flipped, flip_index=None, flip_output=True)
++                        else:
++                            heatmaps_flipped = None
++                            tags_flipped = None
++                            
++                        aggregated_heatmaps = aggregate_stage_flip(
++                                            heatmaps,
++                                            heatmaps_flipped,
++                                            index=-1,
++                                            project2image=cfg.model.test_cfg['project2image'],
++                                            size_projected=base_size,
++                                            align_corners=cfg.model.test_cfg.get('align_corners', True),
++                                            aggregate_stage='average',
++                                            aggregate_flip='average')
++
++                        aggregated_tags = aggregate_stage_flip(
++                            tags,
++                            tags_flipped,
++                            index=-1,
++                            project2image=cfg.model.test_cfg['project2image'],
++                            size_projected=base_size,
++                            align_corners=cfg.model.test_cfg.get('align_corners', True),
++                            aggregate_stage='concat',
++                            aggregate_flip='concat')
++
++                        if s == 1 or len(test_scale_factor) == 1:
++                            if isinstance(aggregated_tags, list):
++                                scale_tags_list.extend(aggregated_tags)
++                            else:
++                                scale_tags_list.append(aggregated_tags)
++
++                        if isinstance(aggregated_heatmaps, list):
++                            scale_heatmaps_list.extend(aggregated_heatmaps)
++                        else:
++                            scale_heatmaps_list.append(aggregated_heatmaps)
++
++                    aggregated_heatmaps = aggregate_scale(
++                        scale_heatmaps_list,
++                        align_corners=cfg.model.test_cfg.get('align_corners', True),
++                        aggregate_scale='average')
++
++                    aggregated_tags = aggregate_scale(
++                        scale_tags_list,
++                        align_corners=cfg.model.test_cfg.get('align_corners', True),
++                        aggregate_scale='unsqueeze_concat')
++
++                    heatmap_size = aggregated_heatmaps.shape[2:4]
++                    tag_size = aggregated_tags.shape[2:4]
++                    if heatmap_size != tag_size:
++                        tmp = []
++                        for idx in range(aggregated_tags.shape[-1]):
++                            tmp.append(
++                                torch.nn.functional.interpolate(
++                                    aggregated_tags[..., idx],
++                                    size=heatmap_size,
++                                    mode='bilinear',
++                                    align_corners=cfg.model.test_cfg.get('align_corners',
++                                                                    True)).unsqueeze(-1))
++                        aggregated_tags = torch.cat(tmp, dim=-1)
++
++                    # perform grouping
++                    parser = HeatmapParser(cfg.model.test_cfg)
++                    grouped, scores = parser.parse(aggregated_heatmaps,
++                                                    aggregated_tags,
++                                                    cfg.model.test_cfg['adjust'],
++                                                    cfg.model.test_cfg['refine'])
++
++                    preds = get_group_preds(grouped,
++                                            center,
++                                            scale, [aggregated_heatmaps.size(3),
++                                                    aggregated_heatmaps.size(2)],
++                                            use_udp=cfg.model.test_cfg.get('use_udp', False))
++
++                    image_paths = []
++                    image_paths.append(img_metas['image_file'])
++
++                    if return_heatmap:
++                        output_heatmap = aggregated_heatmaps.detach().cpu().numpy()
++                    else:
++                        output_heatmap = None
++                        
++                    result['preds'] = preds
++                    result['scores'] = scores
++                    result['image_paths'] = image_paths
++                    result['output_heatmap'] = output_heatmap
++                    results.append(result)
+ 
+-        # use the first key as main key to calculate the batch size
+-        batch_size = len(next(iter(data.values())))
+-        for _ in range(batch_size):
+-            prog_bar.update()
++                    # use the first key as main key to calculate the batch size
++                    batch_size = len(next(iter(data.values())))
++                    for _ in range(batch_size):
++                        prog_bar.update()
++        else:
++            break
++        iter_idx += 1
+     return results
+ 
+ 
+diff --git a/mmpose/datasets/datasets/bottom_up/bottom_up_coco.py b/mmpose/datasets/datasets/bottom_up/bottom_up_coco.py
+index 5959f600..caaa3462 100644
+--- a/mmpose/datasets/datasets/bottom_up/bottom_up_coco.py
++++ b/mmpose/datasets/datasets/bottom_up/bottom_up_coco.py
+@@ -156,7 +156,7 @@ class BottomUpCocoDataset(Kpt2dSviewRgbImgBottomUpDataset):
+         return joints
+ 
+     @deprecated_api_warning(name_dict=dict(outputs='results'))
+-    def evaluate(self, results, res_folder=None, metric='mAP', **kwargs):
++    def evaluate(self, results, res_folder=None, metric='mAP',result_num=5000, **kwargs):
+         """Evaluate coco keypoint results. The pose prediction results will be
+         saved in ``${res_folder}/result_keypoints.json``.
+ 
+@@ -238,7 +238,7 @@ class BottomUpCocoDataset(Kpt2dSviewRgbImgBottomUpDataset):
+ 
+         # do evaluation only if the ground truth keypoint annotations exist
+         if 'annotations' in self.coco.dataset:
+-            info_str = self._do_python_keypoint_eval(res_file)
++            info_str = self._do_python_keypoint_eval(res_file,result_num)
+             name_value = OrderedDict(info_str)
+ 
+             if tmp_folder is not None:
+@@ -301,7 +301,7 @@ class BottomUpCocoDataset(Kpt2dSviewRgbImgBottomUpDataset):
+ 
+         return cat_results
+ 
+-    def _do_python_keypoint_eval(self, res_file):
++    def _do_python_keypoint_eval(self, res_file,result_num):
+         """Keypoint evaluation using COCOAPI."""
+ 
+         stats_names = [
+@@ -320,6 +320,7 @@ class BottomUpCocoDataset(Kpt2dSviewRgbImgBottomUpDataset):
+         coco_det = self.coco.loadRes(res_file)
+         coco_eval = COCOeval(self.coco, coco_det, 'keypoints', self.sigmas)
+         coco_eval.params.useSegm = None
++        coco_eval.params.imgIds=self.img_ids[0:result_num]
+         coco_eval.evaluate()
+         coco_eval.accumulate()
+         coco_eval.summarize()
+diff --git a/tools/deployment/pytorch2onnx.py b/tools/deployment/pytorch2onnx.py
+index 5caff6e0..bfe2b33d 100644
+--- a/tools/deployment/pytorch2onnx.py
++++ b/tools/deployment/pytorch2onnx.py
+@@ -71,7 +71,11 @@ def pytorch2onnx(model,
+         export_params=True,
+         keep_initializers_as_inputs=True,
+         verbose=show,
+-        opset_version=opset_version)
++        opset_version=opset_version,
++        input_names=['input'],
++        output_names=['output'],
++        dynamic_axes={'input' : {0: 'batch', 2: 'height', 3: 'width'},
++                      'output': {0: 'batch', 2: 'height', 3: 'width'}})
+ 
+     print(f'Successfully exported ONNX model: {output_file}')
+     if verify:
+diff --git a/tools/test.py b/tools/test.py
+index 24226d3b..30af65ba 100644
+--- a/tools/test.py
++++ b/tools/test.py
+@@ -23,6 +23,10 @@ except ImportError:
+                   'Please install mmcv>=1.1.4')
+     from mmpose.core import wrap_fp16_model
+ 
++from mm_runner import MMRunner
++from logger import Logger
++
++log = Logger()
+ 
+ def parse_args():
+     parser = argparse.ArgumentParser(description='mmpose test model')
+@@ -67,6 +71,12 @@ def parse_args():
+         default='none',
+         help='job launcher')
+     parser.add_argument('--local_rank', type=int, default=0)
++    
++    parser.add_argument("--device_id" , "--device_id" , type = int, default = 0, help = "device_id")
++    parser.add_argument("--batch_size", "--batch_size", type = int, default = 1, help = "batch_size")
++    parser.add_argument("--backend"   , "--backend"   , type = str, default = "pytorch", help = "backend")
++    parser.add_argument("--img_num"   , "--img_num"   , type = int, default = 5000, help = "img_num")
++    
+     args = parser.parse_args()
+     if 'LOCAL_RANK' not in os.environ:
+         os.environ['LOCAL_RANK'] = str(args.local_rank)
+@@ -139,32 +149,41 @@ def main():
+     test_loader_cfg = {
+         **loader_cfg,
+         **dict(shuffle=False, drop_last=False),
+-        **dict(workers_per_gpu=cfg.data.get('workers_per_gpu', 1)),
+-        **dict(samples_per_gpu=cfg.data.get('samples_per_gpu', 1)),
++        **dict(workers_per_gpu=2),
++        **dict(samples_per_gpu=1),
+         **cfg.data.get('test_dataloader', {})
+     }
++    # print()
+     data_loader = build_dataloader(dataset, **test_loader_cfg)
+ 
+-    # build the model and load checkpoint
+-    model = build_posenet(cfg.model)
+-    fp16_cfg = cfg.get('fp16', None)
+-    if fp16_cfg is not None:
+-        wrap_fp16_model(model)
+-    load_checkpoint(model, args.checkpoint, map_location='cpu')
+-
+-    if args.fuse_conv_bn:
+-        model = fuse_conv_bn(model)
+-
++    if args.backend == "pytorch":
++        # build the model and load checkpoint
++        model = build_posenet(cfg.model)
++        fp16_cfg = cfg.get('fp16', None)
++        if fp16_cfg is not None:
++            wrap_fp16_model(model)
++        load_checkpoint(model, args.checkpoint, map_location='cpu')
++
++        if args.fuse_conv_bn:
++            model = fuse_conv_bn(model)
++    elif args.backend == "magicmind":
++        model = MMRunner( mm_file = args.checkpoint,device_id = args.device_id)
++    else:
++        log.info("Invalid backend!")
++        exit()
++        
+     if not distributed:
+-        model = MMDataParallel(model, device_ids=[args.gpu_id])
+-        outputs = single_gpu_test(model, data_loader)
++        if args.backend == "pytorch":
++            model = MMDataParallel(model, device_ids=[args.gpu_id])
++        outputs = single_gpu_test(model, data_loader, backend = args.backend,batch_size=args.batch_size,iter_num=args.img_num,cfg=cfg)
+     else:
+-        model = MMDistributedDataParallel(
+-            model.cuda(),
+-            device_ids=[torch.cuda.current_device()],
+-            broadcast_buffers=False)
++        if args.backend == "pytorch":
++            model = MMDistributedDataParallel(
++                model.cuda(),
++                device_ids=[torch.cuda.current_device()],
++                broadcast_buffers=False)
+         outputs = multi_gpu_test(model, data_loader, args.tmpdir,
+-                                 args.gpu_collect)
++                                args.gpu_collect)
+ 
+     rank, _ = get_dist_info()
+     eval_config = cfg.get('evaluation', {})
+@@ -175,7 +194,7 @@ def main():
+             print(f'\nwriting results to {args.out}')
+             mmcv.dump(outputs, args.out)
+ 
+-        results = dataset.evaluate(outputs, cfg.work_dir, **eval_config)
++        results = dataset.evaluate(outputs, cfg.work_dir, result_num = args.img_num,**eval_config)
+         for k, v in sorted(results.items()):
+             print(f'{k}: {v}')
+ 

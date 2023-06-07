@@ -1,30 +1,48 @@
-diff --git a/eval.py b/eval.py
-index ab963a2..dd79b74 100644
---- a/eval.py
-+++ b/eval.py
-@@ -19,7 +19,11 @@ from training.model_saver import ModelSaver
+--- ../export_model/DB/eval.py	2023-04-04 11:47:36.665907013 +0000
++++ eval.py	2023-04-04 11:47:04.154610829 +0000
+@@ -19,6 +19,13 @@ from training.model_saver import ModelSa
  from training.optimizer_scheduler import OptimizerScheduler
  from concern.config import Configurable, Config
  import time
--
 +import sys
 +sys.path.append("../../../../utils")
 +from utils import Record
-+sys.path.append("../../infer_python")
-+from mm_infer import MM_Model
++from mm_runner import MMRunner
++from logger import Logger
++
++log = Logger()
+ 
  def main():
      parser = argparse.ArgumentParser(description='Text Recognition Training')
-     parser.add_argument('exp', type=str)
-@@ -65,6 +69,8 @@ def main():
+@@ -65,12 +72,18 @@ def main():
                          type=int, help='Use distributed training')
      parser.add_argument('-g', '--num_gpus', dest='num_gpus', default=1,
                          type=int, help='The number of accessible gpus')
-+    parser.add_argument('--model_path', type=str, default = '../../data/models/dbnet_pt_model_force_float32_1_1280_800_model', help='model path')
++    parser.add_argument('--magicmind_model', type=str, default = '../../data/models/dbnet_pt_model_force_float32_1_1280_800_model', help='model path')
 +    parser.add_argument('--result_file', type=str,default="../data/output/result.txt", help='path to save result')
++    parser.add_argument("--device_id", "--device_id", type=int, default=0, help="device_id")
      parser.set_defaults(debug=False, verbose=False)
  
      args = parser.parse_args()
-@@ -161,10 +167,7 @@ class Eval:
+     args = vars(args)
+     args = {k: v for k, v in args.items() if v is not None}
+ 
++    if not os.path.exists(args['magicmind_model']):
++        log.error(args['magicmind_model'] + " does not exist.")
++        exit()
+     conf = Config()
+     experiment_args = conf.compile(conf.load(args['exp']))['Experiment']
+     experiment_args.update(cmd=args)
+@@ -88,7 +101,7 @@ class Eval:
+         self.logger = experiment.logger
+         model_saver = experiment.train.model_saver
+         self.structure = experiment.structure
+-        self.model_path = cmd.get(
++        self.magicmind_model = cmd.get(
+             'resume', os.path.join(
+                 self.logger.save_dir(model_saver.dir_path),
+                 'final'))
+@@ -161,10 +174,7 @@ class Eval:
          
      def eval(self, visualize=False):
          self.init_torch_tensor()
@@ -32,27 +50,31 @@ index ab963a2..dd79b74 100644
 -        self.resume(model, self.model_path)
 -        all_matircs = {}
 -        model.eval()
-+        mlu_model = MM_Model(self.args['model_path'])
++        mlu_model = MMRunner(self.args['magicmind_model'], self.args['device_id'])
          vis_images = dict()
          with torch.no_grad():
              for _, data_loader in self.data_loaders.items():
-@@ -173,7 +176,7 @@ class Eval:
+@@ -173,7 +183,9 @@ class Eval:
                      if self.args['test_speed']:
                          time_cost = self.report_speed(model, batch, times=50)
                          continue
 -                    pred = model.forward(batch, training=False)
-+                    pred = mlu_model.forward_db(batch['image'])
++                    input = [batch['image'].numpy()]
++                    pred = mlu_model(input)
++                    pred = torch.Tensor(pred).squeeze(0)
                      output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args['polygon']) 
                      if not os.path.isdir(self.args['result_dir']):
                          os.mkdir(self.args['result_dir'])
-@@ -186,8 +189,9 @@ class Eval:
+@@ -186,8 +198,11 @@ class Eval:
                          self.logger.save_image_dict(vis_image)
                          vis_images.update(vis_image)
                  metrics = self.structure.measurer.gather_measure(raw_metrics, self.logger)
-+                result = Record(self.args['result_file'])
++                # result = Record(self.args['result_file'])
++                # for key, metric in metrics.items():
++                #     result.write('%s : %f (%d)' % (key, metric.avg, metric.count), True)
                  for key, metric in metrics.items():
 -                    self.logger.info('%s : %f (%d)' % (key, metric.avg, metric.count))
-+                    result.write('%s : %f (%d)' % (key, metric.avg, metric.count), True)
++                    log.info("%s: %f (%d)"%(key,metric.avg,metric.count))
  
  if __name__ == '__main__':
      main()

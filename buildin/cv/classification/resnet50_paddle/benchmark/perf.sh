@@ -3,33 +3,30 @@ set -e
 set -x
 
 MM_RUN(){
-    PRECISION=$1
-    SHAPE_MUTABLE=$2
-    BATCH_SIZE=$3
-    if [ ${SHAPE_MUTABLE} == 'false' ];
-    then
-        MAGICMIND_MODEL=$MODEL_PATH/resnet50_onnx_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-    else
-        MAGICMIND_MODEL=$MODEL_PATH/resnet50_onnx_model_${PRECISION}_${SHAPE_MUTABLE}
-    fi
-    if [ ! -d $PROJ_ROOT_PATH/data/output ];
-    then
-        mkdir "$PROJ_ROOT_PATH/data/output"
-    fi
-    ${MM_RUN_PATH}/mm_run --magicmind_model $MAGICMIND_MODEL \
+    magicmind_model=$1
+    batch_size=$2
+    ${MM_RUN_PATH}/mm_run --magicmind_model ${magicmind_model} \
                           --iterations 1000 \
-                          --devices 0 2>&1 |tee $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}_log_perf
+                          --batch_size ${batch_size} \
+                          --devices 0
 }
 
 ###dynamic
 cd $PROJ_ROOT_PATH/export_model
 bash run.sh
+dynamic_shape=false
 for precision in force_float32 force_float16 qint8_mixed_float16 
 do
-    for batch in 1 32 64
+    for batch_size in 1 32 64
     do 
-        cd $PROJ_ROOT_PATH/gen_model
-        bash run.sh $precision false $batch
-        MM_RUN $precision false $batch
+        magicmind_model=${MODEL_PATH}/resnet50_paddlecls_model_${precision}_${dynamic_shape}_${batch_size}
+        if [ ! -f ${magicmind_model} ];then
+            cd ${PROJ_ROOT_PATH}/gen_model
+            bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape}   
+        else
+            echo "MagicMind model: ${magicmind_model} already exists!"
+        fi
+        # mm run
+        MM_RUN ${magicmind_model} ${batch_size}
     done
 done

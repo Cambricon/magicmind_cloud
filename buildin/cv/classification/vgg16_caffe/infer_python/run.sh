@@ -1,35 +1,40 @@
 #!/bin/bash
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-IMAGE_NUM=$4
-if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
-then
-  mkdir "$PROJ_ROOT_PATH/data/output"
-  echo "mkdir sucessed!!!"
-else
-  echo "output dir exits!!! no need to mkdir again!!!"
+set -e
+set -x
+
+magicmind_model=${1}
+batch_size=${2}
+image_num=${3}
+tmp_name=$(basename ${magicmind_model})
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/${tmp_name}_infer_python_res"
+
+if [ ! -d ${infer_res_dir} ];then
+  mkdir -p ${infer_res_dir}
 fi
 
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/vgg16_caffe_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$MODEL_PATH/vgg16_caffe_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-if [ ! -d "$OUTPUT_DIR" ];
-then
-  mkdir "$OUTPUT_DIR"
-fi
-python infer.py  --device_id 0 \
-                 --magicmind_model $MAGICMIND_MODEL \
-                 --image_dir $DATASETS_PATH \
-                 --image_num $IMAGE_NUM \
-                 --name_file $UTILS_PATH/imagenet_name.txt \
-                 --label_file $UTILS_PATH/ILSVRC2012_val.txt \
-                 --result_file $OUTPUT_DIR/infer_result.txt \
-                 --result_label_file $OUTPUT_DIR/eval_labels.txt \
-                 --result_top1_file $OUTPUT_DIR/eval_result_1.txt \
-                 --result_top5_file $OUTPUT_DIR/eval_result_5.txt \
-                 --batch ${BATCH_SIZE}
+python infer.py --magicmind_model ${magicmind_model} \
+                --image_num ${image_num} \
+                --batch_size ${batch_size} \
+                --image_dir ${ILSVRC2012_DATASETS_PATH} \
+                --label_file ${UTILS_PATH}/ILSVRC2012_val.txt \
+                --name_file ${UTILS_PATH}/imagenet_name.txt \
+                --result_file ${infer_res_dir}/infer_result.txt \
+                --result_label_file ${infer_res_dir}/eval_labels.txt \
+                --result_top1_file ${infer_res_dir}/eval_result_1.txt \
+                --result_top5_file ${infer_res_dir}/eval_result_5.txt 
+
+
+# get metric res
+function compute_acc(){
+    infer_res_dir=${1}
+    log_file=${infer_res_dir}/log_eval
+    python ${UTILS_PATH}/compute_top1_and_top5.py \
+            --result_label_file ${infer_res_dir}/eval_labels.txt \
+            --result_1_file ${infer_res_dir}/eval_result_1.txt \
+            --result_5_file ${infer_res_dir}/eval_result_5.txt \
+            --top1andtop5_file ${infer_res_dir}/eval_result.txt 2>&1 |tee ${log_file}
+
+}
+
+compute_acc  ${infer_res_dir} 
+

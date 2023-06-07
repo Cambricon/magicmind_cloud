@@ -1,19 +1,25 @@
 #!/bin/bash
-if grep -q "mm_infer" $PROJ_ROOT_PATH/export_model/DB/eval.py;
+set -x
+set -e
+
+magicmind_model=${1}
+batch_size=${2}
+
+if grep -q "MMRunner" ${PROJ_ROOT_PATH}/export_model/DB/eval.py;
 then
   echo "infer.patch already be used"
 else
-  patch -p0 $PROJ_ROOT_PATH/export_model/DB/eval.py < $PROJ_ROOT_PATH/infer_python/infer.patch
+  patch -p0 ${PROJ_ROOT_PATH}/export_model/DB/eval.py < ${PROJ_ROOT_PATH}/infer_python/infer.patch
+  patch -p0 ${PROJ_ROOT_PATH}/export_model/DB/data/processes/normalize_image.py < ${PROJ_ROOT_PATH}/infer_python/norm.patch
 fi
 
-PRECISION=$1 
-if [ ! -d $PROJ_ROOT_PATH/data/output ];
+if [ ! -d ${PROJ_ROOT_PATH}/data/output ];
 then
-    mkdir $PROJ_ROOT_PATH/data/output
+    mkdir ${PROJ_ROOT_PATH}/data/output
 fi
-cd $PROJ_ROOT_PATH/export_model/DB
+cd ${PROJ_ROOT_PATH}/export_model/DB
 python eval.py experiments/seg_detector/totaltext_resnet18_deform_thre.yaml  \
                --polygon \
                --box_thresh 0.7 \
-               --model_path ${MODEL_PATH}/dbnet_pt_model_${PRECISION}_true \
-               --result_file $PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_true_log_eval
+               --magicmind_model ${magicmind_model} \
+               --result_file ${PROJ_ROOT_PATH}/data/output/infer_python_output_${magicmind_model}_log_eval

@@ -1,2 +1,0 @@
-model,language,dataset,metric,eval,fps
-segnet_caffe,infer_python,voc2012,miou,0.8839324729070673,

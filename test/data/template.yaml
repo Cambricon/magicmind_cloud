@@ -1,9 +1,9 @@
-image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:1.0.1-x86_64-ubuntu18.04-py_3_7
+image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:1.3.0-x86_64-ubuntu18.04-py_3_7
 
 report-result:
     stage: .post
     tags: 
-        - test_runner
+        - bj_test_runner
     script:
         - pip install -r test/requirement.txt
         - python test/show_table.py
@@ -14,7 +14,7 @@ report-result:
 .network_test:
     stage: test
     tags: 
-        - test_runner
+        - bj_test_runner
     retry: 2
     script:
         - echo "export http_proxy=http://proxy.cambricon.com:8080" >> ~/.bashrc
@@ -25,17 +25,30 @@ report-result:
         - pip install nvidia-pyindex
         - pip install -r test/requirement.txt
         # start test
+        - source test/dataset_env.sh
+        - echo "TEST_PROJ_DIR is:" ${TEST_PROJ_DIR}
+        - echo "ls -l TEST_PROJ_DIR is as belows:" 
+        - ls -l ${TEST_PROJ_DIR}
         - cd ${TEST_PROJ_DIR}
-        - source env.sh
         - mkdir -p data/models
-        - mkdir -p /nfsdata/modelzoo/datasets
-        # ln models/datasets/codes
-        - cp -r /zoo_ci/models/${TEST_PROJ_DIR##*/}/* data/models
-        - ln -sf /zoo_ci/datasets/${DATASETS_PATH##*/} ${DATASETS_PATH}
-        - if [ -d /zoo_ci/codes/${TEST_PROJ_DIR##*/} ]; then cp -r /zoo_ci/codes/${TEST_PROJ_DIR##*/}/* export_model; fi
-        - if [ -f requirement.txt ]; then pip install -r requirement.txt; fi
+
+        #  1. The original "/zoo_ci" is declared in /etc/gitlab-runner/config.toml(the correspoinding key is volume)
+        #  /etc/gitlab-runner/config.toml is located in the gitlab-runner docker.
+        #  2. Usually, you can entery the gitlab-runner docker by run "docker exec -it gitlab-runner /bin/bash" 
+        #  + on the machine which actually offers the gitlab-ci/cd service.
+        #  3. in /etc/gitlab-runner/config.toml,volumes = ["/cache","/data/AE/modelzoo/:/data/AE/modelzoo/"] means 
+        # + gitlab-runner will map "/data/AE/modelzoo/" on the host machine to "/data/AE/modelzoo/" in the gitlab-runner docker.
+        #  On the other hand, you need to map "/data/AE/modelzoo/" on the host machine to "/data/AE/modelzoo/" in the docker when creating the gitlab-runner docker.
+
+        - ln -s /data/AE/modelzoo/models/${TEST_PROJ_DIR##*/}/* data/models
+
+        - if [ -f requirement*.txt ]; then pip install -r requirement*.txt; fi
         #- if [ -f benchmark/perf.sh ]; then bash benchmark/perf.sh; fi
         #- if [ -f benchmark/eval.sh ]; then bash benchmark/eval.sh; fi
+        - cat env.sh
+        - set +e
+        - source env.sh
+        - set -e
         - bash run.sh
     artifacts:
         paths:

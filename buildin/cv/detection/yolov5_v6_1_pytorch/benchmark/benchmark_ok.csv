@@ -1,2 +1,0 @@
-model,language,dataset,metric,eval,fps
-yolov5_v6_1_pytorch,infer_cpp,coco,map,0.5049619460081555,28.132

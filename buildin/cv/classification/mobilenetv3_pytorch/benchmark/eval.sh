@@ -2,37 +2,32 @@
 set -e 
 set -x
 
-cd $PROJ_ROOT_PATH/export_model/
+image_num=50000
+
+cd ${PROJ_ROOT_PATH}/export_model/
 bash run.sh
 
-# dynamic cpp
 for precision in force_float32 force_float16 qint8_mixed_float16
 do
-  for shape_mutable in true
+  for dynamic_shape in "true"
   do
-    for batch in 1 
+    for batch_size in 1
     do
-      #shape_mutable为true时 生成的模型与batch_size无关 故batch_size恒定设置为1即可
-      if [ $shape_mutable == "true" ];then
-        MM_MODEL="${precision}_${shape_mutable}_1"
-        GEN_BATCH=1
-      else
-        MM_MODEL="${precision}_${shape_mutable}_${batch}"
-        GEN_BATCH=$batch
-      fi 
-      if [ ! -f $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL ];then
-          cd $PROJ_ROOT_PATH/gen_model/
-          bash run.sh $precision $shape_mutable $GEN_BATCH
-      fi
+        magicmind_model=${MODEL_PATH}/mobilenetv3_pytorch_model_${precision}_${dynamic_shape}
+        if [ ${dynamic_shape} == 'false' ];then
+            magicmind_model="${magicmind_model}_${batch_size}"
+        fi
+        if [ ! -f ${magicmind_model} ];then
+            cd ${PROJ_ROOT_PATH}/gen_model
+            bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape} 
+           
+        else
+            echo "MagicMind model: ${magicmind_model} already exists!"
+        fi
       
-      #infer cpp
-      cd $PROJ_ROOT_PATH/infer_cpp/
-      bash run.sh $precision $shape_mutable $batch
-      #compute_top1_and_top5
-      python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_labels.txt \
-                                                  --result_1_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_result_1.txt \
-                                                  --result_5_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_result_5.txt \
-                                                  --top1andtop5_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_result.txt 2>&1 | tee $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}_log_eval
+      #infer python
+        cd ${PROJ_ROOT_PATH}/infer_python/
+        bash run.sh  ${magicmind_model} ${batch_size} ${image_num}
     done
   done
 done

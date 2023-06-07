@@ -11,7 +11,15 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include "../include/utils.hpp"
+#include "utils.hpp"
+struct BBox {
+  int label;
+  float score;
+  int left;
+  int top;
+  int right;
+  int bottom;
+};  // struct BBox
 
 std::map<int, std::string> load_name(std::string name_map_file);
 

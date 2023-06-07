@@ -2,37 +2,26 @@
 set -e
 set -x
 
-PRECISION=$1  
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-IMAGE_NUM=$4
-if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
-then
-    mkdir "$PROJ_ROOT_PATH/data/output"
-fi
+magicmind_model=${1}
+batch_size=${2}
 
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/infer_cpp_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-if [ -d $OUTPUT_DIR ];
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res"
+if [ ! -d ${infer_res_dir} ];
 then
-    echo "output dir already exits!!! no need to mkdir again!!!"
-else
-    mkdir $OUTPUT_DIR
-    echo "mkdir successed!!!"
+  mkdir -p ${infer_res_dir}
 fi
-
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/retinaface_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}_1
-else
-    MAGICMIND_MODEL=$MODEL_PATH/retinaface_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
-
 
 bash build.sh
-$PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model $MAGICMIND_MODEL \
-                                  --image_dir $DATASETS_PATH/WIDER_val/images \
-                                  --image_num $IMAGE_NUM \
-                                  --file_list $PROJ_ROOT_PATH/infer_cpp/wider_val.txt \
-                                  --output_dir $OUTPUT_DIR \
+${PROJ_ROOT_PATH}/infer_cpp/infer   --magicmind_model ${magicmind_model} \
+                                  --image_dir ${WIDERFACE_DATASETS_PATH}/WIDER_val/images \
+                                  --image_num -1 \
+                                  --file_list ${PROJ_ROOT_PATH}/infer_cpp/wider_val.txt \
+                                  --output_dir ${infer_res_dir} \
                                   --save_img true \
-                                  --batch $BATCH_SIZE
+                                  --batch_size ${batch_size}
+
+# get metrics res
+cd ${PROJ_ROOT_PATH}/export_model/Pytorch_Retinaface/widerface_evaluate
+python3 setup.py build_ext --inplace
+python3 evaluation.py -p ${infer_res_dir}/pred_txts \
+                      -g ${PROJ_ROOT_PATH}/export_model/Pytorch_Retinaface/widerface_evaluate/ground_truth

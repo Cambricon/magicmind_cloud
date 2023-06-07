@@ -1,5 +1,12 @@
-#include "../include/utils.hpp"
-#include "../include/post_process.hpp"
+#include "post_process.hpp"
+#include <map>
+#include <fstream>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <vector>
+
 
 std::map<int, std::string> load_name(std::string name_map_file)
 {
@@ -29,7 +36,7 @@ std::vector<int> ArgTopK(const float *data, int classes, int k)
     for (int i = 0; i < k; ++i) result.push_back(i);
     auto comp = [data] (int a, int b) { return data[a] > data[b]; };
     std::make_heap(result.begin(), result.end(), comp);
-    for (int i = 0; i < classes; ++i) {
+    for (int i = k; i < classes; ++i) {
         if (comp(i, result[0])) {
         std::pop_heap(result.begin(), result.end(), comp);
         result.back() = i;

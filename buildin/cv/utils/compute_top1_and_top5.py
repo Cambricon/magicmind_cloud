@@ -30,11 +30,10 @@ if __name__ == "__main__":
     with open(args.result_label_file, "r") as l:
         labels= l.readlines()
 
-    for label in labels:
-        for top1_result in top1_results:
-            if label == top1_result:
-                top1_count += 1
-        for top5_result in top5_results:
+    for i, label in enumerate(labels):
+        if label == top1_results[i]:
+            top1_count += 1
+        for top5_result in top5_results[i*5:(i+1)*5]:
             if label == top5_result:
                 top5_count += 1
         total_count += 1

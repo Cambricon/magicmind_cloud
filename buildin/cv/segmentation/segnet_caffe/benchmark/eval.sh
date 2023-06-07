@@ -2,26 +2,37 @@
 set -e
 set -x
 
-COMPUTE_VOC_MIOU(){
-    PRECISION=$1
-    SHAPE_MUTABLE=$2
-    BATCH=$3
-    WAYS=$4
-    if [ ! -d $PROJ_ROOT_PATH/data/output/ ]; then mkdir -p $PROJ_ROOT_PATH/data/output/; fi 
-    python $UTILS_PATH/compute_voc_mIOU_segnet.py --output_dir $PROJ_ROOT_PATH/data/output/${WAYS}_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH} 2>&1 |tee $PROJ_ROOT_PATH/data/output/${WAYS}_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH}_log_eval
-}
+infer_mode=infer_cpp
+# set image_num to 0 to use all the images in the dataset.
+image_num=0
 
-
-cd $PROJ_ROOT_PATH/export_model
+# 1. export model
+cd ${PROJ_ROOT_PATH}/export_model 
 bash run.sh
-for precision in force_float32 force_float16 qint8_mixed_float16
-do	
-    for batch in 1
-    do
-        cd $PROJ_ROOT_PATH/gen_model
-        bash run.sh $precision true $batch
-        cd $PROJ_ROOT_PATH/infer_cpp
-        bash run.sh $precision true $batch
-        COMPUTE_VOC_MIOU $precision true $batch infer_cpp
-    done
+
+for precision in qint8_mixed_float16 force_float16 force_float32
+do 
+    for dynamic_shape in true 
+    do 
+        for batch_size in 1
+        do 
+            magicmind_model=${MODEL_PATH}/segnet_caffe_model_${precision}_${dynamic_shape}
+            if [ ${dynamic_shape} == 'false' ];then
+                magicmind_model="${magicmind_model}_${batch_size}"
+            fi
+
+            # gen model
+            if [ ! -f ${magicmind_model} ];then
+                cd ${PROJ_ROOT_PATH}/gen_model
+                bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape} 
+            else
+                echo "MagicMind model: ${magicmind_model} already exists!"
+            fi
+
+            # infer and calc acc
+            cd ${PROJ_ROOT_PATH}/${infer_mode}
+            bash run.sh  ${magicmind_model} ${batch_size} ${image_num}
+        done 
+    done 
 done
+

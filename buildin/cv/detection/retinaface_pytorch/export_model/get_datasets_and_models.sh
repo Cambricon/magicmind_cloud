@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
-set -x
 
-cd $DATASETS_PATH
+cd ${WIDERFACE_DATASETS_PATH}
 # 1.下载数据集
 if [ ! -d "WIDER_val" ];
 then 
@@ -14,12 +13,20 @@ else
 fi
 
 # 2.下载权重文件
-mkdir -p $PROJ_ROOT_PATH/data/models
-cd $PROJ_ROOT_PATH/data/models
-if [ -f "Resnet50_Final.pth" ];
+mkdir -p ${PROJ_ROOT_PATH}/data/models
+cd ${PROJ_ROOT_PATH}/data/models
+# if [ -f "Resnet50_Final.pth" ];
+# then 
+#     echo "Resnet50_Final.pth already exists."
+# else 
+#     echo "Downloading Resnet50_Final.pth file"
+#     gdown -c https://drive.google.com/uc?id=14KX6VqF69MdSPk3Tr9PlDYbq7ArpdNUW -O Resnet50_Final.pth
+# fi
+
+if [ -f "Mobilenet0.25_Final.pth" ];
 then 
-    echo "Resnet50_Final.pth already exists."
+    echo "Mobilenet0.25_Final.pth already exists."
 else 
-    echo "Downloading Resnet50_Final.pth file"
-    gdown -c https://drive.google.com/uc?id=14KX6VqF69MdSPk3Tr9PlDYbq7ArpdNUW -O Resnet50_Final.pth
+    echo "Downloading Mobilenet0.25_Final.pth file"
+    gdown -c https://drive.google.com/uc?id=15zP8BP-5IvWXWZoYTNdvUJUiBqZ1hxu1 -O Mobilenet0.25_Final.pth
 fi

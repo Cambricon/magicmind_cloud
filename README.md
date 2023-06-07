@@ -55,7 +55,10 @@ docker run -it --shm_size 10G --name=dockername \
 | [MobileNetV2](buildin/cv/classification/mobilenetv2_caffe)         | Caffe     | YES       | YES       | YES | YES    |
 | [MobileNetV3](buildin/cv/classification/mobilenetv3_pytorch)       | PyTorch   | YES       | YES       | YES | NO     |
 | [ResNet50](buildin/cv/classification/resnet50_onnx)                | ONNX      | YES       | YES       | NO  | YES    |
+| [ResNet50](buildin/cv/classification/resnet50_pytorch)             | PyTorch   | YES       | YES       | NO  | YES    |
 | [ResNet50](buildin/cv/classification/resnet50_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
+| [Xception](buildin/cv/classification/xception_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
+| [EfficientNet](buildin/cv/classification/efficientnet_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
 | [ResNext50](buildin/cv/classification/resnext50_caffe)             | Caffe     | YES       | YES       | YES | YES    |
 | [SENet50](buildin/cv/classification/senet50_caffe)                 | Caffe     | YES       | YES       | YES | NO     |
 | [SqueezeNet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe     | YES       | YES       | YES | NO     |
@@ -64,15 +67,21 @@ docker run -it --shm_size 10G --name=dockername \
 | [SwinTransformer](buildin/cv/classification/SwinTransformer_pytorch)|PyTorch   | YES       | YES       | NO  | YES    |
 | [3D-ResNet](buildin/cv/classification/3dresnet_pytorch)            | PyTorch   | YES       | YES       | NO  | YES    |
 
+
 #### Detection:
 
 | MODELS                                                        | FRAMEWORK  | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | -----------------------------------------------------         | ---------- | --------- | --------- | --- | ------ |
 | [C3D](buildin/cv/detection/c3d_caffe)                         | Caffe      | YES       | YES       | YES | NO     |
 | [CenterNet](buildin/cv/detection/centernet_pytorch)           | PyTorch    | YES       | YES       | YES | NO     |
-| [DBNet](buildin/cv/detection/dbnet_pytorch)                   | PyTorch    | YES       | YES       | YES | NO     |
-| [MaskRCNN](buildin/cv/detection/maskrcnn_pytorch)             | PyTorch    | YES       | YES       | NO  | YES    |
+| [DBNet](buildin/cv/detection/dbnet_pytorch)                   | PyTorch    | YES       | YES       | NO  | YES    |
 | [Retinaface](buildin/cv/detection/retinaface_pytorch)         | PyTorch    | YES       | YES       | YES | NO     |
+| [Mask_R-CNN](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
+| [Faster_R-CNN](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
+| [SSD](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
+| [RetinaNet](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
+| [Cascade_R-CNN](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
+| [HRNet](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
 | [SSD](buildin/cv/detection/ssd_caffe)                         | Caffe      | YES       | YES       | YES | YES    |
 | [YOLOV3](buildin/cv/detection/yolov3_caffe)                   | Caffe      | YES       | YES       | YES | NO     |
 | [YOLOV3](buildin/cv/detection/yolov3_tensorflow)              | TensorFlow | YES       | YES       | YES | NO     |
@@ -86,12 +95,16 @@ docker run -it --shm_size 10G --name=dockername \
 
 #### Segmentation:
 
-| MODELS                                            | FRAMEWORK  | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
-| ------------------------------------------------- | ---------- | --------- | --------- | --- | ------ |
-| [Deeplabv3](buildin/cv/segmentation/deeplabv3_tf) | TensorFlow | YES       | YES       | YES | NO     |
-| [Unet](buildin/cv/segmentation/nnUNet_pytorch)    | PyTorch    | YES       | YES       | NO  | YES    |
-| [SegNet](buildin/cv/segmentation/segnet_caffe)    | Caffe      | YES       | YES       | YES | NO     |
-| [U2Net](buildin/cv/segmentation/u2net_pytorch)    | PyTorch    | YES       | YES       | NO  | YES    |
+| MODELS                                                    | FRAMEWORK  | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
+| --------------------------------------------------------- | ---------- | --------- | --------- | --- | ------ |
+| [Deeplabv3](buildin/cv/segmentation/mmsegmentation)        | Pytorch    | YES       | YES       | NO  | YES    |
+| [UNet](buildin/cv/segmentation/mmsegmentation)        | Pytorch    | YES       | YES       | NO  | YES    |
+| [OCRNet](buildin/cv/segmentation/mmsegmentation)        | Pytorch    | YES       | YES       | NO  | YES    |
+| [Deeplabv3](buildin/cv/segmentation/deeplabv3_tensorflow) | TensorFlow | YES       | YES       | YES | NO     |
+| [nnUnet](buildin/cv/segmentation/nnUNet_pytorch)          | PyTorch    | YES       | YES       | NO  | YES    |
+| [UNet](buildin/cv/segmentation/unet_pytorch)              | PyTorch    | YES       | YES       | NO  | YES    |
+| [SegNet](buildin/cv/segmentation/segnet_caffe)            | Caffe      | YES       | YES       | YES | NO     |
+| [U2Net](buildin/cv/segmentation/u2net_pytorch)            | PyTorch    | YES       | YES       | NO  | YES    |
 
 #### Others:
 
@@ -100,6 +113,11 @@ docker run -it --shm_size 10G --name=dockername \
 | [Openpose](buildin/cv/other/openpose_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [Clip](buildin/cv/other/clip_pytorch)       | PyTorch   | YES       | YES       | NO  | YES    |
 | [FSANet](buildin/cv/other/fsanet_tensorflow)| TensorFlow| YES       | YES       | NO  | YES    |
+| [I3D](buildin/cv/other/mmaction2)| Pytorch| YES       | YES       | NO  | YES    |
+| [TSM](buildin/cv/other/mmaction2)| Pytorch| YES       | YES       | NO  | YES    |
+| [HRNet](buildin/cv/other/mmpose)| Pytorch| YES       | YES       | NO  | YES    |
+| [ResNet50](buildin/cv/other/mmpose)| Pytorch| YES       | YES       | NO  | YES    |
+| [MobileNetv2](buildin/cv/other/mmpose)| Pytorch| YES       | YES       | NO  | YES    |
 
 ### NLP:
 
@@ -123,7 +141,7 @@ docker run -it --shm_size 10G --name=dockername \
 
 | MODELS                                                  | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | ------------------------------------------------------- | --------- | --------- | --------- | --- | ------ |
-| [WeNet](buildin/nlp/SpeechRecognition/WeNet_pytorch)    | PyTorch   | YES       | YES       | NO  | YES    |
+| [WeNet](buildin/nlp/SpeechRecognition/wenet_pytorch)    | PyTorch   | YES       | YES       | NO  | YES    |
 
 ## 5.issues/wiki/forum 跳转链接
 
@@ -140,6 +158,27 @@ ModelZoo 仅提供公共数据集以及预训练模型的下载链接，公共�
 如果您不希望您的数据集或模型公布在 ModelZoo 上，或者您希望更新 ModelZoo 中属于您的数据集或模型，请您通过 Gitee 中提交 issue，您也可以联系ecosystem@cambricon.com告知我们。
 
 ## 9.Release Note
+### v1.4:
+- MagicMind支持版本1.3.0
+- 新增gen_model以及infer时的公共组件函数:python_common, cpp_common
+- cv/classification: 
+    重构 3dresnet_pytorch/arcface_pytorch/crnn_pytorch/densenet121_caffe/efficientnet_paddle/googlenet_bn_caffe/mobilenetv2_caffe/mobilenetv3_pytorch/resnet50_onnx/resnet50_paddle/resnet50_pytorch/senet50_caffe/squeezenet_v1_1_caffe/swintransformer_pytorch/vgg16_caffe/xception_paddle/
+    删除 squeezenet_v1_0_caffe
+- cv/detection: 
+    重构 c3d_caffe/centernet_pytorch/dbnet_pytorch/retinaface_pytorch/yolov3_caffe/yolov3_tensorflow/yolov3_tiny_caffe/yolov4_caffe/yolov5_v6_1_pytorch/yolov7_pytorch
+    新增 mmdetection/paddledetection
+- cv/segmentation: 
+    重构 unet_pytorch
+    新增 mmsegmentation
+- cv/other: 
+    重构 clip_pytorch/openpose_caffe/
+    新增 mmaction2/mmpose/paddleocr
+- nlp/LanguageModeling: 
+    重构 bert_squad_pytorch/bert_tensorflow/roberta_pytorch/roformer-sim_tensorflow/
+- nlp/SpeechRecognition: 
+    重构 wenet_pytorch
+- nlp/SpeechSynthesis: 
+    重构 tacotron2_onnx
 ### v1.3:
 
 - MagicMind支持版本1.0.1

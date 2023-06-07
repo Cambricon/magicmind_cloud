@@ -3,36 +3,36 @@ set -e
 set -x
 
 MM_RUN(){
-    PRECISION=$1
-    SHAPE_MUTABLE=$2
-    BATCH_SIZE=$3
-    if [ ${SHAPE_MUTABLE} == 'false' ];
-    then
-        MAGICMIND_MODEL=$MODEL_PATH/googlenet_bn_caffe_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-    else
-        MAGICMIND_MODEL=$MODEL_PATH/googlenet_bn_caffe_model_${PRECISION}_${SHAPE_MUTABLE}
-    fi
-    if [ ! -d $PROJ_ROOT_PATH/data/output ];
-    then
-        mkdir "$PROJ_ROOT_PATH/data/output"
-    fi
-    ${MM_RUN_PATH}/mm_run --magicmind_model $MAGICMIND_MODEL \
-                          --iterations 1000 \
-                          --batch_size ${BATCH_SIZE} \
-                          --devices 0 2>&1 |tee $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}_log_perf
+    magicmind_model=$1
+    batch_size=$2
+    ${MM_RUN_PATH}/mm_run   --magicmind_model ${magicmind_model} \
+                            --batch_size ${batch_size} \
+                            --iterations 1000 \
+                            --devices 0 
+
 }
 
-cd $PROJ_ROOT_PATH/export_model
-bash run.sh
-for precision in force_float32 force_float16 qint8_mixed_float16
-do
-  for shape_mutable in false
-  do
-    for batch in 1 32 64
+for precision in qint8_mixed_float16 force_float16 force_float32
+do 
+    for dynamic_shape in false 
     do 
-      cd $PROJ_ROOT_PATH/gen_model
-      bash run.sh $precision $shape_mutable $batch
-      MM_RUN $precision $shape_mutable $batch
-    done
-  done
+        for batch_size in 1 32 64
+        do 
+            magicmind_model=${MODEL_PATH}/googlenet_caffe_model_${precision}_${dynamic_shape}
+            if [ ${dynamic_shape} == 'false' ];then
+                magicmind_model="${magicmind_model}_${batch_size}"
+            fi
+
+            # gen model
+            if [ ! -f ${magicmind_model} ];then
+                cd ${PROJ_ROOT_PATH}/gen_model
+                bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape} 
+            else
+                echo "MagicMind model: ${magicmind_model} already exists!"
+            fi
+	          # run model
+	          MM_RUN ${magicmind_model} ${batch_size}
+        done 
+    done 
 done
+

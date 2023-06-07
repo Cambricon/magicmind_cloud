@@ -1,19 +1,14 @@
-#ifndef PRE_PROCESS_HPP
-#define PRE_PROCESS_HPP
+#ifndef _SAMPLE_PRE_PROCESS_HPP
+#define _SAMPLE_PRE_PROCESS_HPP
 
-#include <gflags/gflags.h>
-#include <mm_runtime.h>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <fstream>
 #include <iostream>
-#include <vector>
 
-#include <deque>
-using namespace std;
+std::vector<std::string> LoadImages(const std::string image_dir, const int batch_size, int image_num, const std::string file_list);
+cv::Mat process_img(cv::Mat src_img, bool transpose = false, bool normlize = false, bool swapBR = true, int depth = CV_8U);
 
-std::vector<cv::String> LoadImages(int batch_size,const string& dataset_path);
-float Preprocess(cv::Mat img, const int h,const int w, cv::Mat& dst,uint8_t pad_value);
+#endif //_SAMPLE_PRE_PROCESS_HPP
 
-#endif //PRE_PROCESS_HPP

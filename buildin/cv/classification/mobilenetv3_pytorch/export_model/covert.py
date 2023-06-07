@@ -14,5 +14,5 @@ if __name__ == "__main__":
     # jit.trace.save
     INPUT_SIZE = (224, 224) # h, w
     TRACED_PT = os.path.join(prj_path,"data/models/mobilenet-v3_small.torchscript.pt")
-    traced_model = torch.jit.trace(pytorch_net, torch.rand(1, 3, INPUT_SIZE[0], INPUT_SIZE[1]))
+    traced_model = torch.jit.trace(pytorch_net, torch.rand(32, 3, INPUT_SIZE[0], INPUT_SIZE[1]))
     torch.jit.save(traced_model, TRACED_PT)

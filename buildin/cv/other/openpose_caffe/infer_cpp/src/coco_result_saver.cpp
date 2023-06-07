@@ -72,7 +72,8 @@ COCOResultSaver::COCOResultSaver(const std::string &output_file)
 COCOResultSaver::~COCOResultSaver() {
   if (stream_.ofs.is_open()) {
     writer_.EndArray();
-    writer_.Flush();
+    //writer_.Flush();
+    stream_.ofs.flush();
     stream_.ofs.close();
   }
 }

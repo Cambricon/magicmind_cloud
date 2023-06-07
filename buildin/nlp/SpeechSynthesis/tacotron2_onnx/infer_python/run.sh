@@ -1,23 +1,19 @@
 #!/bin/bash
-PRECISION=$1
-BATCH_SIZE_MIN=$2
-BATCH_SIZE=$3
-BATCH_SIZE_MAX=$4
-INPUT_LEN=$5
-if [ ! -d $PROJ_ROOT_PATH/data/output ];
+magicmind_encoder_model=$1
+magicmind_decoder_model=$2
+magicmind_postnet_model=$3
+magicmind_waveglow_model=$4
+batch_size=$5
+
+infer_res_dir="$PROJ_ROOT_PATH/data/output/"
+if [ ! -d ${infer_res_dir} ];
 then
-    mkdir "$PROJ_ROOT_PATH/data/output"
-else
-    echo "folder: $PROJ_ROOT_PATH/data/output already exits"
+    mkdir -p $infer_res_dir
 fi
-echo "infer Magicmind model..."
-python infer.py  --models_dir $MODEL_PATH \
-                 -o $PROJ_ROOT_PATH/data/output \
-                 -warmup_iters 3 \
-                 --num_iters 100 \
-                 -il $INPUT_LEN \
-                 -bs $BATCH_SIZE_MIN,$BATCH_SIZE,$BATCH_SIZE_MAX \
-                 --log_file $PROJ_ROOT_PATH/data/output/${PRECISION}_${BATCH_SIZE_MIN}_${BATCH_SIZE}_${BATCH_SIZE_MAX}_${INPUT_LEN}_log_perf \
-                 --precision $PRECISION \
-                 --device 0 \
-                 --no-waveglow
+
+python infer.py  --encoder_magicmind $magicmind_encoder_model \
+	         --decoder_magicmind $magicmind_decoder_model \
+		 --postnet_magicmind $magicmind_postnet_model \
+		 --waveglow_magicmind $magicmind_waveglow_model \
+                 --batch_size $batch_size \
+                 --device_id 0 

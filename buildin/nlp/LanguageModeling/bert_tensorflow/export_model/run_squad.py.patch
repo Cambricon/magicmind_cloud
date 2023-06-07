@@ -1,0 +1,29 @@
+diff --git a/run_squad.py b/run_squad.py
+index edd4c3e..c05fdbb 100644
+--- a/run_squad.py
++++ b/run_squad.py
+@@ -28,6 +28,8 @@ import optimization
+ import tokenization
+ import six
+ import tensorflow as tf
++from tensorflow.python.framework import graph_io
++import sys
+ 
+ flags = tf.flags
+ 
+@@ -614,6 +616,15 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
+         segment_ids=segment_ids,
+         use_one_hot_embeddings=use_one_hot_embeddings)
+ 
++    with tf.compat.v1.Session(graph=tf.compat.v1.get_default_graph()) as sess:
++        (assignment_map, initialized_variable_names) = \
++            modeling.get_assignment_map_from_checkpoint(tf.compat.v1.trainable_variables(), FLAGS.init_checkpoint)
++        tf.compat.v1.train.init_from_checkpoint(FLAGS.init_checkpoint, assignment_map)
++        sess.run(tf.compat.v1.global_variables_initializer())
++        frozen = tf.compat.v1.graph_util.convert_variables_to_constants(sess, sess.graph_def, ['unstack'])
++        graph_io.write_graph(frozen, FLAGS.output_dir, 'frozen_graph.pb', as_text=False)
++        print('BERT frozen model path {}'.format(os.path.join(FLAGS.output_dir, 'frozen_graph.pb')))
++        sys.exit(0)
+     tvars = tf.trainable_variables()
+ 
+     initialized_variable_names = {}

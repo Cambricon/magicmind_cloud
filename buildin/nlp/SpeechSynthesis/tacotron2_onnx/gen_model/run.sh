@@ -1,18 +1,86 @@
 #!/bin/bash
-PRECISION=$1
-BATCH_SIZE_MIN=$2
-BATCH_SIZE=$3
-BATCH_SIZE_MAX=$4
-if [ -f $MODEL_PATH/encoder_${PRECISION}_${BATCH_SIZE_MIN}_${BATCH_SIZE_MAX}.graph ] && [ -f $MODEL_PATH/decoder_${PRECISION}_${BATCH_SIZE_MIN}_${BATCH_SIZE_MAX}.graph ] && [ -f $MODEL_PATH/postnet_${PRECISION}_${BATCH_SIZE_MIN}_${BATCH_SIZE_MAX}.graph ] && [ -f $MODEL_PATH/waveglow_${PRECISION}_${BATCH_SIZE_MIN}_${BATCH_SIZE_MAX}.graph ];
-then
-  echo "magicmind models already exist!!!"
-else 
-  echo "generate Magicmind model begin..."
-  python $PROJ_ROOT_PATH/gen_model/gen_model.py -o $MODEL_PATH \
-                                                --encoder $MODEL_PATH/onnx_models/encoder.onnx \
-                                                --decoder $MODEL_PATH/onnx_models/decoder.onnx \
-                                                --postnet $MODEL_PATH/onnx_models/postnet.onnx \
-                                                --waveglow $MODEL_PATH/onnx_models/waveglow.onnx \
-                                                --precision $PRECISION \
-                                                -bs $BATCH_SIZE_MIN,$BATCH_SIZE,$BATCH_SIZE_MAX
-fi
+magicmind_encoder_model=$1
+magicmind_decoder_model=$2
+magicmind_postnet_model=$3
+magicmind_waveglow_model=$4
+precision=$5
+batch_size=$6
+dynamic_shape=$7
+#encoder
+python $PROJ_ROOT_PATH/gen_model/gen_model.py --precision ${precision} \
+                                              --magicmind_model ${magicmind_encoder_model} \
+					      --onnx $MODEL_PATH/encoder.onnx \
+					      --dynamic_shape ${dynamic_shape} \
+                                              --input_dims ${batch_size} 128 \
+					      --input_dims ${batch_size} \
+                                              --dim_range_min 1 4 \
+					      --dim_range_min 1 \
+					      --dim_range_max 8 256 \
+                                              --dim_range_max 8 \
+					      --type64to32_conversion true \
+					      --conv_scale_fold true
+#decoder
+python $PROJ_ROOT_PATH/gen_model/gen_model.py --precision ${precision} \
+                                              --magicmind_model ${magicmind_decoder_model} \
+					      --onnx $MODEL_PATH/decoder.onnx \
+					      --dynamic_shape ${dynamic_shape} \
+                                              --input_dims ${batch_size} 80 \
+					      --input_dims ${batch_size} 1024 \
+					      --input_dims ${batch_size} 1024 \
+					      --input_dims ${batch_size} 1024 \
+                                              --input_dims ${batch_size} 1024 \
+					      --input_dims ${batch_size} 128 \
+                                              --input_dims ${batch_size} 128 \
+                                              --input_dims ${batch_size} 512\
+                                              --input_dims ${batch_size} 128 512 \
+					      --input_dims ${batch_size} 128 128 \
+					      --input_dims ${batch_size} 128 \
+                                              --dim_range_min 1 80 \
+					      --dim_range_min 1 1024 \
+					      --dim_range_min 1 1024 \
+					      --dim_range_min 1 1024 \
+					      --dim_range_min 1 1024 \
+					      --dim_range_min 1 4 \
+					      --dim_range_min 1 4 \
+					      --dim_range_min 1 512 \
+					      --dim_range_min 1 4 512 \
+					      --dim_range_min 1 4 128 \
+					      --dim_range_min 1 4 \
+					      --dim_range_max 8 80 \
+                                              --dim_range_max 8 1024 \
+                                              --dim_range_max 8 1024 \
+                                              --dim_range_max 8 1024 \
+                                              --dim_range_max 8 1024 \
+                                              --dim_range_max 8 256 \
+                                              --dim_range_max 8 256 \
+                                              --dim_range_max 8 512 \
+                                              --dim_range_max 8 256 512 \
+                                              --dim_range_max 8 256 128 \
+                                              --dim_range_max 8 256 \
+					      --type64to32_conversion true \
+					      --conv_scale_fold true
+
+#postnet
+python $PROJ_ROOT_PATH/gen_model/gen_model.py --precision ${precision} \
+                                              --magicmind_model ${magicmind_postnet_model} \
+					      --onnx $MODEL_PATH/postnet.onnx \
+					      --dynamic_shape ${dynamic_shape} \
+                                              --input_dims ${batch_size} 80 512 \
+                                              --dim_range_min 1 80 32 \
+                                              --dim_range_max 8 80 1664 \
+					      --type64to32_conversion true \
+					      --conv_scale_fold true
+
+#waveglow
+python $PROJ_ROOT_PATH/gen_model/gen_model.py --precision ${precision} \
+                                              --magicmind_model ${magicmind_waveglow_model} \
+					      --onnx $MODEL_PATH/waveglow.onnx \
+					      --dynamic_shape ${dynamic_shape} \
+					      --input_dims ${batch_size} 80 768 1 \
+					      --input_dims ${batch_size} 8 24576 1 \
+					      --dim_range_min 1 80 32 1 \
+					      --dim_range_min 1 8 1024 1 \
+					      --dim_range_max 8 80 1664 1 \
+					      --dim_range_max 8 8 53248 1 \
+					      --type64to32_conversion true \
+					      --conv_scale_fold true

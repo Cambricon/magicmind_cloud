@@ -1,5 +1,5 @@
-#include "../include/post_process.hpp"
-#include "../include/utils.hpp"
+#include "post_process.hpp"
+#include "utils.hpp"
 
 std::map<int, std::string> load_name(std::string name_map_file)
 {
@@ -68,4 +68,5 @@ bool post_process(cv::Mat &img, std::vector<std::vector<float>> results, std::ma
     file_map.close();
     return true;
 }
+
 

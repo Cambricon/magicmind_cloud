@@ -1,0 +1,63 @@
+diff -Nur /magicmind/workspace/modelzoo_tmp/PaddleDetection/ppdet/engine/trainer.py ./PaddleDetection/ppdet/engine/trainer.py 
+--- /magicmind/workspace/modelzoo_tmp/PaddleDetection/ppdet/engine/trainer.py	2023-05-04 07:35:59.097697505 +0000
++++ ./PaddleDetection/ppdet/engine/trainer.py	2023-05-04 03:00:07.696183001 +0000
+@@ -52,6 +52,8 @@
+ 
+ from paddle.distributed.fleet.utils.hybrid_parallel_util import fused_allreduce_gradients
+ 
++from mm_runner import MMRunner
++
+ from ppdet.utils.logger import setup_logger
+ logger = setup_logger('ppdet.engine')
+ 
+@@ -74,7 +76,6 @@
+         self.custom_black_list = self.cfg.get('custom_black_list', None)
+         if 'slim' in cfg and cfg['slim_type'] == 'PTQ':
+             self.cfg['TestDataset'] = create('TestDataset')()
+-
+         # build data loader
+         capital_mode = self.mode.capitalize()
+         if cfg.architecture in MOT_ARCH and self.mode in [
+@@ -613,11 +614,13 @@
+         self._compose_callback.on_epoch_begin(self.status)
+         self.status['mode'] = 'eval'
+ 
+-        self.model.eval()
++        # self.model.eval()
++        self.model = MMRunner(self.cfg.weights, 0)
+         if self.cfg.get('print_flops', False):
+             flops_loader = create('{}Reader'.format(self.mode.capitalize()))(
+                 self.dataset, self.cfg.worker_num, self._eval_batch_sampler)
+             self._flops(flops_loader)
++        i = 0
+         for step_id, data in enumerate(loader):
+             self.status['step_id'] = step_id
+             self._compose_callback.on_step_begin(self.status)
+@@ -631,7 +634,13 @@
+                         level=self.amp_level):
+                     outs = self.model(data)
+             else:
+-                outs = self.model(data)
++                outs = {}
++                # for yolov3
++                # mm_input = [data['im_shape'].numpy(), data['image'].numpy(), data['scale_factor'].numpy()]
++                mm_input = [ data['image'].numpy(), data['scale_factor'].numpy()]
++                mm_outs = self.model(mm_input)
++                outs['bbox'] = paddle.to_tensor(mm_outs[0])
++                outs['bbox_num'] = paddle.to_tensor(mm_outs[1])
+ 
+             # update metrics
+             for metric in self._metrics:
+
+diff -Nur /magicmind/workspace/modelzoo_tmp/PaddleDetection/tools/eval.py ./PaddleDetection/tools/eval.py
+--- /magicmind/workspace/modelzoo_tmp/PaddleDetection/tools/eval.py	2023-05-04 07:35:59.125697773 +0000
++++ ./PaddleDetection/tools/eval.py 2023-04-21 07:43:43.146245747 +0000
+@@ -140,7 +140,7 @@
+     trainer = Trainer(cfg, mode='eval')
+ 
+     # load weights
+-    trainer.load_weights(cfg.weights)
++    # trainer.load_weights(cfg.weights)
+ 
+     # training
+     if FLAGS.slice_infer:

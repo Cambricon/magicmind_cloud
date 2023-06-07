@@ -22,7 +22,7 @@ class strLabelConverter(object):
         self._ignore_case = ignore_case
         if self._ignore_case:
             alphabet = alphabet.lower()
-        self.alphabet = alphabet + '-'  # for `-1` index
+        self.alphabet = alphabet + "-"  # for `-1` index
 
         self.dict = {}
         for i, char in enumerate(alphabet):
@@ -41,14 +41,15 @@ class strLabelConverter(object):
         """
         if isinstance(text, str):
 
-            text = [self.dict[char.lower() if self._ignore_case else char] for char in text]
+            text = [
+                self.dict[char.lower() if self._ignore_case else char] for char in text
+            ]
             length = [len(text)]
 
         elif isinstance(text, collections.Iterable):
             length = [len(s) for s in text]
-            text = ''.join(text)
+            text = "".join(text)
             text, _ = self.encode(text)
-
 
         return (torch.IntTensor(text), torch.IntTensor(length))
 
@@ -66,29 +67,37 @@ class strLabelConverter(object):
         """
         if length.numel() == 1:
             length = length[0]
-            assert t.numel() == length, "text with length: {} does not match declared length: {}".format(t.numel(), length)
+            assert (
+                t.numel() == length
+            ), "text with length: {} does not match declared length: {}".format(
+                t.numel(), length
+            )
             if raw:
-                return ''.join([self.alphabet[i - 1] for i in t])
+                return "".join([self.alphabet[i - 1] for i in t])
             else:
                 char_list = []
                 for i in range(length):
                     if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):
                         char_list.append(self.alphabet[t[i] - 1])
-                return ''.join(char_list)
+                return "".join(char_list)
         else:
             # batch mode
-            assert t.numel() == length.sum(), "texts with length: {} does not match declared length: {}".format(t.numel(), length.sum())
+            assert (
+                t.numel() == length.sum()
+            ), "texts with length: {} does not match declared length: {}".format(
+                t.numel(), length.sum()
+            )
             texts = []
             index = 0
             for i in range(length.numel()):
                 l = length[i]
                 texts.append(
-                    self.decode(
-                        t[index:index + l], torch.IntTensor([l]), raw=raw))
+                    self.decode(t[index:index + l], torch.IntTensor([l]), raw=raw)
+                )
                 index += l
             return texts
 class averager(object):
-    """Compute average for `torch.Variable` and `torch.Tensor`. """
+    """Compute average for `torch.Variable` and `torch.Tensor`."""
 
     def __init__(self):
         self.reset()
@@ -115,6 +124,8 @@ class averager(object):
         if self.n_count != 0:
             res = self.sum / self.n_count
         return res
+
+
 def oneHot(v, v_length, nc):
     batchSize = v_length.size(0)
     maxLength = v_length.max()
@@ -134,9 +145,11 @@ def loadData(v, data):
 
 
 def prettyPrint(v):
-    print('Size {0}, Type: {1}'.format(str(v.size()), v.data.type()))
-    print('| Max: %f | Min: %f | Mean: %f' % (v.max().data[0], v.min().data[0],
-                                              v.mean().data[0]))
+    print("Size {0}, Type: {1}".format(str(v.size()), v.data.type()))
+    print(
+        "| Max: %f | Min: %f | Mean: %f" 
+        % (v.max().data[0], v.min().data[0],v.mean().data[0])
+    )
 
 
 def assureRatio(img):

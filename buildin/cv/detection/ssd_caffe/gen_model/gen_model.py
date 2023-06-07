@@ -23,7 +23,7 @@ def generate_model_config(args):
     config = mm.BuilderConfig()
 
     # 指定硬件平台
-    assert config.parse_from_string('{"archs":[{"mtp_372": [6,8]}]}').ok()
+    assert config.parse_from_string('{"archs":[{"mtp_372": [2,6,8]}]}').ok()
     # 精度模式
     assert config.parse_from_string('{"precision_config":{"precision_mode":"%s"}}' % args.precision).ok()
     # INT64 转 INT32
@@ -61,6 +61,7 @@ def calibrate(args, network : mm.Network, config : mm.BuilderConfig):
         print("Device count: ", dev_count)
         if args.device_id >= dev_count:
             print("Invalid device set!")
+            abort()
         # 打开MLU设备
         dev = mm.Device()
         dev.id = args.device_id
@@ -74,7 +75,7 @@ def main():
     args.add_argument("--caffe_model", "--caffe_model", type=str, default="../data/models/mobilenet_iter_73000.caffemodel", help="original ssd caffe_model")
     args.add_argument("--prototxt", "--prototxt", type=str, default="../data/models/deploy.prototxt", help="original ssd prototxt")
     args.add_argument("--output_model", "--output_model", type=str, default="mm_model", help="save mm model to this path")
-    args.add_argument("--image_dir", "--image_dir",  type=str, default="/mm_ws/proj/datasets/voc2012/", help="voc2012 datasets")
+    args.add_argument("--image_dir", "--image_dir",  type=str, default="/mm_ws/proj/datasets/voc2007/", help="voc2007 test datasets")
     args.add_argument("--precision", "--precision", type=str, default="qint8_mixed_float16", help="qint8_mixed_float16, force_float32, force_float16")
     args.add_argument("--shape_mutable", "--shape_mutable", type=str, default="false", help="whether the mm model is dynamic or static or not")
     args.add_argument('--batch_size', dest = 'batch_size', default = 1, type = int, help = 'batch_size')

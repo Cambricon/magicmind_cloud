@@ -60,7 +60,7 @@ cv::Mat Preprocess(cv::Mat img, const magicmind::Dims &input_dim) {
     cv::Mat resized;
     cv::resize(img, resized, cv::Size(std::round(scale * img.cols), std::round(scale * img.rows)));
     // center crop
-    auto roi = resized(cv::Rect((resized.cols - FLAGS_new_size) / 2, (resized.rows - FLAGS_new_size) / 2, w, h));
+    auto roi = resized(cv::Rect((resized.cols - w) / 2, (resized.rows - h) / 2, w, h));
     cv::Mat dst_img(h, w, CV_8UC3, cv::Scalar(0, 0, 255));
     if (FLAGS_input_rgb) {
         cv::cvtColor(roi, dst_img, cv::COLOR_BGR2RGB);

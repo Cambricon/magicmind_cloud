@@ -61,18 +61,18 @@ int MatrixRank(cv::Mat M) {
   cv::Mat w, u, vt;
   cv::SVD::compute(M, w, u, vt);
   cv::Mat1b nonZeroSingularValues = w > 0.0001;
-  int rank = countNonZero(nonZeroSingularValues);
+  int rank                        = countNonZero(nonZeroSingularValues);
   return rank;
 }
 
 cv::Mat similarTransform(cv::Mat src, cv::Mat dst) {
-  int num = src.rows;
-  int dim = src.cols;
-  cv::Mat src_mean = meanAxis0(src);
-  cv::Mat dst_mean = meanAxis0(dst);
+  int num            = src.rows;
+  int dim            = src.cols;
+  cv::Mat src_mean   = meanAxis0(src);
+  cv::Mat dst_mean   = meanAxis0(dst);
   cv::Mat src_demean = elementwiseMinus(src, src_mean);
   cv::Mat dst_demean = elementwiseMinus(dst, dst_mean);
-  cv::Mat A = (dst_demean.t() * src_demean) / static_cast<float>(num);
+  cv::Mat A          = (dst_demean.t() * src_demean) / static_cast<float>(num);
   cv::Mat d(dim, 1, CV_32F);
   d.setTo(1.0f);
   if (cv::determinant(A) < 0) {
@@ -93,30 +93,30 @@ cv::Mat similarTransform(cv::Mat src, cv::Mat dst) {
       T.rowRange(0, dim).colRange(0, dim) = U * V;
     } else {
       int s = d.at<float>(dim - 1, 0) = -1;
-      d.at<float>(dim - 1, 0) = -1;
+      d.at<float>(dim - 1, 0)         = -1;
 
       T.rowRange(0, dim).colRange(0, dim) = U * V;
-      cv::Mat diag_ = cv::Mat::diag(d);
-      cv::Mat twp = diag_ * V;  // np.dot(np.diag(d), V.T)
-      cv::Mat B = cv::Mat::zeros(3, 3, CV_8UC1);
-      cv::Mat C = B.diag(0);
+      cv::Mat diag_                       = cv::Mat::diag(d);
+      cv::Mat twp                         = diag_ * V;  // np.dot(np.diag(d), V.T)
+      cv::Mat B                           = cv::Mat::zeros(3, 3, CV_8UC1);
+      cv::Mat C                           = B.diag(0);
       T.rowRange(0, dim).colRange(0, dim) = U * twp;
-      d.at<float>(dim - 1, 0) = s;
+      d.at<float>(dim - 1, 0)             = s;
     }
   } else {
-    cv::Mat diag_ = cv::Mat::diag(d);
-    cv::Mat twp = diag_ * V.t();  // np.dot(np.diag(d), V.T)
-    cv::Mat res = U * twp;        // U
+    cv::Mat diag_                       = cv::Mat::diag(d);
+    cv::Mat twp                         = diag_ * V.t();  // np.dot(np.diag(d), V.T)
+    cv::Mat res                         = U * twp;        // U
     T.rowRange(0, dim).colRange(0, dim) = U * diag_ * V;
   }
   cv::Mat var_ = varAxis0(src_demean);
-  float val = cv::sum(var_).val[0];
+  float val    = cv::sum(var_).val[0];
   cv::Mat res;
   cv::multiply(d, S, res);
-  float scale = 1.0 / val * cv::sum(res).val[0];
-  cv::Mat temp1 = T.rowRange(0, dim).colRange(0, dim) * src_mean.t();
-  cv::Mat temp2 = scale * temp1;
-  cv::Mat temp3 = dst_mean - temp2.t();
+  float scale       = 1.0 / val * cv::sum(res).val[0];
+  cv::Mat temp1     = T.rowRange(0, dim).colRange(0, dim) * src_mean.t();
+  cv::Mat temp2     = scale * temp1;
+  cv::Mat temp3     = dst_mean - temp2.t();
   T.at<float>(0, 2) = temp3.at<float>(0);
   T.at<float>(1, 2) = temp3.at<float>(1);
   T.rowRange(0, dim).colRange(0, dim) *= scale;  // T[:dim, :dim] *= scale
