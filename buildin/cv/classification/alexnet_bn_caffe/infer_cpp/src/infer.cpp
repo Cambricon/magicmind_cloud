@@ -170,8 +170,7 @@ int main(int argc, char **argv) {
                 std::to_string(j) + " [" + name_map[top5[j]] + "]", false);
           }
         }
-        if (i == image_num &&
-            _batch == (FLAGS_batch_size - FLAGS_image_num % FLAGS_batch_size - 1))
+        if (i == image_num && _batch == (FLAGS_image_num % FLAGS_batch_size - 1))
           break;
       }
     }

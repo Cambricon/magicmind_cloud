@@ -90,8 +90,8 @@ python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $OUTPUT_DIR/eval
 结果：
 
 ```bash
-top1:  0.5805805805805806
-top5:  0.7977977977977978
+top1:  0.6016016016016016
+top5:  0.8078078078078078
 ```
 
 ### 3.6 一键运行
@@ -168,9 +168,9 @@ bash benchmark/eval.sh
 
 | Model   | Precision           | Batch_Size | TOP1    | TOP5    |
 | ------- | ------------------- | ---------- | ------- | ------- |
-| alexnet | force_float32       | 1          | 0.58776 | 0.8145  |
-| alexnet | force_float16       | 1          | 0.58794 | 0.81446 |
-| alexnet | qint8_mixed_float16 | 1          | 0.58148 | 0.8088  |
+| alexnet | force_float32       | 1          | 0.59778 | 0.81678 |
+| alexnet | force_float16       | 1          | 0.59770 | 0.81678 |
+| alexnet | qint8_mixed_float16 | 1          | 0.59134 | 0.81206 |
 
 ## 6. 免责声明
 

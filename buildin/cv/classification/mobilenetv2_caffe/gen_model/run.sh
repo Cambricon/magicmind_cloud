@@ -1,30 +1,25 @@
-#bin/bash
+#!/bin/bash
 set -e
 set -x
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-#example<<bash run.sh force_float16 false 4
-if  [ ! -d $PROJ_ROOT_PATH/data/mm_model ];then
-    mkdir -p $PROJ_ROOT_PATH/data/mm_model
-fi
 
-if [ -f $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} ];
-then
-    echo "magicmind model: $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} already exist!"
-else 
-    echo "generate Magicmind model begin..."
-    cd $PROJ_ROOT_PATH/gen_model/
-    python gen_model.py --precision ${PRECISION} \
-                        --shape_mutable ${SHAPE_MUTABLE} \
-                        --batch_size $BATCH_SIZE  \
-                        --caffe_prototxt  $PROJ_ROOT_PATH/data/models/mobilenet_v2_deploy.prototxt \
-                        --caffe_model $PROJ_ROOT_PATH/data/models/mobilenet_v2.caffemodel \
-                        --datasets_dir $DATASETS_PATH \
-                        --mm_model $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-    echo "Generate model done, model save to $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
-fi
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+img_h=224
+img_w=224
 
-
-
-        
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size} 3 ${img_h} ${img_w} \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${ILSVRC2012_DATASETS_PATH} \
+                    --caffemodel ${MODEL_PATH}/mobilenet_v2.caffemodel \
+                    --prototxt ${MODEL_PATH}/mobilenet_v2_deploy.prototxt \
+                    --input_layout NHWC \
+                    --means 103.939002991 116.778999329 123.680000305 \
+                    --vars 3460.20761246 3460.20761246 3460.20761246 \
+                    --dim_range_min 1 3 ${img_h} ${img_w} \
+                    --dim_range_max 64 3 ${img_h} ${img_w} \
+                    --type64to32_conversion "true" \
+                    --conv_scale_fold "true" 

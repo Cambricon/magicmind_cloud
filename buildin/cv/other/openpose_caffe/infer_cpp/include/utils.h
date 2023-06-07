@@ -4,57 +4,13 @@
 #include <fstream>
 #include <iostream>
 #include <mm_runtime.h>
-#include <glog/logging.h>
+//#include <glog/logging.h>
 #include <cnrt.h>
 #include <vector>
 #include <regex>
 #include "sys/stat.h"
 #include "net_params.h"
-
-
-#define CHECK_CNRT(FUNC, ...)                                                         \
-  do                                                                                  \
-  {                                                                                   \
-    cnrtRet_t ret = FUNC(__VA_ARGS__);                                                \
-    LOG_IF(FATAL, CNRT_RET_SUCCESS != ret)                                            \
-        << "Call " << #FUNC << " failed. Ret code [" << static_cast<int>(ret) << "]"; \
-  } while (0)
-
-#define CHECK_PTR(ptr)                         \
-  do                                           \
-  {                                            \
-    if (ptr == nullptr)                        \
-    {                                          \
-      LOG(INFO) << "mm failure " << std::endl; \
-      abort();                                 \
-    }                                          \
-  } while (0)
-
-#define CHECK_MM(FUNC, ...) do {                                \
-    magicmind::Status ret = FUNC(__VA_ARGS__);                  \
-    if ( !ret.ok())                                             \
-    {                                                           \
-	    std::cout << ret.error_message() << std::endl;      \
-    }                                                           \
-} while(0)
-
-#define CHECK_STATUS(status)                               \
-  do                                                   \
-  {                                                    \
-    auto ret = (status);                               \
-    if (ret != magicmind::Status::OK())                \
-    {                                                  \
-      LOG(INFO) << "mm failure: " << ret << std::endl; \
-      abort();                                         \
-    }                                                  \
-  } while (0)
-
-class MluDeviceGuard {
- public:
-  MluDeviceGuard(int device_id) {
-    CHECK_CNRT(cnrtSetDevice, device_id);
-  }
-};  // class MluDeviceGuard
+#include "macros.h"
 
 class Record
 {
@@ -82,20 +38,6 @@ public:
 private:
   std::ofstream outfile;
 };
-
-inline static void PrintModelInfo(magicmind::IModel *model) {
-  LOG(INFO) << "==================Model info===================";
-  LOG(INFO) << "Input number : " << model->GetInputNum();
-  for (int i = 0; i < model->GetInputNum(); ++i)
-    LOG(INFO) << "input[" << i << "] : dimensions "
-              << model->GetInputDimension(i) << ", data type ["
-              << model->GetInputDataType(i) << "]";
-  LOG(INFO) << "Output number : " << model->GetOutputNum();
-  for (int i = 0; i < model->GetOutputNum(); ++i)
-    LOG(INFO) << "output[" << i << "] : dimensions "
-              << model->GetOutputDimension(i) << ", data type ["
-              << model->GetOutputDataType(i) << "]";
-}
 
 inline std::vector<std::string> split(const std::string &in, const std::string &delim)
 {
@@ -136,23 +78,23 @@ inline bool check_folder_exist(std::string path)
 // program on the model.
 static bool CheckModel(magicmind::IModel *model) {
   if (model->GetInputNum() != 1) {
-    LOG(ERROR) << "Input number is [" << model->GetInputNum() << "].";
+    SLOG(ERROR) << "Input number is [" << model->GetInputNum() << "].";
     return false;
   }
   if (model->GetOutputNum() != 1) {
-    LOG(ERROR) << "Output number is [" << model->GetOutputNum() << "].";
+    SLOG(ERROR) << "Output number is [" << model->GetOutputNum() << "].";
     return false;
   }
   if (model->GetInputDimension(0)[3] != 3) {
-    LOG(ERROR) << "Input channels [" << model->GetInputDimension(0)[3] << "].";
+    SLOG(ERROR) << "Input channels [" << model->GetInputDimension(0)[3] << "].";
     return false;
   }
   if (model->GetInputDataType(0) != magicmind::DataType::UINT8) {
-    LOG(ERROR) << "Input data type is [" << model->GetInputDataType(0) << "].";
+    SLOG(ERROR) << "Input data type is [" << model->GetInputDataType(0) << "].";
     return false;
   }
   if (model->GetOutputDataType(0) != magicmind::DataType::FLOAT32) {
-    LOG(ERROR) << "Output data type is [" << model->GetOutputDataType(0)
+    SLOG(ERROR) << "Output data type is [" << model->GetOutputDataType(0)
                << "].";
     return false;
   }
@@ -161,20 +103,24 @@ static bool CheckModel(magicmind::IModel *model) {
 
 inline std::string GetFileName(const std::string &abs_path) {
   auto slash_pos = abs_path.rfind('/');
-  LOG_IF(FATAL, std::string::npos == slash_pos)
-    << "[" << abs_path << "] is not an absolute path.";
+  if (std::string::npos == slash_pos){
+      SLOG(ERROR) << "[" << abs_path << "] is not an absolute path.";
+  }
   if (slash_pos == abs_path.size() - 1) {
     return "";
   }
   auto point_pos = abs_path.rfind('.');
-  LOG_IF(FATAL, point_pos == slash_pos + 1)
-    << "[" << abs_path << "] is not a file path.";
+  if (point_pos == slash_pos + 1){
+      SLOG(ERROR) << "[" << abs_path << "] is not a file path.";
+  }
   return abs_path.substr(slash_pos + 1, point_pos - slash_pos - 1);
 }
 
 inline std::vector<std::string> LoadFileList(const std::string &path) {
   std::ifstream ifs(path);
-  LOG_IF(FATAL, !ifs.is_open()) << "Open label file failed. path : " << path;
+  if(!ifs.is_open()){
+  	SLOG(ERROR) << "Open label file failed. path : " << path;
+  }
   std::vector<std::string> labels;
   std::string line;
   while (std::getline(ifs, line)) {

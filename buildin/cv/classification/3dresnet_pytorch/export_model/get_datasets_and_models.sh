@@ -3,7 +3,7 @@
 set -e
 set -x
 
-cd $DATASETS_PATH
+cd ${KINETICS_DATASETS_PATH}
 
 if [ ! -d "kinetics_videos" ];
 then
@@ -13,11 +13,11 @@ else
   echo "kinetics_videos already exists."
 fi
 
-cd $MODEL_PATH
+cd ${MODEL_PATH}
 if [ -f "r3d50_K_200ep.pth" ];
 then
   echo "r3d50_K_200ep.pth already exists."
 else
-  echo "Download r3d50_K_200ep.pth file from https://drive.google.com/drive/folders/1zvl89AgFAApbH0At-gMuZSeQB_LpNP-M"
-  exit 1
+  echo "Download r3d50_K_200ep.pth file from https://drive.google.com/file/d/1H52vT1T0sl7iWA7Up8wu1rSMFzgdwGZG"
+  gdown -c  https://drive.google.com/uc?id=1H52vT1T0sl7iWA7Up8wu1rSMFzgdwGZG
 fi

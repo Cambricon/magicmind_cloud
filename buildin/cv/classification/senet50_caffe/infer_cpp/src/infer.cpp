@@ -1,210 +1,164 @@
-#include <cnrt.h>
+#include <gflags/gflags.h>
 #include <mm_runtime.h>
+#include <cnrt.h>
+#include <opencv2/opencv.hpp>
 
-#include "../include/post_process.hpp"
-#include "../include/pre_process.hpp"
-#include "../include/utils.hpp"
-using namespace magicmind;
+#include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <fstream>
+#include <future>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+#include <sys/stat.h>
+
+#include "utils.hpp"
+#include "pre_process.hpp"
+#include "post_process.hpp"
+#include "model_runner.h"
+
 using namespace std;
 using namespace cv;
 
+#define MINVALUE(A, B) (A < B ? A : B)
+
 DEFINE_int32(device_id, 0, "The device index of mlu");
 DEFINE_string(magicmind_model, "", "The magicmind model path");
-DEFINE_string(image_dir, "", "The image directory");
-DEFINE_int32(image_num, 10, "image number");
-DEFINE_string(name_file, "/mm_ws/proj/datasets/imagenet/name.txt",
-              "The label path");
+DEFINE_int32(batch_size, 8, "batch_size");
+DEFINE_string(image_dir, "", "dataset_dir");
 DEFINE_string(label_file, "labels.txt", "labels.txt");
+DEFINE_string(name_file, "name.txt", "The label path");
 DEFINE_string(result_file, "", "The classification results output file");
-DEFINE_string(result_label_file, "",
-              "The classification results label output file");
-DEFINE_string(result_top1_file, "",
-              "The classification results top1 output file");
-DEFINE_string(result_top5_file, "",
-              "The classification results top5 output file");
-DEFINE_int32(batch, 1, "The batch size");
+DEFINE_string(result_label_file, "", "The classification results label output file");
+DEFINE_string(result_top1_file, "", "The classification results top1 output file");
+DEFINE_string(result_top5_file, "", "The classification results top5 output file");
+DEFINE_int32(image_num, 0, "image number");
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  // 1. cnrt init
-  std::cout << "Cnrt init..." << std::endl;
-  MluDeviceGuard device_guard(FLAGS_device_id);
-  cnrtQueue_t queue;
-  CHECK_CNRT(cnrtQueueCreate, &queue);
+  TimeCollapse time_senet50_caffe("infer senet50_caffe");
 
-  // 2.create model
-  std::cout << "Load model..." << std::endl;
-  auto model = CreateIModel();
-  CHECK_PTR(model);
-  MM_CHECK(model->DeserializeFromFile(FLAGS_magicmind_model.c_str()));
-  PrintModelInfo(model);
-  // Check if current program can deal with this model
-  if (!CheckModel(model)) {
-    std::cout << "Can not deal with this model." << std::endl;
-    std::cout
-        << "You should provide a classification model and check the following:"
-        << std::endl;
-    std::cout << "1. Make sure the data type of input is UINT8." << std::endl;
-    std::cout << "2. Make sure the input data is in NHWC order." << std::endl;
-    std::cout << "3. Make sure the data type of output is FLOAT." << std::endl;
+  // create an instance of ModelRunner
+  auto cur_model_runner = new ModelRunner(FLAGS_device_id, FLAGS_magicmind_model);
+  if (!cur_model_runner->Init(FLAGS_batch_size)) {
+    SLOG(ERROR) << "Init cur_model_runner failed.";
+    return false;
   }
-  // 3. crete engine
-  std::cout << "Create engine..." << std::endl;
-  magicmind::IModel::EngineConfig engine_config;
-  engine_config.SetDeviceType("MLU");
-  engine_config.SetConstDataInit(true);
-  auto engine = model->CreateIEngine(engine_config);
-  CHECK_PTR(engine);
 
-  // 4. create context
-  std::cout << "Create context..." << std::endl;
-  auto context = engine->CreateIContext();
-  CHECK_PTR(context);
-
-  // 5. create input tensor and output tensor
-  std::vector<magicmind::IRTTensor *> input_tensors, output_tensors;
-  CHECK_MM(context->CreateInputTensors, &input_tensors);
-  CHECK_MM(context->CreateOutputTensors, &output_tensors);
-
-  // 6. memory malloc
-  // mlu
-  void *mlu_input_addr_ptr = nullptr;
-  auto input_dim_vec = model->GetInputDimension(0).GetDims();
-  if (input_dim_vec[0] == -1) {
-    input_dim_vec[0] = FLAGS_batch;
-  }
-  magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
-  input_tensors[0]->SetDimensions(input_dim);
-  CNRT_CHECK(cnrtMalloc(&mlu_input_addr_ptr, input_tensors[0]->GetSize()));
-  MM_CHECK(input_tensors[0]->SetData(mlu_input_addr_ptr));
-
-  void *mlu_output_addr_ptr = nullptr;
-  if (magicmind::Status::OK() ==
-      context->InferOutputShape(input_tensors, output_tensors)) {
-    std::cout << "InferOutputShape sucessed" << std::endl;
-    for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
-      CNRT_CHECK(cnrtMalloc(&mlu_output_addr_ptr,
-                            output_tensors[output_id]->GetSize()));
-      MM_CHECK(output_tensors[output_id]->SetData(mlu_output_addr_ptr));
-    }
-  } else {
-    std::cout << "InferOutputShape failed" << std::endl;
-  }
-  const int classes = 1000;
-  const int elem_data_count =
-      input_tensors[0]->GetSize() / sizeof(uint8_t) / FLAGS_batch;
-
-  // cpu
-  uint8_t *input_data_ptr = new uint8_t[FLAGS_batch * elem_data_count];
-  float *output_data_ptr = new float[FLAGS_batch * classes];
-
-  // 7. load image
-  std::cout << "================== Load Images ===================="
-            << std::endl;
+  // load images
+  SLOG(INFO) << "================== Load Images ====================";
   result *test;
-  test = LoadImages(FLAGS_image_dir, FLAGS_batch, FLAGS_image_num,
-                    FLAGS_label_file);
+  test = LoadImages(FLAGS_image_dir, FLAGS_batch_size, FLAGS_label_file);
   if (test->image_paths.size() == 0) {
-    std::cout << "No images found in dir [" << FLAGS_image_dir
-              << "]. Support jpg.";
+    std::cout << "No images found in dir [" << FLAGS_image_dir << "]. Support JPEG jpg.";
     return 0;
   }
+
+  int n_classes = 1000;
+  // nchw
+  auto input_dims = cur_model_runner->GetInputDims();
+  int img_h = input_dims[0][1];
+  int img_w = input_dims[0][2];
+  SLOG(INFO) << "================== img_h: ==================" << img_h;
+  SLOG(INFO) << "================== img_w: ==================" << img_w;
+
   size_t image_num = test->image_paths.size();
-  std::cout << "Total images : " << image_num << std::endl;
   std::map<int, std::string> name_map = load_name(FLAGS_name_file);
+
+  // batch information
+  int batch_counter = 0;
+  std::vector<std::string> batch_image_name;
+  std::vector<cv::Mat> batch_image;
+  std::vector<int> batch_image_label;
 
   Record result_label(FLAGS_result_label_file);
   Record result_top1_file(FLAGS_result_top1_file);
   Record result_top5_file(FLAGS_result_top5_file);
   Record result_file(FLAGS_result_file);
-  vector<string> image_names(FLAGS_batch);
-  vector<int> image_labels(FLAGS_batch);
-  std::cout << "Start run..." << std::endl;
-  for (int i = 0; i <= image_num; i++) {
-    if (i != 0 && i % FLAGS_batch == 0) {
-      // Memcpy H2D
-      CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(), input_data_ptr,
-                            input_tensors[0]->GetSize(),
-                            CNRT_MEM_TRANS_DIR_HOST2DEV));
 
-      // 8. compute
-      MM_CHECK(context->Enqueue(input_tensors, output_tensors, queue));
-      CNRT_CHECK(cnrtQueueSync(queue));
+  // allocate host memory for batch preprpcessed data
+  auto batch_data = cur_model_runner->GetHostInputData();
+  // one batch input data addr offset
+  int batch_image_offset = cur_model_runner->GetInputSizes()[0] / FLAGS_batch_size;
 
-      // 9. copy out
-      CNRT_CHECK(cnrtMemcpy(
-          output_data_ptr, output_tensors[0]->GetMutableData(),
-          output_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST));
+  SLOG(INFO) << "Start run...";
 
-      // post-process
-      for (int _batch = 0; _batch < FLAGS_batch; _batch++) {
-        std::string image_name = image_names[_batch].substr(
-            image_names[_batch].find_last_of('/') + 1, 23);
+  // cambricon-note: if FLAGS_image_num is not set,the image_num is:test->image_paths.size()
+  // if set to a positive num, the image_num is the same as FLAGS_image_num
+  // if set to a negative num, the image_num is the same as test->image_paths.size()
+  if (FLAGS_image_num > 0) {
+    image_num = MINVALUE(FLAGS_image_num, image_num);
+  }
+  size_t rem_image_num = image_num % FLAGS_batch_size;
+  SLOG(INFO) << "Total images : " << image_num;
+
+  for (int i = 0; i < image_num; i++) {
+    std::string image_name =
+        test->image_paths[i].substr(test->image_paths[i].find_last_of('/') + 1, 23);
+    int image_label = test->labels[i];
+    SLOG(INFO) << "Inference img : " << image_name << "\t\t\t" << i + 1 << "/" << image_num;
+    cv::Mat src_img = cv::imread(test->image_paths[i]);
+    cv::Mat pro_img = Preprocess(src_img, img_h, img_w);
+    batch_image_name.push_back(image_name);
+    batch_image_label.push_back(image_label);
+
+    // batching preprocessed data
+    memcpy((u_char *)(batch_data[0]) + batch_counter * batch_image_offset, pro_img.data,
+           batch_image_offset);
+
+    batch_counter += 1;
+    // image_num may not be divisible by FLAGS_batch.
+    // real_batch_size records number of images in every loop, real_batch_size may change in the
+    // last loop.
+    size_t real_batch_size = (i < image_num - rem_image_num) ? FLAGS_batch_size : rem_image_num;
+    std::cout << "real_batch_size: " << real_batch_size << std::endl;
+    if (batch_counter % real_batch_size == 0) {
+      // copy in
+      cur_model_runner->H2D();
+      // compute
+      cur_model_runner->Run(FLAGS_batch_size);
+      // copy out
+      cur_model_runner->D2H();
+      // get model's output addr in host
+      auto host_output_ptr = cur_model_runner->GetHostOutputData();
+
+      auto infer_res = (float *)host_output_ptr[0];
+
+      // post process
+      for (int j = 0; j < real_batch_size; j++) {
         if (!FLAGS_result_label_file.empty()) {
-          result_label.write("[" + std::to_string(i - FLAGS_batch + _batch) +
-                                 "]: " + std::to_string(image_labels[_batch]),
+          result_label.write("[" + std::to_string(i + 1 - real_batch_size + j) +
+                                 "]: " + std::to_string(batch_image_label[j]),
                              false);
         }
-        // get top5
-        std::vector<int> top5 =
-            ArgTopK(output_data_ptr + _batch * classes, classes, 5);
-        // get FLAGS_result_top1_file
+        std::vector<int> top5 = ArgTopK(infer_res + j * n_classes, n_classes, 5);
         if (!FLAGS_result_top1_file.empty()) {
-          result_top1_file.write("[" +
-                                     std::to_string(i - FLAGS_batch + _batch) +
-                                     "]: " + std::to_string(top5[0]),
-                                 false);
+          result_top1_file.write(
+              "[" + std::to_string(i + 1 - real_batch_size + j) + "]: " + std::to_string(top5[0]),
+              false);
         }
-        // get FLAGS_result_top5_file, FLAGS_result_file
-        result_file.write("top5 result in " + image_name + ":", false);
-        for (int j = 0; j < 5; j++) {
+        result_file.write("top5 result in " + batch_image_name[j] + ":", false);
+        for (int k = 0; k < 5; k++) {
           if (!FLAGS_result_top5_file.empty()) {
             result_top5_file.write(
-                "[" + std::to_string(i - FLAGS_batch + _batch) +
-                    "]: " + std::to_string(top5[j]),
+                "[" + std::to_string(i + 1 - real_batch_size + j) + "]: " + std::to_string(top5[k]),
                 false);
           }
           if (!FLAGS_result_file.empty()) {
-            result_file.write(
-                std::to_string(j) + " [" + name_map[top5[j]] + "]", false);
+            result_file.write(std::to_string(k) + " [" + name_map[top5[k]] + "]", false);
           }
         }
-        if (i == image_num &&
-            _batch == (FLAGS_batch - FLAGS_image_num % FLAGS_batch - 1))
-          break;
       }
-    }
-    if (i == image_num) continue;
-    std::string image_name = test->image_paths[i].substr(
-        test->image_paths[i].find_last_of('/') + 1, 23);
-    std::cout << "Inference img : " << test->image_paths[i] << "\t\t\t" << i + 1
-              << "/" << image_num << std::endl;
-    cv::Mat img = cv::imread(test->image_paths[i]);
-    // pre-process
-    if (img.data != NULL) {
-      image_names[i % FLAGS_batch] = test->image_paths[i];
-      image_labels[i % FLAGS_batch] = test->labels[i];
-      cv::Mat dst_img = Preprocess(img, input_dim);
-      memcpy(input_data_ptr + (i % FLAGS_batch) * elem_data_count, dst_img.data,
-             elem_data_count * sizeof(uint8_t));
+      batch_counter = 0;
+      batch_image_name.clear();
+      batch_image_label.clear();
     }
   }
 
-  // 10. destroy resource
-  delete[] output_data_ptr;
-  delete[] input_data_ptr;
-  for (auto tensor : input_tensors) {
-    cnrtFree(tensor->GetMutableData());
-    tensor->Destroy();
-  }
-  for (auto tensor : output_tensors) {
-    if (mlu_output_addr_ptr != nullptr) {
-      cnrtFree(tensor->GetMutableData());
-    }
-    tensor->Destroy();
-  }
-  context->Destroy();
-  engine->Destroy();
-  model->Destroy();
+  // destroy resource
+  cur_model_runner->Destroy();
   return 0;
 }

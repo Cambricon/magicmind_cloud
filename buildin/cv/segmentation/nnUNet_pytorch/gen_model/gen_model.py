@@ -59,10 +59,11 @@ def calibrate(args, network : mm.Network, config : mm.BuilderConfig):
         print("Device count: ", dev_count)
         if args.device_id >= dev_count:
             print("Invalid device set!")
-            # 打开MLU设备
-            dev = mm.Device()
-            dev.id = args.device_id
-            assert dev.active().ok()
+            abort()
+        # 打开MLU设备
+        dev = mm.Device()
+        dev.id = args.device_id
+        assert dev.active().ok()
     # 进行量化
     assert calibrator.calibrate(network, config).ok()
 

@@ -1,33 +1,39 @@
-#bin/bash
-set -e 
+#!/bin/bash
+set -e
 set -x
+infer_mode=infer_cpp
+image_num=500
+#image_num=0
 
-cd $PROJ_ROOT_PATH/export_model/
+# 1. export model
+cd ${PROJ_ROOT_PATH}/export_model 
 bash run.sh
 
-#static cpp
-DEV_ID=0
-cd $PROJ_ROOT_PATH/infer_cpp/
-bash build.sh
-for precision in force_float32 force_float16 qint8_mixed_float16
-do
-  for shape_mutable in true
-  do
-    for batch in 1 16 32
-    do
-      MM_MODEL="${precision}_${shape_mutable}_${batch}"
-      if [ ! -f $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL ];then
-          cd $PROJ_ROOT_PATH/gen_model/
-          bash run.sh $precision $shape_mutable $batch
-      fi
-      #infer cpp
-      cd $PROJ_ROOT_PATH/infer_cpp/
-      bash run.sh $precision $shape_mutable $batch
-      #compute_top1_and_top5
-      python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_labels.txt \
-                                                  --result_1_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_result_1.txt \
-                                                  --result_5_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_result_5.txt \
-                                                  --top1andtop5_file $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}/eval_result.txt 2>&1 | tee $PROJ_ROOT_PATH/data/output/${precision}_${shape_mutable}_${batch}_log_eval
-    done
-  done
+for precision in qint8_mixed_float16 force_float16 force_float32
+do 
+    for dynamic_shape in true 
+    do 
+        for batch_size in 1
+        do 
+            magicmind_model=${MODEL_PATH}/c3d_caffe_model_${precision}_${dynamic_shape}
+            if [ ${dynamic_shape} == 'false' ];then
+                magicmind_model="${magicmind_model}_${batch_size}"
+            fi
+
+            # gen model
+            if [ ! -f ${magicmind_model} ];then
+                cd ${PROJ_ROOT_PATH}/gen_model
+                bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape} 
+            else
+                echo "MagicMind model: ${magicmind_model} already exists!"
+            fi
+
+            # infer and calc acc
+            cd ${PROJ_ROOT_PATH}/${infer_mode}
+            bash run.sh  ${magicmind_model} ${batch_size} ${image_num}
+            cd ${PROJ_ROOT_PATH}/infer_cpp
+            bash run.sh  ${magicmind_model} ${batch_size} ${image_num}
+        done 
+    done 
 done
+

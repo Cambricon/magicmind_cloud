@@ -25,7 +25,7 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
 
 ## 1.模型概述
 
-本例使用的 PSENet 实现来自 github 开源项目https://github.com/liuheng92/tensorflow_PSENet。 下面将展示如何将该项目中 Tensorflow 实现的 PSENet 模型转换为 MagicMind 的模型。
+本例使用的 PSENet 实现来自 github 开源项目[https://github.com/liuheng92/tensorflow_PSENet](https://github.com/liuheng92/tensorflow_PSENet)。 下面将展示如何将该项目中 Tensorflow 实现的 PSENet 模型转换为 MagicMind 的模型。
 
 ## 2.前提条件
 
@@ -106,7 +106,7 @@ python $UTILS_PATH/compute_icdar_hmean.py   --label_file  $DATASETS_PATH/icdar20
 
 ```
 ===========================================
-precision:75.67% recall:66.92% hmean:71.03%
+precision:76.69% recall:67.79% hmean:71.97%
 ===========================================
 ```
 
@@ -183,9 +183,9 @@ bash benchmark/eval.sh
 
 | Model  | PRECISION          | Batch_Size | precision(%)   | recall(%) | hmean(%) |
 | ------ | ------------------- | ---------- | -------------- | --------- | -------- | 
-| PSENet | force_float32       | 1          | 75.67          | 66.92     |  71.03   |
-| PSENet | force_float16       | 1          | 75.71          | 66.92     |  71.05   |
-| PSENet | qint8_mixed_float16 | 1          | 76.59          | 66.15     |  70.99   |
+| PSENet | force_float32       | 1          | 76.69          | 67.79     |  71.97   |
+| PSENet | force_float16       | 1          | 76.69          | 67.79     |  71.97   |
+| PSENet | qint8_mixed_float16 | 1          | 76.82          | 66.39     |  71.23   |
 
 ## 6.免责声明
 

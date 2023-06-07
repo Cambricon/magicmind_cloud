@@ -1,0 +1,327 @@
+diff --git a/configs/_base_/datasets/cityscapes.py b/configs/_base_/datasets/cityscapes.py
+index f21867c..0131b16 100644
+--- a/configs/_base_/datasets/cityscapes.py
++++ b/configs/_base_/datasets/cityscapes.py
+@@ -1,6 +1,12 @@
+ # dataset settings
+ dataset_type = 'CityscapesDataset'
+-data_root = 'data/cityscapes/'
++
++import os
++data_root = os.environ.get("CITYSCAPES_DATASETS_PATH")+'/'
++img_size = os.environ.get("MMSEGMENTATION_MODEL_IMAGE_SIZE")
++img_size = img_size.split(',')
++h,w = int(img_size[0]),int(img_size[1])
++
+ img_norm_cfg = dict(
+     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+ crop_size = (512, 1024)
+@@ -16,15 +22,16 @@ train_pipeline = [
+     dict(type='DefaultFormatBundle'),
+     dict(type='Collect', keys=['img', 'gt_semantic_seg']),
+ ]
++
+ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(2048, 1024),
++        img_scale=(w, h),
+         # img_ratios=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
+         flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
++            dict(type='Resize', keep_ratio=False),
+             dict(type='RandomFlip'),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='ImageToTensor', keys=['img']),
+diff --git a/mmseg/apis/test.py b/mmseg/apis/test.py
+index cc4fcc9..44295e7 100644
+--- a/mmseg/apis/test.py
++++ b/mmseg/apis/test.py
+@@ -10,6 +10,7 @@ from mmcv.engine import collect_results_cpu, collect_results_gpu
+ from mmcv.image import tensor2imgs
+ from mmcv.runner import get_dist_info
+ 
++import cv2
+ 
+ def np2tmp(array, temp_file_name=None, tmpdir=None):
+     """Save ndarray to local numpy file.
+@@ -39,7 +40,9 @@ def single_gpu_test(model,
+                     opacity=0.5,
+                     pre_eval=False,
+                     format_only=False,
+-                    format_args={}):
++                    format_args={},
++                    backend="pytorch",
++                    batch_size = 1):
+     """Test with single GPU by progressive mode.
+ 
+     Args:
+@@ -74,9 +77,9 @@ def single_gpu_test(model,
+     assert [efficient_test, pre_eval, format_only].count(True) <= 1, \
+         '``efficient_test``, ``pre_eval`` and ``format_only`` are mutually ' \
+         'exclusive, only one of them could be true .'
+-
+-    model.eval()
+-    results = []
++    if backend == "pytorch":
++        model.eval()
++    all_results = []
+     dataset = data_loader.dataset
+     prog_bar = mmcv.ProgressBar(len(dataset))
+     # The pipeline about how the data_loader retrieval samples from dataset:
+@@ -88,55 +91,83 @@ def single_gpu_test(model,
+ 
+     for batch_indices, data in zip(loader_indices, data_loader):
+         with torch.no_grad():
+-            result = model(return_loss=False, **data)
+-
+-        if show or out_dir:
+-            img_tensor = data['img'][0]
+-            img_metas = data['img_metas'][0].data[0]
+-            imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
+-            assert len(imgs) == len(img_metas)
+-
+-            for img, img_meta in zip(imgs, img_metas):
+-                h, w, _ = img_meta['img_shape']
+-                img_show = img[:h, :w, :]
+-
+-                ori_h, ori_w = img_meta['ori_shape'][:-1]
+-                img_show = mmcv.imresize(img_show, (ori_w, ori_h))
+-
+-                if out_dir:
+-                    out_file = osp.join(out_dir, img_meta['ori_filename'])
++            if backend == "pytorch":
++                result = model(return_loss=False, **data)
++            elif backend == "magicmind":
++                imgs_tensor = data['img'][0]
++                imgs_metas = data['img_metas'][0].data[0]
++            
++                # prepare inputs
++                infer_batch = imgs_tensor.size(0)
++                # print(infer_batch)
++                if infer_batch == batch_size:
++                    inputs = [ imgs_tensor.numpy() ]
+                 else:
+-                    out_file = None
+-
+-                model.module.show_result(
+-                    img_show,
+-                    result,
+-                    palette=dataset.PALETTE,
+-                    show=show,
+-                    out_file=out_file,
+-                    opacity=opacity)
+-
+-        if efficient_test:
+-            result = [np2tmp(_, tmpdir='.efficient_test') for _ in result]
+-
+-        if format_only:
+-            result = dataset.format_results(
+-                result, indices=batch_indices, **format_args)
+-        if pre_eval:
+-            # TODO: adapt samples_per_gpu > 1.
+-            # only samples_per_gpu=1 valid now
+-            result = dataset.pre_eval(result, indices=batch_indices)
+-            results.extend(result)
+-        else:
+-            results.extend(result)
+-
+-        batch_size = len(result)
+-        for _ in range(batch_size):
+-            prog_bar.update()
+-
+-    return results
+-
+-
++                    imgs_numpy = np.zeros( (batch_size,
++                                            imgs_tensor.size(1),
++                                            imgs_tensor.size(2),
++                                            imgs_tensor.size(3)),dtype=np.float)
++                    imgs_numpy[0:infer_batch,:,:,:] = imgs_tensor.numpy()
++                    inputs = [imgs_numpy]
++                    
++                # inference
++                outputs = model(inputs)
++                          
++                # get outputs
++                results = outputs[0]
++                
++                # post_process
++                for _bs  in range(infer_batch):
++                    result = results[0,_bs,:,:]
++                    result = result.reshape(result.shape[0], result.shape[1], 1).astype(np.uint8)
++                    ori_h, ori_w = imgs_metas[_bs]['ori_shape'][:-1]
++                    preds = cv2.resize(result, (ori_w, ori_h), dst=None, interpolation=cv2.INTER_NEAREST)
++
++                    # not adapt for magicmind,better not use!
++                    if show or out_dir:
++                        img_tensor = data['img'][0]
++                        img_metas = data['img_metas'][0].data[0]
++                        imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
++                        assert len(imgs) == len(img_metas)
++
++                        for img, img_meta in zip(imgs, img_metas):
++                            h, w, _ = img_meta['img_shape']
++                            img_show = img[:h, :w, :]
++
++                            ori_h, ori_w = img_meta['ori_shape'][:-1]
++                            img_show = mmcv.imresize(img_show, (ori_w, ori_h))
++
++                            if out_dir:
++                                out_file = osp.join(out_dir, img_meta['ori_filename'])
++                            else:
++                                out_file = None
++
++                            model.module.show_result(
++                                img_show,
++                                result,
++                                palette=dataset.PALETTE,
++                                show=show,
++                                out_file=out_file,
++                                opacity=opacity)
++
++                    if efficient_test:
++                        result = [np2tmp(_, tmpdir='.efficient_test') for _ in result]
++                    if format_only:
++                        result = dataset.format_results(
++                            result, indices=[batch_indices[_bs]], **format_args)
++                    if pre_eval:
++                        # TODO: adapt samples_per_gpu > 1.
++                        # only samples_per_gpu=1 valid now
++                        result = dataset.pre_eval(preds, indices=[batch_indices[_bs]])
++                        all_results.extend(result)
++                    else:
++                        all_results.extend(result)
++
++                for _ in range(infer_batch):
++                    prog_bar.update()
++    return all_results
++
++# this func is not adapted for cambricon magicmind
+ def multi_gpu_test(model,
+                    data_loader,
+                    tmpdir=None,
+diff --git a/tools/test.py b/tools/test.py
+index a643b08..9f2c1d8 100644
+--- a/tools/test.py
++++ b/tools/test.py
+@@ -19,6 +19,11 @@ from mmseg.datasets import build_dataloader, build_dataset
+ from mmseg.models import build_segmentor
+ from mmseg.utils import build_ddp, build_dp, get_device, setup_multi_processes
+ 
++from mm_runner import MMRunner
++from logger import Logger
++
++log = Logger()
++
+ 
+ def parse_args():
+     parser = argparse.ArgumentParser(
+@@ -98,6 +103,12 @@ def parse_args():
+         default=0.5,
+         help='Opacity of painted segmentation map. In (0, 1] range.')
+     parser.add_argument('--local_rank', type=int, default=0)
++    
++    
++    parser.add_argument("--device_id", "--device_id", type = int, default = 0, help = "device_id")
++    parser.add_argument("--batch_size", "--batch_size", type = int, default = 1, help = "batch_size")
++    parser.add_argument("--backend", "--backend", type = str, default = "pytorch", help = "backend")
++    
+     args = parser.parse_args()
+     if 'LOCAL_RANK' not in os.environ:
+         os.environ['LOCAL_RANK'] = str(args.local_rank)
+@@ -206,7 +217,7 @@ def main():
+     })
+     test_loader_cfg = {
+         **loader_cfg,
+-        'samples_per_gpu': 1,
++        'samples_per_gpu': args.batch_size,
+         'shuffle': False,  # Not shuffle by default
+         **cfg.data.get('test_dataloader', {})
+     }
+@@ -215,24 +226,31 @@ def main():
+ 
+     # build the model and load checkpoint
+     cfg.model.train_cfg = None
+-    model = build_segmentor(cfg.model, test_cfg=cfg.get('test_cfg'))
+-    fp16_cfg = cfg.get('fp16', None)
+-    if fp16_cfg is not None:
+-        wrap_fp16_model(model)
+-    checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
+-    if 'CLASSES' in checkpoint.get('meta', {}):
+-        model.CLASSES = checkpoint['meta']['CLASSES']
+-    else:
+-        print('"CLASSES" not found in meta, use dataset.CLASSES instead')
+-        model.CLASSES = dataset.CLASSES
+-    if 'PALETTE' in checkpoint.get('meta', {}):
+-        model.PALETTE = checkpoint['meta']['PALETTE']
++    
++    if args.backend == "pytorch":
++        model = build_segmentor(cfg.model, test_cfg=cfg.get('test_cfg'))
++        fp16_cfg = cfg.get('fp16', None)
++        if fp16_cfg is not None:
++            wrap_fp16_model(model)
++        checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
++        if 'CLASSES' in checkpoint.get('meta', {}):
++            model.CLASSES = checkpoint['meta']['CLASSES']
++        else:
++            print('"CLASSES" not found in meta, use dataset.CLASSES instead')
++            model.CLASSES = dataset.CLASSES
++        if 'PALETTE' in checkpoint.get('meta', {}):
++            model.PALETTE = checkpoint['meta']['PALETTE']
++        else:
++            print('"PALETTE" not found in meta, use dataset.PALETTE instead')
++            model.PALETTE = dataset.PALETTE
++        # clean gpu memory when starting a new evaluation.
++        torch.cuda.empty_cache()
++    elif args.backend == "magicmind":
++        model = MMRunner(mm_file = args.checkpoint,device_id = args.device_id)
+     else:
+-        print('"PALETTE" not found in meta, use dataset.PALETTE instead')
+-        model.PALETTE = dataset.PALETTE
+-
+-    # clean gpu memory when starting a new evaluation.
+-    torch.cuda.empty_cache()
++        log.info("Invalid backend!")
++        exit()
++        
+     eval_kwargs = {} if args.eval_options is None else args.eval_options
+ 
+     # Deprecated
+@@ -268,8 +286,9 @@ def main():
+         if not torch.cuda.is_available():
+             assert digit_version(mmcv.__version__) >= digit_version('1.4.4'), \
+                 'Please use MMCV >= 1.4.4 for CPU training!'
+-        model = revert_sync_batchnorm(model)
+-        model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
++        if args.backend == "pytorch":
++            model = revert_sync_batchnorm(model)
++            model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
+         results = single_gpu_test(
+             model,
+             data_loader,
+@@ -279,13 +298,16 @@ def main():
+             args.opacity,
+             pre_eval=args.eval is not None and not eval_on_format_results,
+             format_only=args.format_only or eval_on_format_results,
+-            format_args=eval_kwargs)
++            format_args=eval_kwargs,
++            backend = args.backend,
++            batch_size=args.batch_size)
+     else:
+-        model = build_ddp(
+-            model,
+-            cfg.device,
+-            device_ids=[int(os.environ['LOCAL_RANK'])],
+-            broadcast_buffers=False)
++        if args.backend == "pytorch":
++            model = build_ddp(
++                model,
++                cfg.device,
++                device_ids=[int(os.environ['LOCAL_RANK'])],
++                broadcast_buffers=False)
+         results = multi_gpu_test(
+             model,
+             data_loader,

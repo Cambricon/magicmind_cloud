@@ -12,7 +12,7 @@ cfgs = dict([('mobile0.25', cfg_mnet), ('resnet50', cfg_re50)])
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--batch_size", type=int, default=1, help="batch_size")
-parser.add_argument("--cfg", type=str, default='resnet50', help="cfg file, can be \'mobile0.25\' or \'resnet50\'")
+parser.add_argument("--cfg", type=str, default='mobile0.25', help="cfg file, can be \'mobile0.25\' or \'resnet50\'")
 parser.add_argument('--weights', type=str, default= str(PROJ_ROOT_PATH) + '/data/models/Resnet50_Final.pth', help='weights path')
 parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[672, 1024], help='image (h, w)')
 parser.add_argument("--traced_pt", type=str, default= str(PROJ_ROOT_PATH) + '/data/models/retinaface_traced.pt', help="traced pt file")
@@ -25,6 +25,7 @@ def remove_prefix(state_dict, prefix):
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    cfgs[args.cfg]['pretrain']=False
     model = RetinaFace(cfg=cfgs[args.cfg], phase='test')
     pretrained_dict = torch.load(args.weights, map_location='cpu')
     if "state_dict" in pretrained_dict.keys():

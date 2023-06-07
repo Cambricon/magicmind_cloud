@@ -3,21 +3,39 @@
 #include <cstring>
 #include <chrono>
 #include <gflags/gflags.h>
-#include <glog/logging.h>
 #include <fstream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <fstream>
+#include <future>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+#include <sys/stat.h>
+
 #include "pre_process.h"
 #include "post_process.h"
 #include "coco_result_saver.h"
 #include "utils.h"
+#include "model_runner.h"
 
 using namespace magicmind;
 using namespace cv;
+using namespace std;
 
+#define MINVALUE(A,B) ( A < B ? A : B )
+
+DEFINE_int32(device_id, 0, "The device index of mlu");
+DEFINE_int32(batch_size, 8, "batch_size");
+DEFINE_int32(image_num, 0, "image number");
 DEFINE_string(magicmind_model, "", "the magicmind model path");
 DEFINE_string(image_dir, "", "predict image file path");
 DEFINE_string(image_list, "", "predict image list");
@@ -54,155 +72,120 @@ void Draw(cv::Mat img, const Keypoints &keypoints, const PersonInfos &persons) {
 }
 
 
-int main(int argc, char **argv)
+int main(int argc,char **argv)
 {
-
-    google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-    FLAGS_logtostderr = true;
-    // 1. cnrt init
-    LOG(INFO) << "Cnrt init...";
-    uint8_t device_id = 0;
-    MluDeviceGuard device_guard(device_id);
-    cnrtQueue_t queue;
-    CHECK_CNRT(cnrtQueueCreate, &queue);
+    TimeCollapse time_openpose_caffe("infer openpose_caffe");
 
-    // 2. create model
-    LOG(INFO) << "Load model...";
-    IModel *model = CreateIModel();
-    model->DeserializeFromFile(FLAGS_magicmind_model.c_str());
-    PrintModelInfo(model);
-    // Check if current program can deal with this model
-    CHECK_EQ(CheckModel(model), true)
-      << "Can not deal with this model.\n"
-         "You should check your model with the "
-         "following things:\n"
-         "1. Make sure the data type of input is UINT8.\n"
-         "2. Make sure the input data is in NHWC order.\n"
-         "3. Make sure the data type of output is FLOAT.";
-
-    // 3.crete engine
-    LOG(INFO) << "Create engine...";
-    auto engine = model->CreateIEngine();
-    CHECK_PTR(engine);
-    magicmind::IModel::EngineConfig engine_config;
-    engine_config.SetDeviceType("MLU");
-    engine_config.SetConstDataInit(true);
-
-    // 4.create context
-    auto context = engine->CreateIContext();
-    CHECK_PTR(context);
-
-    // 5.crete input tensor and output tensor and memory alloc
-    std::vector<magicmind::IRTTensor *> input_tensors, output_tensors;
-    CHECK_MM(context->CreateInputTensors, &input_tensors);
-    CHECK_MM(context->CreateOutputTensors, &output_tensors);
-    CHECK_STATUS(context->InferOutputShape(input_tensors, output_tensors));
-    LOG(INFO) << "input_tensors:"<<input_tensors[0]->GetSize();
-
-    auto input_dim = model->GetInputDimension(0);
-    auto output_dim = model->GetOutputDimension(0);
-    auto batch_size = input_dim[0];
-    // 6.input tensor memory alloc
-    for (auto tensor : input_tensors)
-    {
-        void *mlu_addr_ptr;
-        CNRT_CHECK(cnrtMalloc(&mlu_addr_ptr, tensor->GetSize()));
-        CHECK_STATUS(tensor->SetData(mlu_addr_ptr));
+   // create an instance of ModelRunner
+    auto cur_model_runner = new ModelRunner(FLAGS_device_id, FLAGS_magicmind_model);
+    if (!cur_model_runner->Init(FLAGS_batch_size)) {
+      SLOG(ERROR) << "Init cur_model_runner failed.";
+      return false;
     }
 
-    //   output tensor memory alloc
-    for (auto tensor : output_tensors)
-    {
-        void *mlu_addr_ptr;
-        CNRT_CHECK(cnrtMalloc(&mlu_addr_ptr, tensor->GetSize()));
-        CHECK_STATUS(tensor->SetData(mlu_addr_ptr));
-    }
+    // get img_h, img_w
+    auto input_dims = cur_model_runner->GetInputDims();
+    auto output_dims = cur_model_runner->GetOutputDims();
+    const magicmind::Dims input_dim = magicmind::Dims (input_dims[0]);
+    int img_h = input_dims[0][1];
+    int img_w = input_dims[0][2];
 
-    // 7. load image and label
-    LOG(INFO) << "================== Load Images ====================";
-    std::vector<std::string> image_paths = LoadImages(FLAGS_image_dir, FLAGS_image_list, input_dim[0]);
-    if (image_paths.size() == 0)
+    // load images
+    SLOG(INFO) << "================== Load Images ====================";
+
+    std::vector<std::string> image_name_arr= LoadImages(FLAGS_image_dir, FLAGS_image_list);
+    if (image_name_arr.size() == 0)
     {
-        LOG(INFO) << "No images found in dir [" << FLAGS_image_dir << "]. Support jpg.";
+        SLOG(ERROR) << "No images found in dir [" << FLAGS_image_dir << "]. Support jpg.";
         return 0;
     }
-    size_t image_num = image_paths.size();
-    LOG(INFO) << "Total images : " << image_num << std::endl;
-    LOG(INFO) << "Start run..." << std::endl;
-    COCOResultSaver coco_saver(FLAGS_output_dir+"/"+GetNetName());
-    std::vector<std::string> image_names;
-    std::vector<cv::Mat> images;
-    std::vector<float> scaling_factors;
-    uint8_t *preprocess_data = (uint8_t *)malloc(input_dim[1]*input_dim[2]*3);
-    for (int i = 0; i < image_num; i += batch_size)
-    {
-        for (int j = 0 ; j < batch_size ; j ++) {
-            auto line = image_paths[i + j];
-            std::vector<std::string> res = SplitString(line);
-            std::string path = FLAGS_image_dir + "/" + res[0];
-            std::string image_name = GetFileName(path);
-            image_names.emplace_back(image_name);
-            if (!check_file_exist(path))
-            {
-                LOG(INFO) << "image file " + path + " not found.\n";
-                exit(1);
-            }
-            LOG_EVERY_N(INFO,100) << "Inference img: " << path << "\t\t\t" << i << "/" << image_num << std::endl;
-            cv::Mat img = cv::imread(path);
-	    images.emplace_back(img);
-            if (img.empty())
-            {
-                LOG(INFO) << "Failed to open image file " + image_paths[i];
-                exit(1);
-            }
-            //LOG(INFO) << "Inference img: " << image_name << "\t\t\t" << i << "/" << image_num << std::endl;
-            float scaling_factor =  Preprocess(img, input_dim, preprocess_data);
-	    scaling_factors.emplace_back(scaling_factor);
-            // 8. copy in
-            CNRT_CHECK(cnrtMemcpy((uint8_t *)(input_tensors[0]->GetMutableData()) + j * (input_tensors[0]->GetSize() / batch_size) , preprocess_data, input_tensors[0]->GetSize() / batch_size, CNRT_MEM_TRANS_DIR_HOST2DEV));
-        }
-        // 9. compute
-        CHECK_STATUS(context->Enqueue(input_tensors, output_tensors, queue));
-        CNRT_CHECK(cnrtQueueSync(queue));
 
-        // 10. copy out
-        void *output_cpu_ptrs = (void *)malloc(output_tensors[0]->GetSize());
-        CNRT_CHECK(cnrtMemcpy(output_cpu_ptrs, output_tensors[0]->GetMutableData(), output_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST));
-	int elem_count = output_tensors[0]->GetSize() / sizeof(float) / batch_size;
-        if (!FLAGS_output_dir.empty()) {
-            for(int j = 0 ; j < batch_size ; j++ ) {
-		auto res = Postprocess(images[j], (float *)output_cpu_ptrs + j * elem_count,
-                               scaling_factors[j], input_dim, output_dim);
+
+    COCOResultSaver coco_saver(FLAGS_output_dir+"/"+GetNetName());
+    // batch information
+    int batch_counter = 0;
+    std::vector<std::string> batch_image_name;
+    std::vector<cv::Mat> batch_image;
+    std::vector<float> scaling_factors;
+    uint8_t *preprocess_data = (uint8_t *)malloc(img_h*img_w*3);
+
+    // allocate host memory for batch preprpcessed data
+    auto batch_data = cur_model_runner->GetHostInputData();
+    // one batch input data addr offset
+    int batch_image_offset = cur_model_runner->GetInputSizes()[0] / FLAGS_batch_size;
+
+    size_t image_num = image_name_arr.size();
+    // cambricon-note: if FLAGS_image_num is not set or set to a negative number,the image_num is:image_name_arr.size()
+    // if set to a positive num, the image_num is the same as FLAGS_image_num
+    if ( FLAGS_image_num > 0 ){
+        image_num = MINVALUE(FLAGS_image_num, image_num);
+    }
+    size_t rem_image_num = image_num % FLAGS_batch_size;
+    SLOG(INFO) << "Total images : " << image_num;
+    SLOG(INFO) << "Start run...";
+
+    for (int i = 0; i < image_num; i++) {
+        std::string image_name = image_name_arr[i].substr(image_name_arr[i].find_last_of('/') + 1, 23);
+        SLOG(INFO) << "Inference img : " << image_name << "\t\t\t" << i+1 << "/" << image_num;
+
+        auto image_path = FLAGS_image_dir + "/" + image_name;
+        cv::Mat src_img = cv::imread(image_path);
+        batch_image.emplace_back(src_img);
+        float scaling_factor =  Preprocess(src_img, input_dim, preprocess_data);
+        scaling_factors.emplace_back(scaling_factor);
+
+        batch_image_name.push_back(image_name);
+
+        // batching preprocessed data
+        memcpy((uint8_t *)(batch_data[0]) + batch_counter * batch_image_offset, preprocess_data, batch_image_offset);
+
+        batch_counter += 1;
+        // image_num may not be divisible by FLAGS_batch. 
+        // real_batch_size records number of images in every loop, real_batch_size may change in the last loop. 
+        size_t real_batch_size = (i < image_num - rem_image_num) ? FLAGS_batch_size : rem_image_num;
+        std::cout << "real_batch_size: " << real_batch_size << std::endl;
+        if (batch_counter % real_batch_size == 0) {
+            // copy in
+            cur_model_runner->H2D();
+            // compute
+            cur_model_runner->Run(FLAGS_batch_size);
+            // copy out
+            cur_model_runner->D2H();
+            // get model's output addr in host
+
+            auto host_output_ptr = cur_model_runner->GetHostOutputData();
+            auto infer_res = (float *)host_output_ptr[0];
+            auto output_sizes = cur_model_runner->GetOutputSizes();
+            auto output_dims = cur_model_runner->GetOutputDims();
+            const magicmind::Dims output_dim = Dims(output_dims[0]);
+            int elem_count = output_sizes[0] / sizeof(float) / real_batch_size;
+            
+            // post process
+            for (int j = 0; j < real_batch_size; j++) {
+            auto cur_pred_res = infer_res + j*elem_count;
+            auto res = Postprocess(batch_image[j],cur_pred_res,scaling_factors[j],input_dim,output_dim);
                 const Keypoints &keypoints = res.first;
                 const PersonInfos &persons = res.second;
-		coco_saver.Write(images[j], image_names[j], keypoints, persons);
+            coco_saver.Write(batch_image[j], batch_image_name[j], keypoints, persons);
                 if(FLAGS_save_img) {
-                    Draw(images[j], keypoints, persons);
-                    std::string save_path = FLAGS_output_dir + "/" + image_names[j] + "_rendered.jpg";
-                    LOG_EVERY_N(INFO,1000) << "Output features saved in " << save_path;
-                    cv::imwrite(save_path, images[j]);
-		}
-            }
-        }
-        image_names.clear();
-	images.clear();
-	scaling_factors.clear();
-    }
+                    Draw(batch_image[j], keypoints, persons);
+                    std::string save_path = FLAGS_output_dir + "/" + batch_image_name[j] + "_rendered.jpg";
+                    SLOG(INFO) << "Output features saved in " << save_path;
+                    cv::imwrite(save_path, batch_image[j]);
+                }//end if FLAGS_save_img
+
+            }// end for j < real_batch_size
+
+            batch_counter = 0;
+            batch_image_name.clear();
+            batch_image.clear();
+            scaling_factors.clear();
+        }// end if batch_counter % real_batch_size == 0
+    }// end for i < image_num;
     free(preprocess_data);
-    // 8. destroy resource
-    for (auto tensor : input_tensors)
-    {
-        cnrtFree(tensor->GetMutableData());
-        tensor->Destroy();
-    }
-    for (auto tensor : output_tensors)
-    {
-        cnrtFree(tensor->GetMutableData());
-        tensor->Destroy();
-    }
-    context->Destroy();
-    engine->Destroy();
-    model->Destroy();
+
+    // destroy resource
+    cur_model_runner->Destroy();
     return 0;
 }

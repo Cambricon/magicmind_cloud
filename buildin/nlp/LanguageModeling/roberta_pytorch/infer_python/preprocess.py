@@ -25,7 +25,7 @@ class MyDataSet(Dataset):
 def preprocess(batch_size, max_seq_length):
     ###preprocess data
     model_path = os.environ.get('MODEL_PATH')+ "/chinese-roberta-wwm-ext-chnsenticorp"
-    dataset_path = os.environ.get('DATASETS_PATH')+ "/test.tsv"
+    dataset_path = os.environ.get('CHNSENTICORP_DATASETS_PATH')+ "/test.tsv"
     tokenizer = BertTokenizer.from_pretrained(model_path, do_lower_case = False)
     dataset = MyDataSet(dataset_path)
     eval_dataloader = DataLoader(dataset, batch_size = batch_size, shuffle = True, drop_last = True)

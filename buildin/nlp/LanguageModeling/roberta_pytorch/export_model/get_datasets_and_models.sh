@@ -3,24 +3,32 @@ set -e
 set -x
 
 # 下载chinese-roberta-wwm-ext初始权重
-if [ ! -d $PROJ_ROOT_PATH/data/models ];
+if [ ! -d ${MODEL_PATH} ];
 then
-    mkdir $PROJ_ROOT_PATH/data/models
+    mkdir ${MODEL_PATH}
 fi
-cd $MODEL_PATH
+
+if [ -z ${CHNSENTICORP_DATASETS_PATH} ] || [ ! -d ${CHNSENTICORP_DATASETS_PATH} ];
+then
+    echo "Error: DATASETS_PATH is not found, please set it and export it to env!"
+    exit -1
+fi
+
+
+cd ${MODEL_PATH}
 if [ -d "chinese-roberta-wwm-ext-chnsenticorp" ]; 
 then
   echo "model file already exists."
 else
   echo "Downloading model file"
   git clone https://huggingface.co/linfuyou/chinese-roberta-wwm-ext-chnsenticorp.git
-  cd $MODEL_PATH/chinese-roberta-wwm-ext-chnsenticorp
+  cd ${MODEL_PATH}/chinese-roberta-wwm-ext-chnsenticorp
   rm pytorch_model.bin
   wget https://huggingface.co/linfuyou/chinese-roberta-wwm-ext-chnsenticorp/resolve/main/pytorch_model.bin
 fi
 
 # 下载测试数据集
-cd $DATASETS_PATH
+cd ${CHNSENTICORP_DATASETS_PATH}
 if [ -f "test.tsv" ];
 then 
   echo "test.tsv already exists."

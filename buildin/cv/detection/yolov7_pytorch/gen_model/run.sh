@@ -1,28 +1,24 @@
 #!/bin/bash
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-CONF_THRES=$4
-IOU_THRES=$5
-MAX_DET=$6
+set -e
+set -x
 
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/yolov7_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$MODEL_PATH/yolov7_pytorch_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
-if [ ! -f $MAGICMIND_MODEL ];
-then
-    python $PROJ_ROOT_PATH/gen_model/gen_model.py --pt_model $MODEL_PATH/yolov7_traced_model.pt \
-                                                  --output_model $MAGICMIND_MODEL \
-                                                  --image_dir $DATASETS_PATH/val2017 \
-                                                  --precision $PRECISION \
-                                                  --shape_mutable $SHAPE_MUTABLE \
-                                                  --batch_size $BATCH_SIZE \
-                                                  --conf_thres $CONF_THRES \
-                                                  --iou_thres $IOU_THRES \
-                                                  --max_det $MAX_DET
-else
-    echo "mm_model: $MAGICMIND_MODEL already exists."
-fi
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size} 3 640 640 \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${COCO_DATASETS_PATH}/val2017 \
+                    --pytorch_pt ${MODEL_PATH}/yolov7_traced_model.pt \
+                    --input_layout NHWC \
+                    --computation_preference fast   \
+                    --type64to32_conversion "true"  \
+                    --conv_scale_fold "true"   \
+                    --dim_range_min 1 3 640 640 \
+                    --dim_range_max 64 3 640 640 \
+                    --means 0 0 0 \
+                    --vars  65025 65025 65025 
+

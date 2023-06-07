@@ -20,6 +20,6 @@ else
                         --shape_mutable ${SHAPE_MUTABLE} \
                         --onnx_model $PROJ_ROOT_PATH/data/models/maskrcnn.onnx \
                         --mm_model $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-                        --input_size 800
+                        --input_size 224
     echo "Generate model done, model save to $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
 fi

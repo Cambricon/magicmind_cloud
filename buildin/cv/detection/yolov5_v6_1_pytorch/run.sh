@@ -1,40 +1,37 @@
 #!/bin/bash
 set -e
 set -x
-precision=force_float32
-shape_mutable=true
+
+precision=qint8_mixed_float16
+dynamic_shape=false
 batch_size=1
-conf=0.001
-iou=0.65
-max_det=300
 image_num=1000
-languages=infer_python
+infer_mode=infer_python
+
+magicmind_model=${MODEL_PATH}/yolov5_pytorch_model_${precision}_${dynamic_shape}
+if [ ${dynamic_shape} == 'false' ];then
+    magicmind_model="${magicmind_model}_${batch_size}"
+fi
 
 # 0. export model
-cd $PROJ_ROOT_PATH/export_model 
+cd ${PROJ_ROOT_PATH}/export_model 
 bash run.sh
 
 # 1. gen model
-cd $PROJ_ROOT_PATH/gen_model
-bash run.sh $precision $shape_mutable $batch_size $conf $iou $max_det
-
-# 2 infer
-if [ $languages == "infer_cpp" ];
-then
-  cd $PROJ_ROOT_PATH/infer_cpp
-  bash run.sh $precision $shape_mutable $image_num
-fi
-if [ $languages == "infer_python" ];
-then
-  cd $PROJ_ROOT_PATH/infer_python
-  bash run.sh $precision $shape_mutable $image_num
+if [ ! -f ${magicmind_model} ];then
+    cd ${PROJ_ROOT_PATH}/gen_model
+    bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape} 
+   
+else
+    echo "MagicMind model: ${magicmind_model} already exists!"
 fi
 
-# 3.eval
-python $UTILS_PATH/compute_coco_mAP.py  --file_list $UTILS_PATH/coco_file_list_5000.txt \
-                                        --result_dir $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1 \
-                                        --ann_dir $DATASETS_PATH \
-                                        --data_type val2017 \
-                                        --json_name $PROJ_ROOT_PATH/data/output/yolov5_${precision}_${shape_mutable}_1.json \
-                                        --language $languages \
-                                        --image_num $image_num 2>&1 |tee $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1/log_eval
+# 2 infer 
+if [ ${infer_mode} == "infer_cpp" ];then
+    cd ${PROJ_ROOT_PATH}/infer_cpp
+    bash run.sh  ${magicmind_model} ${batch_size} ${image_num}  
+fi
+if [ ${infer_mode} == "infer_python" ];then
+    cd ${PROJ_ROOT_PATH}/infer_python
+    bash run.sh  ${magicmind_model} ${batch_size} ${image_num}
+fi

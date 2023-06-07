@@ -58,6 +58,7 @@ if __name__ == "__main__":
         print("Device count: ", dev_count)
         if DEV_ID >= dev_count:
             print("Invalid DEV_ID set!")
+            abort()
         # 打开MLU设备
         dev = mm.Device()
         dev.id = DEV_ID

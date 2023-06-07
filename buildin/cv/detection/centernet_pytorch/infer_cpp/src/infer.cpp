@@ -9,10 +9,13 @@
 #include <opencv2/imgproc.hpp>
 #include <algorithm>
 #include <chrono>
+#include <float.h>
 
-#include "../include/pre_process.hpp"
-#include "../include/post_process.hpp"
-#include "../include/utils.hpp"
+#include "pre_process.hpp"
+#include "post_process.hpp"
+#include "utils.hpp"
+#include "model_runner.h"
+
 using namespace magicmind;
 using namespace std;
 using namespace cv;
@@ -27,131 +30,113 @@ DEFINE_int32(max_bbox_num, 100, "Max number of bounding-boxes per image");
 DEFINE_double(confidence_thresholds, 0.001, "");
 DEFINE_string(output_dir, "", "../data/images");
 DEFINE_bool(save_img, false, "whether saving the image or not");
-DEFINE_int32(batch, 1, "The batch size");
+DEFINE_int32(batch_size, 1, "The batch size");
 
 int main(int argc, char **argv){
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-    
-    // 1. cnrt init
-    std::cout << "Cnrt init..." << std::endl;
-    MluDeviceGuard device_guard(FLAGS_device_id);
-    cnrtQueue_t queue;
-    CHECK_CNRT(cnrtQueueCreate, &queue);
+    TimeCollapse time_centernet("infer centernet"); 
 
-    // 2.create model
-    std::cout << "Load model..." << std::endl;
-    auto model = CreateIModel();
-    CHECK_PTR(model);
-    MM_CHECK(model->DeserializeFromFile(FLAGS_magicmind_model.c_str()));
-    PrintModelInfo(model);
-    
-    // 3. crete engine
-    std::cout << "Create engine..." << std::endl;
-    auto engine = model->CreateIEngine();
-    CHECK_PTR(engine);
+    auto centernet_runner = new ModelRunner(FLAGS_device_id, FLAGS_magicmind_model);
+    if (!centernet_runner->Init(FLAGS_batch_size)) {
+    	SLOG(ERROR) << "Init yolov5 runnner failed.";
+    	return false;
+    }
 
-    // 4. create context
-    std::cout << "Create context..." << std::endl;
-    magicmind::IModel::EngineConfig engine_config;
-    engine_config.SetDeviceType("MLU");
-    engine_config.SetConstDataInit(true);
-    auto context = engine->CreateIContext();
-    CHECK_PTR(context);
-
-    // 5. crete input tensor and output tensor and memory alloc
-    std::vector<magicmind::IRTTensor*> input_tensors, output_tensors;
-    CHECK_MM(context->CreateInputTensors, &input_tensors);
-    CHECK_MM(context->CreateOutputTensors, &output_tensors);
-
-    // 6. input tensor memory alloc
-    void *mlu_addr_ptr;
-    auto input_dim_vec = model->GetInputDimension(0).GetDims();
-    if (input_dim_vec[0] == -1) {
-      input_dim_vec[0] = FLAGS_batch;
-    }
-    std::vector<magicmind::Dims> output_dims;
-    for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
-        auto output_dim_vec = model->GetOutputDimension(output_id).GetDims();
-        if (output_dim_vec[0] == -1) {
-            output_dim_vec[0] = FLAGS_batch;
-	}
-	output_dims.push_back(magicmind::Dims(output_dim_vec));
-    }
-    magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
-    input_tensors[0]->SetDimensions(input_dim);
-    CNRT_CHECK(cnrtMalloc(&mlu_addr_ptr, input_tensors[0]->GetSize()));
-    MM_CHECK(input_tensors[0]->SetData(mlu_addr_ptr));
-    void *output_mlu_addr_ptr = nullptr;
-    if (magicmind::Status::OK() == context->InferOutputShape(input_tensors, output_tensors)) {
-      for (size_t output_id = 0; output_id < model->GetOutputNum(); ++output_id) {
-        CNRT_CHECK(cnrtMalloc(&output_mlu_addr_ptr, output_tensors[output_id]->GetSize()));
-        MM_CHECK(output_tensors[output_id]->SetData(output_mlu_addr_ptr));
-      }
-    }
-    else {
-      std::cout << "InferOutputShape failed" << std::endl;
-    }
  
-    // 7. load image
+    //  load image
     std::cout << "================== Load Images ====================" << std::endl;
-    std::vector<std::string> image_paths = LoadImages(FLAGS_image_dir, FLAGS_batch, FLAGS_image_num, FLAGS_file_list);
+    std::vector<std::string> image_paths = LoadImages(FLAGS_image_dir, FLAGS_batch_size, FLAGS_image_num, FLAGS_file_list);
     if (image_paths.size() == 0) {
        std::cout << "No images found in dir [" << FLAGS_image_dir << "]. Support jpg.";
        return 0;
     }
     size_t image_num = image_paths.size();
-    std::cout << "Total images : " << image_num << std::endl;
-    std::cout << "Start run..." << std::endl;  
-    std::vector<float*> net_outputs;
-    for (size_t output_id = 0; output_id < output_dims.size(); output_id++) {
-      float* data_ptr = new float[output_tensors[output_id]->GetSize()/sizeof(output_tensors[output_id]->GetDataType())];
-      net_outputs.push_back(data_ptr);
-    }
+    size_t rem_image_num = image_num % FLAGS_batch_size;
+    SLOG(INFO) << "Total images : " << image_num << std::endl;
+    std::map<int, std::string> name_map = load_name(FLAGS_label_path);
+
+    // batch information
+    int batch_counter = 0;
+    std::vector<std::string> batch_image_name;
+    std::vector<cv::Mat> batch_image;
+    
+    // allocate host memory for batch preprpcessed data
+    auto batch_data = centernet_runner->GetHostInputData();
+
+    // one batch input data addr offset
+    int batch_image_offset = centernet_runner->GetInputSizes()[0] / FLAGS_batch_size;
+
+    auto input_dim_vec = centernet_runner->GetInputDims()[0];
+    magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
+    //int h = input_dim[1];
+    //int w = input_dim[2];
+    
+    SLOG(INFO) << "Start run..." << std::endl;  
     for (int i = 0 ; i < image_num ; i ++) {
       string image_name = image_paths[i].substr(image_paths[i].find_last_of('/') + 1, 12);
       std::cout << "Inference img : " << image_name << "\t\t\t" << i+1 << "/" << image_num << std::endl;
       cv::Mat img = cv::imread(image_paths[i]);
       cv::Mat img_pro = Preprocess(img, input_dim);
-      CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(), img_pro.data, input_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_HOST2DEV));
+      batch_image_name.push_back(image_name);
+      batch_image.push_back(img);
 
-      // 8. compute
-      MM_CHECK(context->Enqueue(input_tensors, output_tensors, queue));
-      CNRT_CHECK(cnrtQueueSync(queue));
+      memcpy((u_char *)(batch_data[0]) + batch_counter * batch_image_offset, img_pro.data,batch_image_offset);
+      batch_counter += 1;
 
-      // 9. copy out
-      for (size_t output_id = 0; output_id < output_dims.size(); output_id++) {
-          CNRT_CHECK(cnrtMemcpy(net_outputs[output_id], output_tensors[output_id]->GetMutableData(), output_tensors[output_id]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST));
-      }
-      // postprocess
-      map<int, string> name_map = load_name(FLAGS_label_path);
-      auto bboxes = Postprocess(net_outputs, output_dims, FLAGS_max_bbox_num, FLAGS_confidence_thresholds);
-      // rescale bboxes to origin image.
-      RescaleBBox(img, output_dims[0], bboxes, name_map, image_name, FLAGS_output_dir);
-      if (FLAGS_save_img) {
-        // draw bboxes on original image and save it to disk.
-        cv::Mat origin_img = img.clone();
-        Draw(img, bboxes, name_map);
-        cv::imwrite(FLAGS_output_dir + "/" + image_name + ".jpg", img);
+      // image_num may not be divisible by FLAGS_batch.
+      // real_batch_size records number of images in every loop, real_batch_size may change in the
+      // last loop.
+      size_t real_batch_size = (i < image_num - rem_image_num) ? FLAGS_batch_size : rem_image_num;
+      if (batch_counter % real_batch_size == 0) {
+      	// copy in
+      	centernet_runner->H2D();
+      	// compute
+      	centernet_runner->Run(FLAGS_batch_size);
+      	// copy out
+      	centernet_runner->D2H();
+      // get model's output addr in host
+      	auto host_output_ptr = centernet_runner->GetHostOutputData();
+
+        vector<magicmind::DataType> vec_box_dtype;
+        for(int tt = 0; tt < centernet_runner->GetOutputDataTypes().size(); tt++) {
+            magicmind::DataType box_dtype = centernet_runner->GetOutputDataTypes()[tt];
+            vec_box_dtype.push_back(box_dtype);
+        }
+        vector<int> vec_batch_box_offset;
+        for(int tt = 0; tt < centernet_runner->GetOutputSizes().size(); tt++) {
+            int batch_box_offset = centernet_runner->GetOutputSizes()[tt] / FLAGS_batch_size / sizeof(vec_box_dtype[tt]);
+            vec_batch_box_offset.push_back(batch_box_offset);
+        }
+        auto output_dims_vec = centernet_runner->GetOutputDims();
+        vector<magicmind::Dims> mm_output_dims_vec;
+        for(int tt = 0;tt <output_dims_vec.size();tt++) {
+          output_dims_vec[tt][0] = output_dims_vec[tt][0]/real_batch_size;
+          magicmind::Dims output_dims = magicmind::Dims(output_dims_vec[tt]);
+          mm_output_dims_vec.push_back(output_dims);
+        }
+        std::vector<float*> net_outputs(host_output_ptr.size());
+        std::vector<float*> temp(host_output_ptr.size());
+        
+        for(int j=0;j<real_batch_size;j++) {
+          for (size_t tt = 0; tt < host_output_ptr.size(); ++tt) {
+            temp[tt] = static_cast<float*>(host_output_ptr[tt]);
+            net_outputs[tt] = temp[tt] + j*vec_batch_box_offset[tt];
+          }
+	        auto bboxes = Postprocess(net_outputs, mm_output_dims_vec, FLAGS_max_bbox_num, FLAGS_confidence_thresholds);
+          RescaleBBox(batch_image[j], mm_output_dims_vec[0], bboxes, name_map, batch_image_name[j], FLAGS_output_dir);
+          if (FLAGS_save_img) {
+            // draw bboxes on original image and save it to disk.
+            cv::Mat origin_img = batch_image[j].clone();
+            Draw(batch_image[j], bboxes, name_map);
+            cv::imwrite(FLAGS_output_dir + "/" + batch_image_name[j] + ".jpg", batch_image[j]);
+          }
+        }
+	      
+        batch_counter = 0;
+        batch_image.clear();
+        batch_image_name.clear();
       }
     } 
-
-    // 10. destroy resource
-    for (vector<float*>::const_iterator itr=net_outputs.begin(); itr!=net_outputs.end(); ++itr){
-      delete *itr;
-    }
-    net_outputs.clear();
-    for (auto tensor : input_tensors) {
-        cnrtFree(tensor->GetMutableData());
-        tensor->Destroy();
-    }
-    for (auto tensor : output_tensors) {
-    	if (output_mlu_addr_ptr != nullptr) {
-    	    cnrtFree(tensor->GetMutableData());
-    	}
-        tensor->Destroy();
-    }
-    context->Destroy();
-    engine->Destroy();
-    model->Destroy();
+    centernet_runner->Destroy();
     return 0;
 }

@@ -4,8 +4,10 @@ import cv2
 import os
 import glob
 import math
-import logging
+from logger import Logger
 from PIL import Image
+
+log = Logger()
 
 def coco_dataset(
     file_list_txt="coco_file_list_5000.txt",
@@ -14,7 +16,7 @@ def coco_dataset(
 ):
     with open(file_list_txt, "r") as f:
         lines = f.readlines()
-    logging.info("%d pictures will be read." % len(lines))
+    log.info("%d pictures will be read." % len(lines))
     current_count = 0
     for line in lines:
         image_name = line.strip()
@@ -32,7 +34,7 @@ def letterbox(img, dst_shape):
     unpad_h, unpad_w = int(math.floor(src_h * ratio)), int(math.floor(src_w * ratio))
     if ratio != 1:
         interp = cv2.INTER_AREA if ratio < 1 else cv2.INTER_LINEAR
-        img = cv2.resize(img, (unpad_w, unpad_h), interp)
+        img = cv2.resize(img, (unpad_w, unpad_h), interpolation=interp)
     # padding
     pad_t = int(math.floor((dst_h - unpad_h) / 2))
     pad_b = dst_h - unpad_h - pad_t

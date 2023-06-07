@@ -1,24 +1,28 @@
 #!/bin/bash
 set -e
+set -x 
 
-#PRECISION=qint8_mixed_float16
-PRECISION=$1 #force_float32/force_float16/qint8_mixed_float16
-BATCH_SIZE=$2
-#BATCH_SIZE=128
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
 
-if [ ! -f $PROJ_ROOT_PATH/data/models/arcface_${PRECISION}_${BATCH_SIZE}.mm ];then
-    echo "generate Magicmind model begin..."
-    if [ ! -d $PROJ_ROOT_PATH/data/models/ ];then
-	mkdir -p $PROJ_ROOT_PATH/data/models/
-    fi
-    python gen_model.py \
-        --pt_model $MODEL_PATH/arcface_r100.pt \
-        --output_model_path  $PROJ_ROOT_PATH/data/models/arcface_${PRECISION}_${BATCH_SIZE}.mm \
-        --image_dir ./file_list.txt  \
-        --precision ${PRECISION} \
-        --batch_size ${BATCH_SIZE} 
-    echo "arcface.mm model saved in data/models/"
-else
-    echo "mm_model: $PROJ_ROOT_PATH/data/models/arcface_${PRECISION}_${BATCH_SIZE}.mm already exist."
-fi
+
+python gen_model.py --pytorch_pt ${MODEL_PATH}/arcface_r100.pt \
+                    --magicmind_model  ${magicmind_model} \
+                    --image_dir ${PROJ_ROOT_PATH}/gen_model/file_list.txt  \
+                    --precision ${precision} \
+                    --input_dims ${batch_size} 3 112 112 \
+                    --dynamic_shape ${dynamic_shape} \
+                    --type64to32_conversion true \
+                    --conv_scale_fold true \
+                    --mlu_arch mtp_372 \
+                    --input_layout NHWC \
+                    --dim_range_min 1 3 112 112 \
+                    --dim_range_max 256 3 112 112 \
+                    --means 127.5 127.5 127.5 \
+                    --vars  16256.25 16256.25 16256.25 
+
+
+
     

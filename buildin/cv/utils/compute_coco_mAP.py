@@ -61,7 +61,7 @@ def get_args():
                         default = 'results',type = str)
     parser.add_argument("--img_dir", dest = "img_dir", help = "coco datasets path", default = "../datasets/", type = str)
     parser.add_argument("--image_num", dest = "image_num", help = "image number", default = 10, type = int)
-    parser.add_argument("--language", dest = "language", help = "language which used to infer model", default = "infer_python", type = str)
+    parser.add_argument("--infer_mode", dest = "infer_mode", help = "infer_mode which used to infer model", default = "infer_python", type = str)
     return parser.parse_args()
 
 def parse_output(input):
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     coco_eval.evaluate()
     coco_eval.accumulate()
     coco_eval.summarize()
-    write_result(**{"language": args.language, "dataset": "coco", "metric":"map", "eval": coco_eval.stats[1]})
+    write_result(**{"infer_mode": args.infer_mode, "dataset": "coco", "metric":"map", "eval": coco_eval.stats[1]})
     input_json_file = os.getenv('OUTPUT_JSON_FILE','')
     if os.path.isfile(input_json_file):
         r = redirect()

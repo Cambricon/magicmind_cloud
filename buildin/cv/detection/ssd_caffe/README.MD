@@ -83,12 +83,11 @@ cd $PROJ_ROOT_PATH/infer_cpp
 bash run.sh force_float32 true true
 ```
 
-VOC2012 计算精度:
+VOC2007 计算精度:
 
 ```bash
 python $UTILS_PATH/compute_voc_mAP.py --path $PROJ_ROOT_PATH/data/output/infer_cpp_output_force_float32_true_1/voc_preds/ \
-                                      --devkit_path $DATASETS_PATH/VOCdevkit \
-                                      --year 2012 2>&1 |tee $PROJ_ROOT_PATH/data/output/$infer_cpp_output_force_float32_true_1/log_eval
+                                      --devkit_path $DATASETS_PATH/VOCdevkit 2>&1 |tee $PROJ_ROOT_PATH/data/output/$infer_cpp_output_force_float32_true_1/log_eval
 ```
 
 结果：
@@ -126,12 +125,11 @@ cd $PROJ_ROOT_PATH/infer_python
 bash run.sh force_float32 true true
 ```
 
-VOC2012 计算精度:
+VOC2007 计算精度:
 
 ```bash
 python $UTILS_PATH/compute_voc_mAP.py --path $PROJ_ROOT_PATH/data/output/infer_python_output_force_float32_true_1/voc_preds/ \
-                                      --devkit_path $DATASETS_PATH/VOCdevkit \
-                                      --year 2012 2>&1 |tee $PROJ_ROOT_PATH/data/output/$infer_python_output_force_float32_true_1/log_eval
+                                      --devkit_path $DATASETS_PATH/VOCdevkit 2>&1 |tee $PROJ_ROOT_PATH/data/output/$infer_python_output_force_float32_true_1/log_eval
 ```
 
 结果:
@@ -238,18 +236,18 @@ bash benchmark/perf.sh
 
 ### 5.2 精度 benchmark 测试
 
-一键运行 benchmark 里的脚本跑出 SSD 在 VOC2012 数据集上的 mAP 如下：
+一键运行 benchmark 里的脚本跑出 SSD 在 VOC2007 数据集上的 mAP 如下：
 
 ```bash
 cd $PROJ_ROOT_PATH
 bash benchmark/eval.sh
 ```
 
-| Model | Precision           | Batch_Size | mAP (0.5) |
-| ----- | ------------------- | ---------- | --------- |
-| SSD   | force_float32       | 1          | 0.8307    |
-| SSD   | force_float16       | 1          | 0.8313    |
-| SSD   | qint8_mixed_float16 | 1          | 0.8273    |
+| Model | Precision           | Batch_Size | mAP    |
+| ----- | ------------------- | ---------- | ------ |
+| SSD   | force_float32       | 1          | 0.7239 |
+| SSD   | force_float16       | 1          | 0.7236 |
+| SSD   | qint8_mixed_float16 | 1          | 0.7199 |
 
 ## 6. 免责声明
 
@@ -257,5 +255,5 @@ bash benchmark/eval.sh
 
 - SSD caffemodel file 下载链接：[https://github.com/chuanqi305/MobileNet-SSD/raw/97406996b1eee2d40eb0a00ae567cf41e23369f9/mobilenet_iter_73000.caffemodel](https://github.com/chuanqi305/MobileNet-SSD/raw/97406996b1eee2d40eb0a00ae567cf41e23369f9/mobilenet_iter_73000.caffemodel)
 - SSD prototxt file 下载链接：[https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/97406996b1eee2d40eb0a00ae567cf41e23369f9/deploy.prototxt](https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/97406996b1eee2d40eb0a00ae567cf41e23369f9/deploy.prototxt)
-- voc 数据集下载链接：[http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)
+- voc 数据集下载链接：[http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar)
 - 计算 voc mAP 的脚本下载链接：[https://raw.githubusercontent.com/luliyucoordinate/eval_voc/361b1953891827b2342b6d6ce92b66a31855cb0e/eval_voc.py](https://raw.githubusercontent.com/luliyucoordinate/eval_voc/361b1953891827b2342b6d6ce92b66a31855cb0e/eval_voc.py)

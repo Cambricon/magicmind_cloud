@@ -42,11 +42,13 @@ fi
 cd $PROJ_ROOT_PATH/export_model
 if [ ! -d "mmdetection" ];then
     git clone https://github.com/open-mmlab/mmdetection.git
+    cd mmdetection
+    git checkout 73b4e65a6a30435ef6a35f405e3474a4d9cfb234
+    git apply ../magicmind.patch
 else
     echo "mmdetection exist!"
 fi
 
-# compile mmdetection
-cd mmdetection
+cd $PROJ_ROOT_PATH/export_model/mmdetection
 pip install mmcv-full==1.6.0 tabulate
 pip install -e .

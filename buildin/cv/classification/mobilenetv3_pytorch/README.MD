@@ -1,8 +1,8 @@
-# mobilenetv3_pytorch
+# MobileNet-v3_PyTorch
 
 MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框架(Tensorflow,PyTorch,ONNX 等)
 训练好的算法模型转换成 MagicMind 统一计算图表示,并提供端到端的模型优化、代码生成以及推理业务部署能力。
-本 sample 探讨如何使用将 mobilenetv3 网络的 pytorch 模型转换为 MagicMind 模型，进而部署在寒武纪 MLU 板卡上。
+本 sample 探讨如何使用将 MobileNet-v3 网络的 PyTorch 模型转换为 MagicMind 模型，进而部署在寒武纪 MLU 板卡上。
 
 ## 目录
 
@@ -17,7 +17,7 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
   - [一键运行](#36-一键运行)
 - [高级说明](#4高级说明)
   - [gen_model 高级说明](#41-gen_model-高级说明)
-  - [infer_cpp 高级说明](#42-infer_cpp-高级说明)
+  - [infer_python 高级说明](#42-infer_python-高级说明)
 - [精度和性能 benchmark](#5精度和性能-benchmark)
   - [性能 benchmark 测试](#51-性能-benchmark-测试)
   - [精度 benchmark 测试](#52-精度-benchmark-测试)
@@ -25,7 +25,11 @@ MagicMind 是面向寒武纪 MLU 的推理加速引擎。MagicMind 能将 AI 框
 
 ## 1.模型概述
 
-本例使用的 mobilenetv3 实现来自 github 开源项目https://github.com/kuan-wang/pytorch-mobilenet-v3。 下面将展示如何将该项目中 pytorch 实现的 mobilenetv3 模型转换为 MagicMind 的模型。
+本例使用的 
+
+------------
+
+ 实现来自 github 开源项目https://github.com/kuan-wang/pytorch-mobilenet-v3 下面将展示如何将该项目中 PyTorch 实现的 MobileNet-v3-small 模型转换为 MagicMind 的模型。
 
 ## 2.前提条件
 
@@ -49,7 +53,7 @@ cd magicmind_cloud/buildin/cv/classification/mobilenetv3_pytorch
 pip install -r requirement.txt
 ```
 
-在开始运行代码前需要先检查 env.sh 里的环境变量，执行以下命令：
+在开始运行代码前需要先检查 env.sh 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `ILSVRC2012_DATASETS_PATH`, 并且执行以下命令：
 
 ```bash
 source env.sh
@@ -60,42 +64,55 @@ source env.sh
 - 下载数据集
 
 ```bash
-cd $PROJ_ROOT_PATH/export_model
+cd ${PROJ_ROOT_PATH}/export_model
 bash run.sh
 ```
 
 ### 3.4 编译 MagicMind 模型
 
 ```bash
-cd $PROJ_ROOT_PATH/gen_model
-#bash run.sh <precision> <shape_mutable> <batch_size>
-bash run.sh force_float32 true 1
+cd ${PROJ_ROOT_PATH}/gen_model
+# bash run.sh <magicmind_model> <precision> <batch_size> <dynamic_shape>
+# 指定您想输出的magicmind_model路径，例如./model
+bash run.sh ${magicmind_model} force_float32 1 true
 ```
 
 ### 3.5 执行推理
 
-1.infer_cpp
+1.infer_python
 
 ```bash
-cd $PROJ_ROOT_PATH/infer_cpp
-#bash run.sh <precision> <shape_mutable> <batch_size>
-bash run.sh force_float32 true 1
+cd ${PROJ_ROOT_PATH}/infer_python
+#bash run.sh <magicmind_model> <batch_size> <image_num>
+bash run.sh ${magicmind_model} 1 1000 
+
 ```
 
-计算精度:
+`infer_python/run.sh`内包含了精度计算模块，关键代码如下：
 ```
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/force_float32_true_1
-python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $OUTPUT_DIR/eval_labels.txt \
-                                            --result_1_file $OUTPUT_DIR/eval_result_1.txt \
-                                            --result_5_file $OUTPUT_DIR/eval_result_5.txt \
-                                            --top1andtop5_file $OUTPUT_DIR/eval_result.txt
+# infer_res_dir由 infer_python/run.sh 创建，
+# 例如：mobilenetv3_pytorch_model_force_float32_false_1_infer_res/
+# 具体创建规则详见 infer_python/run.sh
+function compute_acc(){
+    infer_res_dir=${1}
+    log_file=${infer_res_dir}/log_eval
+    python ${UTILS_PATH}/compute_top1_and_top5.py \
+            --result_label_file ${infer_res_dir}/eval_labels.txt \
+            --result_1_file ${infer_res_dir}/eval_result_1.txt \
+            --result_5_file ${infer_res_dir}/eval_result_5.txt \
+            --top1andtop5_file ${infer_res_dir}/eval_result.txt 2>&1 |tee ${log_file}
+
+}
+
+compute_acc  ${infer_res_dir}
+
 ```
 
 结果:
 
 ```
-top1 accuracy: 0.658317
-top5 accuracy: 0.876754
+top1 accuracy: 0.673940
+top5 accuracy: 0.872920
 ```
 
 ### 3.6 一键运行
@@ -106,42 +123,34 @@ top5 accuracy: 0.876754
 
 ### 4.1 gen_model 高级说明
 
-pytorch mobilenetv3 模型转换为 MagicMind mobilenetv3 模型分成以下几步：
+PyTorch MobileNet-v3 模型转换为 MagicMind MobileNet-v3 模型分成以下几步：
 
-- 使用 MagicMind Parser 模块将 pytorch 文件解析为 MagicMind 网络结构。
+- 使用 MagicMind Parser 模块将 PyTorch 文件解析为 MagicMind 网络结构。
 - 模型量化。
 - 使用 MagicMind Builder 模块生成 MagicMind 模型实例并保存为离线模型文件。
 
-参数说明:
+网络特定参数说明:
+- `image_dir`: 校准数据文件路径。
 
-- `PT_MODEL`: mobilenetv3 pytorch 的权重路径。
-- `MM_MODEL`: 保存 MagicMind 模型路径。
-- `DATASET_DIR`: 校准数据文件路径。
-- `PRECISION`: 精度模式，如 force_float32，force_float16，qint8_mixed_float16。
-- `SHAPE_MUTABLE`: 是否生成可变 batch_size 的 MagicMind 模型。
-- `BATCH_SIZE`: 生成可变模型时 batch_size 可以随意取值，生成不可变模型时 batch_size 的取值需要对应 pt 的输入维度。
-- `DEV_ID`: 设备号。
+**注意：**
+在gen_model内使用了一些公共的组件，例如arg解析、第三方框架（如PyTorch）模型解析、MagicMind 配置设定等，这些公共组件以及公共参数如`batch_size`, `device_id`的说明详见：[公共组件的README.md](../../../python_common/README.md)
 
-### 4.2 infer_cpp 高级说明
+### 4.2 infer_python 高级说明
 
 概述：
-本例使用 MagicMind C++ API 编写了名为 infer_cpp 的视频检测程序。infer_cpp 将展示如何使用 MagicMind C++ API 构建高效的 mobilenetv3 目标检测(图像预处理=>推理=>图像后处理)。其中程序主要由以下内容构成:
+本例使用 MagicMind Python API 编写了名为 infer.py的推理示例程序，其中infer.py将展示如何使用 MagicMind Python API 构建高效的 MobileNet-v3 目标检测(图像预处理=>推理=>图像后处理)。其中程序主要由以下内容构成:
 
-- infer.cpp: 高效率的将 MagicMind 模型运行在 MLU 板卡上。
+- infer.py: 高效率地将 MagicMind 模型运行在 MLU 板卡上。
 
 参数说明:
-
 - device_id: MLU 设备号
-- batch_size: 模型 batch_size
 - magicmind_model: MagicMind 模型路径。
 - image_dir: 数据集路径
 - label_file:ground truth 文件
-- output_dir:推理输出-画框图像路径
 - result_file:推理结果输出文件 txt 格式
 - result_label_file 推理结果输出 label 文件 txt 格式
 - result_top1_file:top1 推理结果输出 label 文件 txt 格式
 - result_top5_file:top5 推理结果输出 label 文件 txt 格式
-- test_nums: 输入数据数量 默认-1 表示检查全部输入数据
 
 ## 5.精度和性能 benchmark
 
@@ -152,14 +161,14 @@ pytorch mobilenetv3 模型转换为 MagicMind mobilenetv3 模型分成以下几�
 ```bash
 #查看参数说明
 mm_run -h
-mm_run --magicmind_model $MM_MODEL --batch_size $BATCH_SIZE --iterations 1000
+mm_run --magicmind_model ${magicmind_model} --batch_size ${batch_size} --iterations 1000
 ```
 
 或者通过一键运行 benchmark 里的脚本：
 
 ```bash
-cd $PROJ_ROOT_PATH
-bash ./benchmark/perf.sh
+cd ${PROJ_ROOT_PATH}/benchmark
+bash perf.sh
 ```
 
 ### 5.2 精度 benchmark 测试
@@ -167,16 +176,16 @@ bash ./benchmark/perf.sh
 一键运行 benchmark 里的脚本：
 
 ```bash
-cd $PROJ_ROOT_PATH
-bash ./benchmark/eval.sh
+cd ${PROJ_ROOT_PATH}/benchmark
+bash eval.sh
 ```
 
-通过精度benchmark测试的脚本跑出 mobilenetv3 在 imagenet2012 数据集上的50000张图片 top1 和 top5 精度如下
+通过精度benchmark测试的脚本跑出 MobileNet-v3 在 imagenet2012 数据集上的50000张图片 top1 和 top5 精度如下
 | Model | BatchSize | Precision | top1(%) | top5(%) |
 | --------- | ---------- | ---------- | --------- | ---------|
-| mobilenetv3 | 1 | fp32 | 63.86| 87.19 | 
-| mobilenetv3 | 1 | fp16 | 64.11 | 87.19 | 
-| mobilenetv3 | 1 | int8_mixed_float16 | 63.32 | 86.77 | 
+| MobileNet-v3 | 1 | force_float32 | 67.39| 87.29 | 
+| MobileNet-v3 | 1 | force_float16 | 67.36 | 87.28 | 
+| MobileNet-v3 | 1 | int8_mixed_float16 | 63.69 | 84.98| 
 
 ## 6.免责声明
 

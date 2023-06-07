@@ -31,5 +31,4 @@ fi
 
 ### 3.eval
 python $UTILS_PATH/compute_voc_mAP.py --path $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1/voc_preds/ \
-                                      --devkit_path $DATASETS_PATH/VOCdevkit \
-                                      --year 2012 2>&1 |tee $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1/log_eval
+                                      --devkit_path $DATASETS_PATH/VOCdevkit 2>&1 |tee $PROJ_ROOT_PATH/data/output/${languages}_output_${precision}_${shape_mutable}_1/log_eval

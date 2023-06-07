@@ -1,38 +1,36 @@
 #!/bin/bash
-PRECISION=$1 
-SHAPE_MUTABLE=$2 
-BATCH_SIZE=$3
-IMAGE_NUM=$4
+set -e
+set -x
 
-if [ ! -d "$PROJ_ROOT_PATH/data/output" ];
+magicmind_model=${1}
+batch_size=${2}
+image_num=${3}
+
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res"
+if [ ! -d ${infer_res_dir} ];
 then
-  mkdir "$PROJ_ROOT_PATH/data/output"
-  echo "mkdir sucessed!!!"
-else
-  echo "output dir exits!!! no need to mkdir again!!!"
+  mkdir -p ${infer_res_dir}
 fi
 
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/resnet50_onnx_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$MODEL_PATH/resnet50_onnx_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-if [ ! -d "$OUTPUT_DIR" ];
-then
-  mkdir "$OUTPUT_DIR"
-fi
-
-echo "before infer"
 python infer.py  --device_id 0 \
-                 --magicmind_model $MAGICMIND_MODEL \
-                 --image_dir $DATASETS_PATH \
-                 --image_num $IMAGE_NUM \
-                 --name_file $UTILS_PATH/imagenet_name.txt \
-                 --label_file $UTILS_PATH/ILSVRC2012_val.txt \
-                 --result_file $OUTPUT_DIR/infer_result.txt \
-                 --result_label_file $OUTPUT_DIR/eval_labels.txt \
-                 --result_top1_file $OUTPUT_DIR/eval_result_1.txt \
-                 --result_top5_file $OUTPUT_DIR/eval_result_5.txt 
-echo "infer success !!!"
+                 --magicmind_model ${magicmind_model} \
+                 --image_dir ${ILSVRC2012_DATASETS_PATH} \
+                 --image_num ${image_num} \
+                 --name_file ${UTILS_PATH}/imagenet_name.txt \
+                 --label_file ${UTILS_PATH}/ILSVRC2012_val.txt \
+                 --result_file ${infer_res_dir}/infer_result.txt \
+                 --result_label_file ${infer_res_dir}/eval_labels.txt \
+                 --result_top1_file ${infer_res_dir}/eval_result_1.txt \
+                 --result_top5_file ${infer_res_dir}/eval_result_5.txt \
+                 --batch_size ${batch_size}
+
+compute_top1_and_top5(){
+    infer_res_dir=${1}
+    python $UTILS_PATH/compute_top1_and_top5.py --result_label_file ${infer_res_dir}/eval_labels.txt \
+                                                --result_1_file ${infer_res_dir}/eval_result_1.txt \
+                                                --result_5_file ${infer_res_dir}/eval_result_5.txt \
+                                                --top1andtop5_file ${infer_res_dir}/eval_result.txt
+}
+
+compute_top1_and_top5 ${infer_res_dir}
+

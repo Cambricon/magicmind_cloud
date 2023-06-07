@@ -409,29 +409,3 @@ def preprocess(vocab_file, squad_json, batch_size, max_sequence_length,
         eval_features, batch_size, max_sequence_length)
     return input_ids, input_mask, segment_ids, eval_features, eval_examples
 
-#import torch
-#from torch.utils.data import DataLoader, SequentialSampler
-#import transformers
-#from transformers import AutoTokenizer, squad_convert_examples_to_features
-#from transformers.data.processors.squad import SquadV1Processor
-
-#def preprocess(json_file, batch_size, max_seq_length):
-#    ###preprocess data
-#    tokenizer = AutoTokenizer.from_pretrained("bert-base-cased", do_lower_case = False)
-#    squad_processor = SquadV1Processor()
-#    examples = squad_processor.get_dev_examples("", filename=json_file)
-#    features, dataset = squad_convert_examples_to_features(
-#        examples = examples,
-#        tokenizer = tokenizer,
-#        max_seq_length = max_seq_length,
-#        doc_stride = 128,
-#        max_query_length = 64,
-#        is_training = False,
-#        return_dataset = "pt",
-#        threads = 4)
-#    eval_sampler = SequentialSampler(dataset)
-#    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = batch_size, drop_last = False)
-#    print("Num examples = ", len(dataset))
-#    print("Batch size = ", batch_size)
-#    print("Iterations = ", len(eval_dataloader))
-#    return tokenizer, examples, features, eval_dataloader

@@ -1,58 +1,72 @@
 #include "pre_process.hpp"
-#include "utils.hpp"
 
-std::vector<cv::String> LoadImages(int batch_size,const string& dataset_path) {
+/**
+ * @brief load all images(jpg) from image directory(FLAGS_image_dir)
+ * @return Returns image paths
+ */
+std::vector<std::string> LoadImages(const std::string image_dir, int batch_size, int image_num, const std::string file_list) {
     char abs_path[PATH_MAX];
-    CHECK_NE(true, dataset_path.empty());
-    if ( ! realpath(dataset_path.c_str(), abs_path) ){
-        cout << "Get real image path failed.";
+    if (realpath(image_dir.c_str(), abs_path) == NULL) {
+        std::cout << "Get real image path in " << image_dir.c_str() << " failed...";
+        exit(1);
     }
     std::string glob_path = std::string(abs_path);
-    std::vector<cv::String> image_paths;
-    cv::glob(glob_path + "/*.jpg", image_paths, false);
-    size_t pad_num = batch_size - image_paths.size() % batch_size;
-    if (pad_num != batch_size) {
-        cout << "There are " << image_paths.size() << " images in total, add " << pad_num 
-            << " more images to make the number of images is an integral multiple of batchsize[" << batch_size << "]." << endl;
-        while (pad_num--)
-        image_paths.emplace_back(*image_paths.rbegin());
+    std::ifstream in(file_list);
+    std::string image_name;
+    std::vector<std::string> image_paths;
+    int count = 0;
+    std::string image_path;
+    while(getline(in, image_name)) {
+        image_path = glob_path + "/" +image_name;
+        image_paths.push_back(image_path);
+        count += 1;
+        if (count >= image_num) {break;}
     }
     return image_paths;
 }
 
-/**
-  @return Returns resized image and scaling factors
- */
-std::pair<cv::Mat, float> LatterBox(cv::Mat img, int dst_h, int dst_w, uint8_t pad_value) 
-{
-    float scaling_factors = std::min(1.0f * dst_h / img.rows, 1.0f * dst_w / img.cols);
-    int unpad_h = std::floor(scaling_factors * img.rows);
-    int unpad_w = std::floor(scaling_factors * img.cols);
-    int pad_h = dst_h - unpad_h;
-    int pad_w = dst_w - unpad_w;
-    int pad_top = std::floor(pad_h / 2.0f);
-    int pad_left = std::floor(pad_w / 2.0f);
-    int pad_bottom = pad_h - pad_top;
-    int pad_right = pad_w - pad_left;
-    cv::Mat resized;
-    cv::resize(img, resized, cv::Size(unpad_w, unpad_h));
-    cv::Mat dst;
-    cv::copyMakeBorder(resized, dst, pad_top, pad_bottom, pad_left, pad_right,cv::BORDER_CONSTANT, cv::Scalar(pad_value, pad_value, pad_value));
-    return std::make_pair(dst, scaling_factors);
+cv::Mat process_img(cv::Mat src_img, bool transpose, bool normlize, bool swapBR, int depth){
+    int src_h = src_img.rows;
+    int src_w = src_img.cols;
+    int dst_h = 416;
+    int dst_w = 416;
+    cv::resize(src_img, src_img, cv::Size(dst_w, dst_h));
+
+     if (swapBR)
+    {
+        cv::cvtColor(src_img, src_img, cv::COLOR_BGR2RGB);
+    }
+    if (normlize)
+    {
+        src_img.convertTo(src_img, CV_32F);
+        cv::Scalar std(0.00392, 0.00392, 0.00392);
+        cv::multiply(src_img, std, src_img);
+    }   
+
+    if (src_img.depth() != depth)
+    {
+        src_img.convertTo(src_img, depth);
+    } 
+
+    cv::Mat blob;
+    if (transpose)
+    {
+        int c = src_img.channels();
+        int h = src_img.rows;
+        int w = src_img.cols;
+        int sz[] = {1, c, h, w};
+        blob.create(4, sz, depth);
+        cv::Mat ch[3];
+        for (int j = 0; j < c; j++)
+        {
+            ch[j] = cv::Mat(src_img.rows, src_img.cols, depth, blob.ptr(0, j));
+        }
+        cv::split(src_img, ch);
+    }
+    else
+    {
+        blob = src_img;
+    }
+    return blob;
 }
 
-/**
- * @return Returns the scaling factors in resize
- * scaling factors is useful for get detection results.
- */
-float Preprocess(cv::Mat img, const int h,const int w, cv::Mat& dst,uint8_t pad_value) {
-    // NHWC order implementation. Make sure your model's input is in NHWC order.
-    /*
-        (x - mean) / std : This calculation process is performed at the first layer of the model,
-        See parameter named [insert_bn_before_firstnode] in magicmind::IBuildConfig.
-    */
-    // resize as latter box
-    auto ret = LatterBox(img, h, w, pad_value);
-    cv::cvtColor(ret.first, dst, cv::COLOR_BGR2RGB);
-    return ret.second;
-}

@@ -24,5 +24,5 @@ if [ ! -d $PROJ_ROOT_PATH/data/models ];then
     mkdir -p $PROJ_ROOT_PATH/data/models
 fi
 python download_and_convert_model.py $PROJ_ROOT_PATH
-python download_datasets.py $DATASETS_PATH
+python download_datasets.py $CIFAR100_DATASETS_PATH
 

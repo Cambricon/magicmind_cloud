@@ -1,22 +1,44 @@
-diff --git a/export.py b/export.py
-index 15e92a7..0c7a3ac 100644
+diff --git a//export.py b//export.py
+index 15e92a7..ded15fb 100644
 --- a/export.py
 +++ b/export.py
-@@ -93,15 +93,14 @@ def export_torchscript(model, im, file, optimize, prefix=colorstr('TorchScript:'
+@@ -93,7 +93,28 @@ def export_torchscript(model, im, file, optimize, prefix=colorstr('TorchScript:'
      # YOLOv5 TorchScript model export
      try:
          LOGGER.info(f'\n{prefix} starting export with torch {torch.__version__}...')
 -        f = file.with_suffix('.torchscript')
--
-+        f = '../data/models/yolov5m_traced.pt'
++
++        # cambricon-note begin: 
++        # add the below code for traced pt
++        # file: for instance /home/data/models/yolov5m.pt
++        # file_pub_path /home/data/models/
++        file_pub_path = file.parents[0]
++
++        # file_name_prefix yolov5m
++        file_name_prefix = file.stem
++
++        # file_name_suffix .pt
++        file_name_suffix = file.suffix
++
++        #traced_filename: for instance  yolov5m_traced.pt
++        traced_filename = file_name_prefix + '_traced' + file_name_suffix
++
++        #f: /home/data/models/yolov5m_traced.pt
++        f = file_pub_path.joinpath(traced_filename)
++        f = str(f)
++        # cambricon-note end:
++
++        #f = file.with_suffix('.torchscript')
+ 
          ts = torch.jit.trace(model, im, strict=False)
          d = {"shape": im.shape, "stride": int(max(model.stride)), "names": model.names}
-         extra_files = {'config.txt': json.dumps(d)}  # torch._C.ExtraFilesMap()
+@@ -101,7 +122,8 @@ def export_torchscript(model, im, file, optimize, prefix=colorstr('TorchScript:'
          if optimize:  # https://pytorch.org/tutorials/recipes/mobile_interpreter.html
              optimize_for_mobile(ts)._save_for_lite_interpreter(str(f), _extra_files=extra_files)
          else:
 -            ts.save(str(f), _extra_files=extra_files)
 +            ts.save(f)    
++            #ts.save(str(f), _extra_files=extra_files)
  
          LOGGER.info(f'{prefix} export success, saved as {f} ({file_size(f):.1f} MB)')
          return f
@@ -56,3 +78,6 @@ index f659a04..d10a41d 100644
          for i in range(self.nl):
              x[i] = self.m[i](x[i])  # conv
              bs, _, ny, nx = x[i].shape  # x(bs,255,20,20) to x(bs,3,20,20,85)
+-- 
+2.17.1
+

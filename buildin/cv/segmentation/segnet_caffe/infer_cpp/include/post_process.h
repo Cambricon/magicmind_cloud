@@ -12,8 +12,8 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include "utils.h"
+#include <mm_runtime.h>
 
-cv::Mat PostProcess(cv::Mat &img, const magicmind::Dims &preds_dim, float * preds);
+cv::Mat PostProcess(cv::Mat &img, const magicmind::Dims &preds_dim, float *preds);
 
-#endif //_POST_PROCESS_HPP
+#endif  //_POST_PROCESS_HPP

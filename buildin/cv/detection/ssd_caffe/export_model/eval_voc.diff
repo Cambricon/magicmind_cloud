@@ -1,48 +1,18 @@
---- eval_voc.py	2022-08-03 05:58:18.734361809 +0000
-+++ compute_voc_mAP.py	2022-08-03 06:08:53.631134126 +0000
-@@ -14,6 +14,8 @@
-     parser = argparse.ArgumentParser(description='mAP Calculation')
- 
-     parser.add_argument('--path', dest='path', help='The data path', type=str)
-+    parser.add_argument('--devkit_path', dest='devkit_path', help='VOCdevkit path', type=str)
-+    parser.add_argument('--year', dest='year', help='year', type=str)
-     args = parser.parse_args()
- 
-     return args
-@@ -207,9 +209,9 @@
-     
- 
- 
--def _do_python_eval(res_prefix, output_dir = 'output'):
--    _devkit_path = '/home/tju/Data/VOC/VOCdevkit'
--    _year = '2007'
-+def _do_python_eval(res_prefix, devkit_path, year, output_dir = 'output'):
-+    _devkit_path = devkit_path
-+    _year = year
-     _classes = ('__background__', # always index 0
-         'aeroplane', 'bicycle', 'bird', 'boat',
-         'bottle', 'bus', 'car', 'cat', 'chair',
-@@ -217,7 +219,7 @@
-         'motorbike', 'person', 'pottedplant',
-         'sheep', 'sofa', 'train', 'tvmonitor') 
-     
--    res_prefix = res_prefix + 'comp3_det_test_'
-+    res_prefix = res_prefix + 'comp3_det_val_'
-     filename = res_prefix + '{:s}.txt'
-     annopath = os.path.join(
-         _devkit_path,
-@@ -229,7 +231,7 @@
-         'VOC' + _year,
-         'ImageSets',
-         'Main',
--        'test.txt')
-+        'val.txt')
-     cachedir = os.path.join(_devkit_path, 'annotations_cache')
-     aps = []
-     # The PASCAL VOC metric changed in 2010
-@@ -259,4 +261,4 @@
- 
- if __name__ == '__main__':
-     args = parse_args()
--    _do_python_eval(args.path, output_dir = 'output')
-+    _do_python_eval(args.path, args.devkit_path, args.year, output_dir = 'output')
+16a17
+>     parser.add_argument('--devkit_path', dest='devkit_path', help='VOCdevkit path', type=str)
+210,211c211,212
+< def _do_python_eval(res_prefix, output_dir = 'output'):
+<     _devkit_path = '/home/tju/Data/VOC/VOCdevkit'
+---
+> def _do_python_eval(res_prefix, devkit_path, output_dir = 'output'):
+>     _devkit_path = devkit_path
+236,237c237,238
+<     # use_07_metric = True if int(_year) < 2010 else False
+<     use_07_metric = False
+---
+>     use_07_metric = True if int(_year) < 2010 else False
+>     # use_07_metric = False
+262c263
+<     _do_python_eval(args.path, output_dir = 'output')
+---
+>     _do_python_eval(args.path, args.devkit_path, output_dir = 'output')

@@ -1,0 +1,21 @@
+image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:1.3.0-x86_64-ubuntu18.04-py_3_7
+
+gen-jobs:
+    stage: .pre
+    tags:
+        - bj_test_runner
+    script:
+        - python test/generate_config.py
+    artifacts:
+        paths:
+            - jobs.yml
+            - test/*report.csv
+
+model-test:
+    stage: test
+    trigger:
+        include:
+            - artifact: jobs.yml
+              job: gen-jobs
+        strategy: depend
+

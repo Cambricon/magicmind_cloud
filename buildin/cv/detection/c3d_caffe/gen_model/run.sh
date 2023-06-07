@@ -1,30 +1,25 @@
-#bin/bash
+#!/bin/bash
 set -e
 set -x
-#example:bash run.sh force_float16 false 4
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
 
-if [ ! -d $PROJ_ROOT_PATH/data/mm_model ];then
-    mkdir -p $PROJ_ROOT_PATH/data/mm_model
-fi
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+img_h=112
+img_w=112
+clip_len=8
 
-cd $PROJ_ROOT_PATH/gen_model/
-if [ -f $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} ];
-then
-    echo "magicmind model: $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} already exist!"
-else 
-    echo "generate Magicmind model begin..."
-    python gen_model.py --precision ${PRECISION} \
-                        --batch_size $BATCH_SIZE --shape_mutable ${SHAPE_MUTABLE} \
-                        --datasets_dir $DATASETS_PATH \
-                        --caffe_prototxt $PROJ_ROOT_PATH/data/models/c3d_resnet18_r2_ucf101.prototxt \
-                        --caffe_model $PROJ_ROOT_PATH/data/models/c3d_resnet18_ucf101_r2_ft_iter_20000.caffemodel \
-                        --mm_model $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-    echo "Generate model done, model save to $PROJ_ROOT_PATH/data/mm_model/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
-fi
+python gen_model.py --precision ${precision} \
+                    --input_dims ${batch_size} 3 ${clip_len} ${img_h} ${img_w} \
+                    --dynamic_shape ${dynamic_shape} \
+                    --magicmind_model ${magicmind_model} \
+                    --image_dir ${UCF101_DATASETS_PATH} \
+                    --caffemodel ${MODEL_PATH}/c3d_resnet18_ucf101_r2_ft_iter_20000.caffemodel \
+                    --prototxt ${MODEL_PATH}/c3d_resnet18_r2_ucf101.prototxt \
+                    --input_layout NDHWC \
+                    --dim_range_min 1 3 ${clip_len} ${img_h} ${img_w} \
+                    --dim_range_max 32 3 ${clip_len} ${img_h} ${img_w} \
+                    --type64to32_conversion "true" \
+                    --conv_scale_fold "true" 
 
-
-
-        

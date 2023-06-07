@@ -2,41 +2,36 @@
 set -e
 set -x
 
-COMPUTE_COCO(){
-    PRECISION=$1
-    SHAPE_MUTABLE=$2
-    BATCH_SIZE=$3
-    LANGUAGES=$4
-    IMG_NUM=$5
-    OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/${LANGUAGES}_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
+infer_mode=infer_cpp
+image_num=5000
 
-    python $UTILS_PATH/compute_coco_mAP.py --file_list $UTILS_PATH/coco_file_list_5000.txt \
-                                           --result_dir $OUTPUT_DIR \
-                                           --ann_dir $DATASETS_PATH \
-                                           --data_type val2017 \
-                                           --json_name $OUTPUT_DIR \
-                                           --image_num ${IMG_NUM} 2>&1 |tee $OUTPUT_DIR/log_eval
-}
+# 1. export model
+cd ${PROJ_ROOT_PATH}/export_model
+bash run.sh
 
-
-cd $PROJ_ROOT_PATH/export_model
-for batch in 1
+for precision in qint8_mixed_float16 force_float16 force_float32
 do
-  bash run.sh $batch
-done
-for precision in force_float32 force_float16 qint8_mixed_float16
-do
-    for shape_mutable in true
+    for dynamic_shape in true
     do
-        for batch in 1
+        for batch_size in 1
         do
-            cd $PROJ_ROOT_PATH/gen_model
-            bash run.sh $precision $shape_mutable $batch 
-            cd $PROJ_ROOT_PATH/infer_cpp
-            # image_num = 999
-            bash run.sh $precision $shape_mutable $batch 1000
-            # language = infer_cpp
-            COMPUTE_COCO $precision $shape_mutable $batch infer_cpp 1000
+            magicmind_model=${MODEL_PATH}/centernet__model_${precision}_${dynamic_shape}
+            if [ ${dynamic_shape} == 'false' ];then
+                magicmind_model="${magicmind_model}_${batch_size}"
+            fi
+	    infer_res_path="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res"
+
+            # gen model
+            if [ ! -f ${magicmind_model} ];then
+                cd ${PROJ_ROOT_PATH}/gen_model
+                bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape}
+            else
+                echo "MagicMind model: ${magicmind_model} already exists!"
+            fi
+
+            # infer and calc acc
+            cd ${PROJ_ROOT_PATH}/${infer_mode}
+            bash run.sh  ${magicmind_model} ${batch_size} ${image_num}
         done
     done
 done

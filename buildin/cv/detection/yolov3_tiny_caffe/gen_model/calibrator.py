@@ -1,16 +1,39 @@
-import magicmind.python.runtime as mm
-from magicmind.python.runtime.parser import Parser
 import numpy as np
-import glob
-import os 
+import magicmind.python.runtime as mm
 import cv2
+import os
+import glob
+import math
+from PIL import Image
 
+from logger import Logger
+
+log = Logger()
+
+
+def coco_dataset(
+    file_list_txt="coco_file_list_5000.txt",
+    image_dir="../../../../datasets/coco/val2017",
+    count=-1,
+):
+    with open(file_list_txt, "r") as f:
+        lines = f.readlines()
+    #log.info("%d pictures will be read." % len(lines))
+    current_count = 0
+    for line in lines:
+        image_name = line.strip()
+        image_path = os.path.join(image_dir, image_name)
+        img = cv2.imread(image_path)
+        yield img, image_path
+        current_count += 1
+        if current_count >= count and count != -1:
+            break
+        
 class CalibData(mm.CalibDataInterface):
-    def __init__(self, shape: mm.Dims, max_samples: int, img_dir: str, pad_value):
+    def __init__(self, shape: mm.Dims, max_samples: int, img_dir: str, pad_value=128):
         super().__init__()
         assert os.path.isdir(img_dir)
         self.data_paths_ = glob.glob(img_dir + '/*.jpg')
-        print("calibrate samples : ", len(self.data_paths_))
         self.shape_ = shape
         self.max_samples_ = min(max_samples, len(self.data_paths_))
         self.cur_sample_ = None

@@ -1,8 +1,10 @@
 import numpy as np
-from torchvision import transforms
 import os
 from PIL import Image
 import logging
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from operators import DecodeImage, ResizeImage, CropImage, NormalizeImage
 
 def imagenet_dataset(
     val_txt="/nfsdata/datasets/imageNet2012/labels.txt",
@@ -16,31 +18,41 @@ def imagenet_dataset(
     for line in lines:
         image_name, label = line.split(" ")
         image_path = os.path.join(image_file_path, image_name)
-        img = Image.open(image_path)
-        if img.mode != "RGB":
-            img = img.convert("RGB")
+        with open(image_path, 'rb') as f:
+            img = f.read()
         yield img, label.strip()
         current_count += 1
         if current_count >= count and count != -1:
             break
 
-def preprocess(input_image, transpose):
+def preprocess(input_image, dst_size=(224,224), transpose=True, normalize=True):
     resize_h, resize_w = (256, 256)
-    crop_h, crop_w = (224, 224)
+    crop_h, crop_w = dst_size
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
-    normalize = transforms.Normalize(mean, std)
-    preprocess = transforms.Compose(
-        [
-            transforms.Resize(resize_h),
-            transforms.CenterCrop(crop_h),
-            transforms.ToTensor(),
-            normalize,
-        ]
-    )
-    input_tensor = preprocess(input_image)
-    input_numpy = input_tensor.numpy()
+    decodeimg = DecodeImage(to_rgb = True,to_np = True, channel_first = False)
+    resizeimg = ResizeImage(size = None, resize_short = 256, interpolation=None, backend="cv2")
+    cropimg =  CropImage(crop_h)
+    normimg =  NormalizeImage(scale = 1/255, mean = mean, std =std, order = '')
+    decodeout = decodeimg(input_image)
+    resizeout = resizeimg(decodeout)
+    cropout = cropimg(resizeout)
+    if normalize:
+        normout = normimg(cropout)
+    else :
+        normout = cropout
+
+    input_numpy = normout
     if transpose:
-        input_numpy = np.transpose(input_numpy, (1, 2, 0))
+        input_numpy = np.transpose(input_numpy, (2, 0, 1))
     return input_numpy
+
+class Record:
+    def __init__(self, filename):
+        self.file = open(filename, "w+")
+
+    def write(self, line, _print = False):
+        self.file.write(line + "\n")
+        if _print:
+            print(line)
 

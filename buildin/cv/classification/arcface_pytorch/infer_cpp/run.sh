@@ -1,18 +1,24 @@
 #!/bin/bash
+set -e
+set -x
 
-PRECISION=$1
-BATCH_SIZE=$2
-IMAGE_NUM=$3
+magicmind_model=${1}
+batch_size=${2}
+image_num=${3}
 
-if [ ! -d $PROJ_ROOT_PATH/data/images/${PRECISION}_${BATCH_SIZE} ];then
-  mkdir -p $PROJ_ROOT_PATH/data/images/${PRECISION}_${BATCH_SIZE}
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res"
+if [ ! -d ${infer_res_dir} ];
+then
+  mkdir -p ${infer_res_dir}
 fi
+
 bash build.sh
-./bin/host_infer \
-	--magicmind_model $PROJ_ROOT_PATH/data/models/arcface_${PRECISION}_${BATCH_SIZE}.mm \
-    --image_dir $DATASETS_PATH/IJBC/loose_crop \
-    --image_list  $DATASETS_PATH/IJBC/meta/ijbc_name_5pts_score.txt \
-    --save_img true \
-    --image_num $IMAGE_NUM \
-    --output_dir $PROJ_ROOT_PATH/data/images/${PRECISION}_${BATCH_SIZE}
+./bin/host_infer --magicmind_model ${magicmind_model} \
+                --batch_size ${batch_size} \
+                --image_dir ${IJB_DATASETS_PATH}/IJBC/loose_crop \
+                --image_list  ${IJB_DATASETS_PATH}/IJBC/meta/ijbc_name_5pts_score.txt \
+                --save_img true \
+                --image_num ${image_num} \
+                --output_dir ${infer_res_dir}
+
 

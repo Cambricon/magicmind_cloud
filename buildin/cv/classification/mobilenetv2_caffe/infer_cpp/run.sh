@@ -1,46 +1,45 @@
 set -e
 set -x
-#Example:bash run.sh force_float32 false 6
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output
-if  [ ! -d $OUTPUT_DIR ];then
-    mkdir -p $OUTPUT_DIR
-fi
 
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
-
-if [ $SHAPE_MUTABLE == "true" ];then
-    MM_MODEL=${PRECISION}_${SHAPE_MUTABLE}_1
-else
-    MM_MODEL=${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-fi 
-
-THIS_OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-if  [ ! -d $THIS_OUTPUT_DIR ];then
-    mkdir -p $THIS_OUTPUT_DIR   
-fi
-
-if [ ! -f $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL ];then
-    echo "$MM_MODEL not exist,please go to gen_model folder and run this command:bash run.sh $PRECISION $SHAPE_MUTABLE $BATCH_SIZE!!!"
-    exit 1
+magicmind_model=${1}
+batch_size=${2}
+# if not set image_num, use -1 in default, which means infer with all images
+# else use the val set
+image_num=${3:--1}
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res"
+if [ ! -d ${infer_res_dir} ];
+then
+  mkdir -p ${infer_res_dir}
 fi
 
 cd $PROJ_ROOT_PATH/infer_cpp/
 if [ ! -f infer ];then
     bash build.sh
 fi
-DEV_ID=0
-# test_nums equals to -1 means all images
-./infer --magicmind_model $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL \
-        --device_id $DEV_ID \
-        --batch_size ${BATCH_SIZE} \
-        --image_dir $DATASETS_PATH \
-        --output_dir $THIS_OUTPUT_DIR \
-        --label_file $UTILS_PATH/ILSVRC2012_val.txt \
-        --name_file $UTILS_PATH/imagenet_name.txt \
-        --result_file $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}/infer_result.txt \
-        --result_label_file $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}/eval_labels.txt \
-        --result_top1_file $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}/eval_result_1.txt \
-        --result_top5_file $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}/eval_result_5.txt \
-        --test_nums -1 
+
+## test_nums equals to -1 means all images
+./infer --magicmind_model ${magicmind_model} \
+        --batch_size ${batch_size} \
+	--test_nums ${image_num} \
+        --image_dir ${ILSVRC2012_DATASETS_PATH} \
+        --label_file ${UTILS_PATH}/ILSVRC2012_val.txt \
+        --name_file ${UTILS_PATH}/imagenet_name.txt \
+        --result_file ${infer_res_dir}/infer_result.txt \
+        --result_label_file ${infer_res_dir}/eval_labels.txt \
+        --result_top1_file ${infer_res_dir}/eval_result_1.txt \
+        --result_top5_file ${infer_res_dir}/eval_result_5.txt 
+
+
+# get metric res
+function compute_acc(){
+    infer_res_dir=${1}
+    log_file=${infer_res_dir}/log_eval
+    python ${UTILS_PATH}/compute_top1_and_top5.py \
+            --result_label_file ${infer_res_dir}/eval_labels.txt \
+            --result_1_file ${infer_res_dir}/eval_result_1.txt \
+            --result_5_file ${infer_res_dir}/eval_result_5.txt \
+            --top1andtop5_file ${infer_res_dir}/eval_result.txt 2>&1 |tee ${log_file}
+
+}
+
+compute_acc  ${infer_res_dir} 

@@ -15,7 +15,7 @@ MM_RUN(){
                           --iterations 1000 \
                           --input_dims ${BATCH_SIZE},${MAX_SEQ_LENGTH} ${BATCH_SIZE},${MAX_SEQ_LENGTH} ${BATCH_SIZE},${MAX_SEQ_LENGTH} \
                           --devices 0 \
-                          --input_files $PROJ_ROOT_PATH/data/input_0_${BATCH_SIZE}_${MAX_SEQ_LENGTH}.bin $PROJ_ROOT_PATH/data/input_1_${BATCH_SIZE}_${MAX_SEQ_LENGTH}.bin $PROJ_ROOT_PATH/data/input_2_${BATCH_SIZE}_${MAX_SEQ_LENGTH}.bin 2>&1 |tee $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}_${MAX_SEQ_LENGTH}_log_perf 
+                          --input_files $PROJ_ROOT_PATH/data/input_0_${BATCH_SIZE}_${MAX_SEQ_LENGTH}.bin $PROJ_ROOT_PATH/data/input_1_${BATCH_SIZE}_${MAX_SEQ_LENGTH}.bin $PROJ_ROOT_PATH/data/input_2_${BATCH_SIZE}_${MAX_SEQ_LENGTH}.bin 
 }
 
 for max_seq_length in 384
@@ -26,9 +26,10 @@ do
     do
         for batch in 1 16 32 
         do 
-            cd $PROJ_ROOT_PATH/gen_model
-            bash run.sh $precision true $batch $max_seq_length
-            MM_RUN $precision true $batch $max_seq_length
+            cd ${PROJ_ROOT_PATH}/gen_model
+            magicmind_model=${MODEL_PATH}/bert_${precision}_${batch}_false_${max_seq_length}
+            bash run.sh ${magicmind_model} ${precision} ${batch} false ${max_seq_length}
+            MM_RUN $precision false ${batch} ${max_seq_length}
         done
     done
 done

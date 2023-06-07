@@ -2,27 +2,28 @@
 set -e
 set -x
 
-COMPUTE_TOP1_AND_TOP5(){
-    PRECISION=$1
-    SHAPE_MUTABLE=$2
-    BATCH=$3
-    python $UTILS_PATH/compute_top1_and_top5.py --result_label_file $PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH}/eval_labels.txt \
-                                                --result_1_file $PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH}/eval_result_1.txt \
-                                                --result_5_file $PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH}/eval_result_5.txt \
-                                                --top1andtop5_file $PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH}/eval_result.txt
-}
+image_num=50000
+dynamic_shape=true
+batch_size=32
+network=resnet50_paddlecls
 
 cd $PROJ_ROOT_PATH/export_model
 bash run.sh
 #dynamic
 for precision in force_float32 force_float16 qint8_mixed_float16
-do
-    cd $PROJ_ROOT_PATH/gen_model
-    bash run.sh $precision true 1	
-    for batch in 1
-    do
-        cd $PROJ_ROOT_PATH/infer_python
-        bash run.sh $precision true $batch 1000
-        COMPUTE_TOP1_AND_TOP5 $precision true $batch
-    done
+do    
+    magicmind_model=${MODEL_PATH}/${network}_model_${precision}_${dynamic_shape}
+    if [ ${dynamic_shape} == 'false' ];then
+        magicmind_model=${magicmind_model}_${batch_size}
+    fi
+    if [ ! -f ${magicmind_model} ];then
+        cd ${PROJ_ROOT_PATH}/gen_model
+        bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape} 
+    else
+        echo "MagicMind model: ${magicmind_model} already exists!"
+    fi	
+
+    cd $PROJ_ROOT_PATH/infer_python
+    bash run.sh  ${magicmind_model} ${batch_size} ${image_num} 
+    
 done

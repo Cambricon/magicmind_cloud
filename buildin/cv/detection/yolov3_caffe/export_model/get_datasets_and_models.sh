@@ -6,10 +6,11 @@ FILE1="val2017"
 FILE2="annotations"
 FILE3="coco.names"
 
-if [ ! -d $DATASETS_PATH ];then
-  mkdir -p $DATASETS_PATH
+if [ ! -d $COCO_DATASETS_PATH ];then
+  mkdir -p $COCO_DATASETS_PATH
 fi 
-cd $DATASETS_PATH
+
+cd $COCO_DATASETS_PATH
 
 if [ ! -d $FILE1 ];then 
   echo "Downloading val2017.zip"

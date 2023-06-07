@@ -1,0 +1,13 @@
+--- export_model/DB/data/processes/normalize_image.py	2023-04-06 12:40:29.881101200 +0000
++++ normalize_image.py	2023-04-06 12:39:55.104871030 +0000
+@@ -10,9 +10,7 @@ class NormalizeImage(DataProcess):
+     def process(self, data):
+         assert 'image' in data, '`image` in data is required by this process'
+         image = data['image']
+-        image -= self.RGB_MEAN
+-        image /= 255.
+-        image = torch.from_numpy(image).permute(2, 0, 1).float()
++        image = torch.from_numpy(image).float()
+         data['image'] = image
+         return data
+ 

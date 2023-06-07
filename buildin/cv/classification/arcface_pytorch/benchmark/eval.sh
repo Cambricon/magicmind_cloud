@@ -2,36 +2,29 @@
 set -e
 set -x
 
-PRECISION=$1
-BATCH_SIZE=$2
+batch_size=128
+dynamic_shape=false
+network=arcface_pytorch
 
-COMPUTE_ACCURACY(){
-    PRECISION=$1
-    BATCH_SIZE=$2
-    python ${UTILS_PATH}/ijbc_eval.py --features_dir ${PROJ_ROOT_PATH}/data/images/${PRECISION}_${BATCH_SIZE} \
-	                              --output_file $PROJ_ROOT_PATH/data/output/${PRECISION}_${BATCH_SIZE} \
-				      --face_tid_mid_file $DATASETS_PATH/IJBC/meta/ijbc_face_tid_mid.txt \
-                                      --template_pair_label_file $DATASETS_PATH/IJBC/meta/ijbc_template_pair_label.txt
-}
-
-if [ ! -d $PROJ_ROOT_PATH/data/output ];
-then
-    mkdir -p $PROJ_ROOT_PATH/data/output
-fi
-
-echo "Parm doesn't exist, run benchmark"
-cd $PROJ_ROOT_PATH/export_model
+cd ${PROJ_ROOT_PATH}/export_model
 bash run.sh
-cd $PROJ_ROOT_PATH/infer_cpp
+cd ${PROJ_ROOT_PATH}/infer_cpp
 bash build.sh
+
 for precision in force_float32 force_float16 qint8_mixed_float16
 do
-    cd $PROJ_ROOT_PATH/gen_model
-    bash run.sh $precision 64	
-    for batch in 64
-    do
-        cd $PROJ_ROOT_PATH/infer_cpp
-        bash run.sh $precision $batch 469375
-        COMPUTE_ACCURACY $precision $batch
-    done
+    magicmind_model=${MODEL_PATH}/${network}_model_${precision}_${dynamic_shape}_${batch_size}  
+    if [ ! -f ${magicmind_model} ];then
+        cd ${PROJ_ROOT_PATH}/gen_model
+        bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape}
+    else
+        echo "MagicMind model: ${magicmind_model} already exists!"
+    fi
+    cd ${PROJ_ROOT_PATH}/infer_cpp
+    bash run.sh ${magicmind_model} ${batch_size} 469375
+    output_dir="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_acc"   
+    python ${UTILS_PATH}/ijbc_eval.py --features_dir ${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res \
+                                  --output_file ${output_dir} \
+                                  --face_tid_mid_file ${IJB_DATASETS_PATH}/IJBC/meta/ijbc_face_tid_mid.txt \
+                                  --template_pair_label_file ${IJB_DATASETS_PATH}/IJBC/meta/ijbc_template_pair_label.txt
 done

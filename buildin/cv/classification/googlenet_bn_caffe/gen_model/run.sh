@@ -1,27 +1,27 @@
 #!/bin/bash
-PRECISION=$1       
-SHAPE_MUTABLE=$2    
-BATCH_SIZE=$3
+set -e
+set -x
+magicmind_model=${1}
+precision=${2}
+batch_size=${3}
+dynamic_shape=${4}
+
 PROTOTXT=googlenet_bn_deploy.prototxt
 CAFFEMODEL=googlenet_bn.caffemodel
-if [ ${SHAPE_MUTABLE} == 'false' ];
-then
-    MAGICMIND_MODEL=$MODEL_PATH/googlenet_bn_caffe_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-else
-    MAGICMIND_MODEL=$MODEL_PATH/googlenet_bn_caffe_model_${PRECISION}_${SHAPE_MUTABLE}
-fi
-if [ ! -f MAGICMIND_MODEL ];
-then
-    python gen_model.py  --caffe_model $MODEL_PATH/$CAFFEMODEL \
-                         --prototxt $MODEL_PATH/$PROTOTXT \
-                         --output_model $MAGICMIND_MODEL \
-                         --image_dir $DATASETS_PATH \
-                         --quant_mode ${PRECISION} \
-                         --shape_mutable ${SHAPE_MUTABLE} \
-                         --batch_size ${BATCH_SIZE} \
-                         --input_width 224 \
-                         --input_height 224 \
-                         --device_id 0
-else
-    echo "mm_model: $MAGICMIND_MODEL already exist."
-fi
+
+python gen_model.py  --precision  ${precision} \
+                     --input_dims ${batch_size} 3 224 224 \
+                     --dynamic_shape ${dynamic_shape} \
+                     --magicmind_model  $magicmind_model \
+                     --image_dir $ILSVRC2012_DATASETS_PATH \
+                     --caffemodel  $MODEL_PATH/$CAFFEMODEL \
+                     --prototxt $MODEL_PATH/$PROTOTXT \
+                     --input_layout NHWC \
+                     --means 103.939 116.779 123.68 \
+                     --vars 1.0 1.0 1.0 \
+                     --dim_range_min 1 3 224 224 \
+                     --dim_range_max 64 3 224 224 \
+                     --type64to32_conversion "true" \
+                     --conv_scale_fold "true"  \
+                     --device_id 0
+

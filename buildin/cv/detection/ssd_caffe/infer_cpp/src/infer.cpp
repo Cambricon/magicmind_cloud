@@ -150,7 +150,7 @@ int main(int argc, char **argv){
       }
       std::vector<std::string> voc_preds_files;
       for (int t = 0 ; t < glabels.size() ; t ++) {
-          std::string voc_preds_file = FLAGS_output_dir + "/" + "voc_preds/comp3_det_val_" + glabels[t] + ".txt";
+          std::string voc_preds_file = FLAGS_output_dir + "/" + "voc_preds/comp3_det_test_" + glabels[t] + ".txt";
           voc_preds_files.push_back(voc_preds_file);
       }
       post_process(img, results, glabels, voc_preds_files, image_name, FLAGS_output_dir, FLAGS_save_img);

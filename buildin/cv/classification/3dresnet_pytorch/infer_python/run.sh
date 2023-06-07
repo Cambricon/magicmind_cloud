@@ -1,26 +1,27 @@
 #!/bin/bash
-PRECISION=$1
+set -e
+set -x
 
-if [ ! -d "$PROJ_ROOT_PATH/data/output_${PRECISION}" ];
+magicmind_model=${1}
+batch_size=${2}
+json_name="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model}).json"
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res"
+if [ ! -d ${infer_res_dir} ];
 then
-  mkdir "$PROJ_ROOT_PATH/data/output_${PRECISION}"
-  echo "mkdir sucessed!!!"
-else
-  echo "output dir exits!!! no need to mkdir again!!!"
+  mkdir -p ${infer_res_dir}
 fi
-MAGICMIND_MODEL=$MODEL_PATH/3dresnet_${PRECISION}_1.mm
-OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/
-if [ ! -d "$OUTPUT_DIR" ];
-then
-  mkdir "$OUTPUT_DIR"
+
+cd ${PROJ_ROOT_PATH}/export_model/3D-ResNets-PyTorch
+if [ ! -f inference_mlu.py ];then
+    ln -s ${PROJ_ROOT_PATH}/infer_python/inference.py ./inference_mlu.py
 fi
-echo "infer Magicmind model..."
-cd $PROJ_ROOT_PATH/export_model/3D-ResNets-PyTorch
-ln -s $PROJ_ROOT_PATH/infer_python/inference.py ./inference_mlu.py
+
 python main.py --root_path ./data \
+	       --result_path ${infer_res_dir} \
+	       --inference_batch_size ${batch_size} \
+	       --magicmind_model ${magicmind_model} \
                --video_path kinetics_videos/jpg \
                --annotation_path kinetics.json \
-	       --result_path ../../../data/output_${PRECISION} \
 	       --dataset kinetics \
 	       --resume_path weights/r3d50_K_200ep.pth \
 	       --model_depth 50 \
@@ -30,9 +31,8 @@ python main.py --root_path ./data \
 	       --no_val \
 	       --inference \
 	       --output_topk 5 \
-	       --inference_batch_size 1 \
 	       --no_cuda \
-	       --magicmind_model $MAGICMIND_MODEL \
 	       --use_mlu
-python -m util_scripts.eval_accuracy ./data/kinetics.json ../../data/output_${PRECISION}/val.json --subset validation -k 1 --ignore
-python -m util_scripts.eval_accuracy ./data/kinetics.json ../../data/output_${PRECISION}/val.json --subset validation -k 5 --ignore
+
+python -m util_scripts.eval_accuracy ./data/kinetics.json ${infer_res_dir}/val.json --subset validation -k 1 --ignore
+python -m util_scripts.eval_accuracy ./data/kinetics.json ${infer_res_dir}/val.json --subset validation -k 5 --ignore

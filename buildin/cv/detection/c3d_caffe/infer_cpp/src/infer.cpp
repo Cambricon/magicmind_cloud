@@ -1,5 +1,4 @@
 #include <gflags/gflags.h>
-#include <glog/logging.h>
 #include <mm_runtime.h>
 #include <cnrt.h>
 #include <opencv2/opencv.hpp>
@@ -19,9 +18,12 @@
 #include "utils.hpp"
 #include "pre_process.hpp"
 #include "post_process.hpp"
+#include "model_runner.h"
 
 using namespace std;
 using namespace cv;
+
+#define MINVALUE(A, B) (A < B ? A : B)
 
 DEFINE_int32(device_id, 0, "The device index of mlu");
 DEFINE_string(magicmind_model, "", "The magicmind model path");
@@ -29,203 +31,154 @@ DEFINE_int32(clip_step, -1, "The distance between each video clip, -1 means equa
 DEFINE_int32(sampling_rate, 2, "The sampling rate for video clips");
 DEFINE_string(video_list, "", "Video list file path.");
 DEFINE_int32(batch_size, 8, "batch_size");
-DEFINE_int32(test_nums,-1, "test_nums");
-DEFINE_string(dataset_dir, "", "dataset_dir");
-DEFINE_string(output_dir,"", "output_dir");
-DEFINE_string(name_file, "/mm_ws/proj/datasets/imagenet/name.txt", "The label path");
+DEFINE_string(image_dir, "", "dataset_dir");
+DEFINE_string(name_file, "name.txt", "The label path");
 DEFINE_string(result_file, "", "The classification results output file");
 DEFINE_string(result_label_file, "", "The classification results label output file");
 DEFINE_string(result_top1_file, "", "The classification results top1 output file");
 DEFINE_string(result_top5_file, "", "The classification results top5 output file");
+DEFINE_int32(image_num, 0, "image number");
 
-int main(int argc, char **argv) 
-{
-    google::InitGoogleLogging(argv[0]);
-    gflags::ParseCommandLineFlags(&argc, &argv, true);
+int main(int argc, char **argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  TimeCollapse time_c3d_caffe("infer c3d_caffe");
+  // create an instance of ModelRunner
+  auto cur_model_runner = new ModelRunner(FLAGS_device_id, FLAGS_magicmind_model);
+  if (!cur_model_runner->Init(FLAGS_batch_size)) {
+    SLOG(ERROR) << "Init cur_model_runner failed.";
+    return false;
+  }
 
-    // Cnrt
-    cnrtQueue_t queue;
-    MluDeviceGuard device_guard(FLAGS_device_id);
-    CNRT_CHECK(cnrtQueueCreate(&queue)); //mm0.12 cnrtCreateQueue 
+  // set basic vars.
+  int img_w = 112, img_h = 112, img_c = 3, clip_len = 8, n_classes = 101;
+  int clip_steps = (FLAGS_sampling_rate - 1)*clip_len;
+  int batch_size = FLAGS_batch_size;
+  int img_chw = img_w*img_h*img_c;
 
-    // Model
-    auto model = magicmind::CreateIModel();
-    MM_CHECK(model->DeserializeFromFile(FLAGS_magicmind_model.c_str()));
-    PrintModelInfo(model);
+  // load images
+  SLOG(INFO) << "================== Loading Videos ... ====================";
+  result *test;
+  test = loadVideosAndLabels(FLAGS_video_list,FLAGS_name_file);
+  int total_videos = test->video_paths.size();
+  int total_clips_id = 0;
 
-    // Engine
-    magicmind::IModel::EngineConfig engine_config;
-    engine_config.SetDeviceType("MLU");
-    engine_config.SetConstDataInit(true);
-    auto engine = model->CreateIEngine(engine_config);
-    CHECK_VALID(engine);
+  if (total_videos == 0) {
+      SLOG(ERROR) << "No videos in video list[" << FLAGS_video_list << "].";
+    return 1;
+  }
+  if (FLAGS_image_num > 0){
+      total_videos = min(FLAGS_image_num,total_videos);
+  }
+  SLOG(INFO) << "All Videos Num: " << total_videos << "\n";
 
-    // Context
-    auto context = engine->CreateIContext();
-    CHECK_VALID(context);
-    
-    // Input And Output Malloc
-    vector<magicmind::IRTTensor *> input_tensors, output_tensors;
-    MM_CHECK(context->CreateInputTensors(&input_tensors));
-    MM_CHECK(context->CreateOutputTensors(&output_tensors));
+  // batch information
+  Record result_label(FLAGS_result_label_file);
+  Record result_top1_file(FLAGS_result_top1_file);
+  Record result_top5_file(FLAGS_result_top5_file);
+  Record result_file(FLAGS_result_file);
 
-    // Set Input tensor size
-    int img_w = 112;
-    int img_h = 112;
-    int clip_len = 8;
-    int img_c = 3;
-    int batch_size = FLAGS_batch_size;
-    int clip_steps = (FLAGS_sampling_rate-1)*clip_len;
-    int n_classes = 101;
+  cv::VideoCapture capture;
+  cv::Mat frame;
 
-    // malloc
-    void *mlu_ptr;
-    auto input_dim_vec = model->GetInputDimension(0).GetDims();
-    if (input_dim_vec[0] == -1) {
-        input_dim_vec[0] = batch_size;
-    }
-    magicmind::Dims input_dim = magicmind::Dims(input_dim_vec);
-    input_tensors[0]->SetDimensions(input_dim);
-    if (input_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
-        CNRT_CHECK(cnrtMalloc(&mlu_ptr, input_tensors[0]->GetSize()));
-        MM_CHECK(input_tensors[0]->SetData(mlu_ptr));
-    } 
+  // allocate host memory for batch preprpcessed data
+  auto batch_data = cur_model_runner->GetHostInputData();
 
-    bool dynamic_output = false;
-    if (magicmind::Status::OK() ==
-        context->InferOutputShape(input_tensors, output_tensors)) {
-        std::cout << "InferOutputShape successed" << std::endl;
-        if (output_tensors[0]->GetMemoryLocation() == magicmind::TensorLocation::kMLU) {
-            CNRT_CHECK(cnrtMalloc(&mlu_ptr, output_tensors[0]->GetSize()));
-            MM_CHECK(output_tensors[0]->SetData(mlu_ptr));
-        } else {
-            std::cout << "InferOutputShape failed" << std::endl;
-            dynamic_output = true;
-        }
-    }
-
-    //Set Input data ptr
-    float *input_data_ptr = new float[batch_size*clip_len*img_h*img_w*img_c];
-    int total_data_nums = batch_size*clip_len*img_h*img_w*img_c;
-
-    //Set Output data ptr
-    float *output_data_ptr = new float[output_tensors[0]->GetSize()/sizeof(output_tensors[0]->GetDataType())];
-
-    //Load Videos and Read Frames
-    cout << "Loading Videos..." << endl;
-    result* test;
-    test = loadVideosAndLabels(FLAGS_video_list,FLAGS_name_file);
-
-    if (test->video_paths.size() == 0) {
-        cout << "No videos in video list[" << FLAGS_video_list << "].";
-        return 0;
-    }
-
-    int total_videos = test->video_paths.size();
-    int total_clips_id = 0;
+  SLOG(INFO) << "Start run...";
+  for(int i=0;i<total_videos;++i){
+    // start to traverse all the videos.
+    SLOG(INFO)<< i+1 <<"/"<<total_videos<<"\n";
     cv::VideoCapture capture;
-    cout << "All Videos: " << total_videos << endl;
-    cv::Mat frame;
-    Record result_label(FLAGS_result_label_file);
-    Record result_top1_file(FLAGS_result_top1_file);
-    Record result_top5_file(FLAGS_result_top5_file);
-    Record result_file(FLAGS_result_file);
+    std::string real_path = FLAGS_image_dir + "/" + test->video_paths[i];
+    if(!capture.open(real_path)){
+        SLOG(ERROR)<<"Faild open "<<real_path<<"\n";
+        break;
+    }// end if capture open
+    bool video_end = false;// the current video reaches its end.
+    int clip_id = 0;// the valid part of the current video.
 
-    //start infer
-    cout << "Infering..." << endl;
-    if ( FLAGS_test_nums != -1 ){
-        total_videos = min(FLAGS_test_nums,total_videos);
-    }
-    for ( int i = 0 ; i < total_videos; i++ )
-    {
-        cout << i + 1 << "/" << total_videos << endl;
-        cv::VideoCapture capture;
-        std::string real_path = FLAGS_dataset_dir + '/' + test->video_paths[i];
-        if ( ! capture.open(real_path) ){
-            cout << "Failed" << endl;
-            break;
-        }
-        bool video_end =  false; //当前视频是否结束
-        int clip_id = 0;//当前视频有效片段
-        while ( ! video_end )
-        {
-            //pre_process
-            int per_vaild_batch = 0; //当前batch_size中的有效batch
-            int pass_frames = 0;
-            int _bs_index = 0;
-            for ( _bs_index = 0; _bs_index < batch_size ; _bs_index++){
-                int start = 0;
-                while ( start < ( pass_frames + clip_len ) ) {
-                    if ( capture.read(frame) ){
-                        if (start >= pass_frames) {
-                            cv::Mat ret = PreprocessImage(frame);
-                            memcpy(input_data_ptr+(_bs_index*clip_len+(start-pass_frames))*img_c*img_h*img_w , \
-                                    ret.data , img_c*img_h*img_w*magicmind::DataTypeSize(input_tensors[0]->GetDataType()));
-                        }
-                    }
-                    else{
-                        video_end = true;
-                        break;
-                    }
-                    start ++;
-                }
-                if ( ! video_end ){
-                    per_vaild_batch ++; //每读取bs*clip_len 1*8有效片段+1 有效batch 
-                    pass_frames = clip_steps;
-                    clip_id ++; 
-                }
-            }
-            //compute
-            CNRT_CHECK(cnrtMemcpy(input_tensors[0]->GetMutableData(),input_data_ptr, input_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_HOST2DEV));
-            output_tensors.clear();
-            MM_CHECK(context->Enqueue(input_tensors, &output_tensors, queue));
-            CNRT_CHECK(cnrtQueueSync(queue));
-            CNRT_CHECK(cnrtMemcpy((void *)output_data_ptr, output_tensors[0]->GetMutableData(),output_tensors[0]->GetSize(), CNRT_MEM_TRANS_DIR_DEV2HOST));
-           //post process
-            for (int _p = 0; _p < per_vaild_batch; _p++){
-                int curr_clip_id = total_clips_id + clip_id - per_vaild_batch + _p ;
-                auto top5 = ArgTopK(output_data_ptr+_p*n_classes, n_classes, 5);
-                auto pos = test->video_paths[i].find_last_of('/');
-                string video_name = test->video_paths[i].substr(pos+1);
-                std::string output_clip_name = FLAGS_output_dir + "/" + video_name + "_" + std::to_string(curr_clip_id) ;
-                //存放真实标签值
-                if (!FLAGS_result_label_file.empty()) {
-                    result_label.write("[" + std::to_string(curr_clip_id) + "]: " + std::to_string(test->name_to_id[getBaseName(test->video_paths[i])]), false);
-                }
-                //存放预测的top1值
-                if (!FLAGS_result_top1_file.empty()) {
-                    result_top1_file.write("[" + std::to_string(curr_clip_id) + "]: " + std::to_string(top5[0]+1), false);
-                }
-                result_file.write("top5 result in " + video_name + ":", false);
-                //存放预测的top5值 key为id
-                for (int j = 0 ; j < 5 ; j ++) {
-                    if (!FLAGS_result_top5_file.empty()) {
-                        result_top5_file.write("[" + std::to_string(curr_clip_id) + "]: " + std::to_string(top5[j]+1), false);
-                    }
-                    //存放预测的top5值 key为image_name
-                    if (!FLAGS_result_file.empty()) {
-                        result_file.write(std::to_string(j) + " [" + test->id_to_name[top5[j]+1] + "]", false);
-                    }
-                }
-            }
-        }
-        total_clips_id += clip_id;
-    }
-    cout << "Process Total:" << total_videos << " Videos and Total Clips:" << total_clips_id << endl;
-    //end free resources
-    CNRT_CHECK(cnrtQueueDestroy(queue));
-    delete [] input_data_ptr;
-    delete [] output_data_ptr;
-    for (auto tensor : input_tensors) {
-        cnrtFree(tensor->GetMutableData());
-        tensor->Destroy();
-    }
-    for (auto tensor : output_tensors) {
-        tensor->Destroy();
-    }
-    context->Destroy();
-    engine->Destroy();
-    model->Destroy();
-    return 0;
-}
+    // proc one video
+    while(!video_end){
+        //pre process
+        int per_vaild_batch = 0;
+        int pass_frames = 0;
 
+        int offset_gap =0;
+        int prev_offset=0;
+
+        for(int bs_index =0;bs_index<batch_size;++bs_index){
+            //积累batch
+            int start =0;
+            while(start<(pass_frames + clip_len)){
+                if(capture.read(frame)){
+                    if(start>=pass_frames){
+                        cv::Mat ret = PreprocessImage(frame);
+
+                        auto batch_off_set = (bs_index*clip_len+(start-pass_frames))*img_chw;
+                        auto offset_gap = batch_off_set -prev_offset;
+                        prev_offset = batch_off_set;
+                        auto input_data_type = cur_model_runner->GetInputDataTypes()[0];
+                        auto data_type_size = magicmind::DataTypeSize(input_data_type);
+                        auto img_data_len = img_chw*data_type_size;
+                        memcpy((float*)(batch_data[0])+batch_off_set, ret.data , img_data_len);
+                    }// if start >= pass_frames，开始抽帧
+
+                }else{
+                    video_end = true;
+                    break;
+                }// end if capture read
+                start++;
+            }//end while start,抽帧
+            if(! video_end){
+                per_vaild_batch++;
+                pass_frames = clip_steps;
+                clip_id++;
+            }// end if video_end
+        }//end for batch_size, batch data is full, start to compute
+
+        // copy in
+        cur_model_runner->H2D();
+        // compute
+        cur_model_runner->Run(FLAGS_batch_size);
+        // copy out
+        cur_model_runner->D2H();
+        // get model's output addr in host
+        auto host_output_ptr = cur_model_runner->GetHostOutputData();
+        auto infer_res = (float *)host_output_ptr[0];
+        // post process
+        for(int j=0;j<per_vaild_batch;++j){
+            int cur_clip_id = total_clips_id + clip_id - per_vaild_batch +j;
+            std::vector<int> top5 = ArgTopK(infer_res + j*n_classes,n_classes,5);
+            auto pos = test->video_paths[i].find_last_of('/');
+            std::string video_name = test->video_paths[i].substr(pos+1);
+
+            if (!FLAGS_result_label_file.empty()) {
+                result_label.write("[" + std::to_string(cur_clip_id) + "]: " + std::to_string(test->name_to_id[getBaseName(test->video_paths[i])]), false);
+            }
+            //存放预测的top1值
+            if( ! FLAGS_result_top1_file.empty()){
+                result_top1_file.write("[" + std::to_string(cur_clip_id) + "]: " + std::to_string(top5[0]+1), false);
+            
+            }// end if top1_file
+            result_file.write("top5 result in " + video_name + ":", false);
+            //存放预测的top5值, key is id
+            for(int k =0;k<5;++k){
+                if(!FLAGS_result_top5_file.empty()){
+                    result_top5_file.write("[" + std::to_string(cur_clip_id) + "]: " + std::to_string(top5[k]+1), false);
+                }// end if top5
+
+                if (!FLAGS_result_file.empty()) {
+                    result_file.write(std::to_string(k) + " [" + test->id_to_name[top5[k]+1] + "]", false);
+                }
+            
+            }// end for int k
+
+        }//end for j
+    
+    }//end while video_end
+    total_clips_id += clip_id;
+  }//end for total_videos
+  SLOG(INFO)<<"Process "<<total_videos<<" videos and "<<total_clips_id<<" clips.\n";
+  // destroy resource
+  cur_model_runner->Destroy();
+  return 0;
+}// main

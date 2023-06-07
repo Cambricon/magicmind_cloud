@@ -1,19 +1,26 @@
 #!/bin/bash
 set -e
 set -x
-cd $PROJ_ROOT_PATH/export_model
+cd ${PROJ_ROOT_PATH}/export_model
 bash run.sh 1
 for precision in force_float32 force_float16 qint8_mixed_float16
 do
-    cd $PROJ_ROOT_PATH/gen_model
-    bash run.sh $precision true 1 0.001 0.65 1000
-    for batch in 1
+    for dynamic_shape in true
     do
-        cd $PROJ_ROOT_PATH/infer_cpp
-        bash run.sh $precision true $batch -1
-        cd $PROJ_ROOT_PATH/export_model/Pytorch_Retinaface/widerface_evaluate
-        python3 setup.py build_ext --inplace
-        python3 evaluation.py -p $PROJ_ROOT_PATH/data/output/infer_cpp_output_${precision}_true_${batch}/pred_txts \
-                                -g $PROJ_ROOT_PATH/export_model/Pytorch_Retinaface/widerface_evaluate/ground_truth
+        for batch_size in 16
+        do
+            magicmind_model=${MODEL_PATH}/retinaface_pytorch_model_${precision}_${dynamic_shape}
+            if [ ${dynamic_shape} == 'false' ];then
+                magicmind_model="${magicmind_model}_${batch_size}"
+            fi
+            if [ ! -f ${magicmind_model} ];then
+                cd ${PROJ_ROOT_PATH}/gen_model
+                bash run.sh ${magicmind_model} ${precision} ${batch_size} ${dynamic_shape}    
+            else
+                echo "MagicMind model: ${magicmind_model} already exists!"
+            fi
+            cd ${PROJ_ROOT_PATH}/infer_cpp
+            bash run.sh ${magicmind_model} ${batch_size}            
+        done 
     done
 done

@@ -1,10 +1,11 @@
 #include <gflags/gflags.h>
-#include <glog/logging.h>
+//#include <glog/logging.h>
 #include <string>
 #include <unordered_map>
 #include "net_params.h"
+#include "macros.h"
 
-DEFINE_string(network, "BODY_25", "network name, BODY_25 and COCO are supported.");
+DEFINE_string(network, "COCO", "network name, BODY_25 and COCO are supported.");
 
 const NetParams &GetNetParams() {
   static const std::unordered_map<std::string, NetParams> kparams_map {
@@ -117,8 +118,9 @@ const NetParams &GetNetParams() {
   };
 
   auto iter = kparams_map.find(FLAGS_network);
-  LOG_IF(FATAL, kparams_map.end() == iter)
-    << "Can not find network[" << FLAGS_network << "] implementation.";
+  if(kparams_map.end() == iter){
+      SLOG(ERROR) <<"Can not find network[" << FLAGS_network << "] implementation.";
+  }
   return iter->second;
 }
 

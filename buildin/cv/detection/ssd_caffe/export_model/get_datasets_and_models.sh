@@ -22,27 +22,33 @@ cd $MODEL_PATH
 if [ -f "deploy.prototxt" ];
 then
   echo "ssd prototxt file already exists."
+  if grep -q "0.01" deploy.prototxt;
+  then
+    echo "ssd prototxt file has been modified"
+  else
+    patch -p0 deploy.prototxt < $PROJ_ROOT_PATH/export_model/prototxt.diff
+  fi
 else
   echo "Downloading ssd prototxt file"
   wget -c https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/97406996b1eee2d40eb0a00ae567cf41e23369f9/deploy.prototxt
+  patch -p0 deploy.prototxt < prototxt.diff
 fi
 
 cd $DATASETS_PATH
-if [ -f "VOCtrainval_11-May-2012.tar" ];
+if [ -f "VOCtest_06-Nov-2007.tar" ];
 then
-  echo "voc2012 datasets already exists."
+  echo "voc2007 test datasets already exists."
 else
-  echo "Downloading voc2012 datasets..."
-  wget -c http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
-  tar -xvf VOCtrainval_11-May-2012.tar
+  echo "Downloading voc2007 test datasets..."
+  wget -c http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+  tar -xvf VOCtest_06-Nov-2007.tar
 fi
 
 cd $UTILS_PATH
-if [ -f "compute_voc_mAP.py" ];
+if [ -f "$UTILS_PATH/compute_voc_mAP.py" ];
 then
-    echo "compute_voc_mAP.py already exists"
-else
-    echo "Downloading compute_voc_mAP.py"
-    wget https://raw.githubusercontent.com/luliyucoordinate/eval_voc/361b1953891827b2342b6d6ce92b66a31855cb0e/eval_voc.py -O compute_voc_mAP.py
-    patch -u $UTILS_PATH/compute_voc_mAP.py -i $PROJ_ROOT_PATH/export_model/eval_voc.diff
+  rm $UTILS_PATH/compute_voc_mAP.py
 fi
+echo "Downloading compute_voc_mAP.py"
+wget https://raw.githubusercontent.com/luliyucoordinate/eval_voc/361b1953891827b2342b6d6ce92b66a31855cb0e/eval_voc.py -O compute_voc_mAP.py
+patch -p0 $UTILS_PATH/compute_voc_mAP.py < $PROJ_ROOT_PATH/export_model/eval_voc.diff

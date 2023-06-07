@@ -7,11 +7,11 @@ FILE2="annotations"
 FILE3="coco.names"
 FILE4="yolov3_tiny.cfg"
 FILE5="yolov3_tiny.weights"
-if [ ! -d $DATASETS_PATH ];then
-  mkdir -p $DATASETS_PATH
+if [ ! -d $COCO_DATASETS_PATH ];then
+  mkdir -p $COCO_DATASETS_PATH
 fi 
 
-cd $DATASETS_PATH
+cd $COCO_DATASETS_PATH
 if [ ! -d $FILE1 ];then 
   echo "Downloading val2017.zip"
   wget -c http://images.cocodataset.org/zips/val2017.zip

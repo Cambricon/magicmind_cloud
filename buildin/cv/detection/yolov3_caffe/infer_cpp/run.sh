@@ -1,43 +1,41 @@
+#!/bin/bash
 set -e
 set -x
-#Example:bash run.sh force_float32 false 6
 
-PRECISION=$1
-SHAPE_MUTABLE=$2
-BATCH_SIZE=$3
+magicmind_model=${1}
+batch_size=${2}
+image_num=${3}
 
-if [ $SHAPE_MUTABLE == "true" ];then
-    MM_MODEL=${PRECISION}_${SHAPE_MUTABLE}_1
-else
-    MM_MODEL=${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
-fi 
-
-THIS_OUTPUT_DIR="$PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
-if [ ! -d $THIS_OUTPUT_DIR ];then
-    mkdir -p $THIS_OUTPUT_DIR
-    mkdir -p $THIS_OUTPUT_DIR/draw_imgs
-    mkdir -p $THIS_OUTPUT_DIR/results
-    mkdir -p $THIS_OUTPUT_DIR/json
+json_name="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model}).json"
+infer_res_dir="${PROJ_ROOT_PATH}/data/output/$(basename ${magicmind_model})_infer_res"
+if [ ! -d ${infer_res_dir} ];
+then
+  mkdir -p ${infer_res_dir}
 fi
 
-if [ ! -f $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL ];then
-    echo "$MM_MODEL not exist,please go to gen_model folder and run this command:bash run.sh $PRECISION $SHAPE_MUTABLE $BATCH_SIZE!!!"
-    exit 1
-fi
+bash build.sh
+${PROJ_ROOT_PATH}/infer_cpp/infer   --magicmind_model ${magicmind_model} \
+                                    --image_num ${image_num}\
+                                    --batch_size ${batch_size}\
+                                    --image_dir ${COCO_DATASETS_PATH}/val2017 \
+                                    --file_list ${UTILS_PATH}/coco_file_list_5000.txt \
+                                    --label_path ${UTILS_PATH}/coco.names \
+                                    --output_dir ${infer_res_dir}\
+                                    --save_img true
 
-cd $PROJ_ROOT_PATH/infer_cpp/
-if [ ! -f infer ];then
-    bash build.sh
-fi
-DEV_ID=0
-./infer --magicmind_model $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL \
-        --device_id $DEV_ID \
-        --batch_size ${BATCH_SIZE} \
-        --image_dir ${DATASETS_PATH}/val2017 \
-        --label_path ${UTILS_PATH}/coco.names \
-        --output_img_dir $THIS_OUTPUT_DIR/draw_imgs \
-        --output_pred_dir $THIS_OUTPUT_DIR/results \
-        --save_imgname_dir $THIS_OUTPUT_DIR/json \
-        --save_img 0 \
-        --save_pred 1 \
-        --test_nums 1000
+# get metric res
+function compute_coco(){
+    infer_res_dir=${1}
+    json_name=${2}
+    log_file=${infer_res_dir}/log_eval
+    python ${UTILS_PATH}/compute_coco_mAP.py  --file_list ${UTILS_PATH}/coco_file_list_5000.txt \
+                                              --result_dir ${infer_res_dir} \
+                                              --ann_dir ${COCO_DATASETS_PATH} \
+                                              --data_type val2017 \
+                                              --json_name ${json_name} \
+                                              --infer_mode infer_cpp \
+                                              --image_num ${image_num} 2>&1 |tee ${log_file}
+}
+
+compute_coco  ${infer_res_dir} ${json_name}
+

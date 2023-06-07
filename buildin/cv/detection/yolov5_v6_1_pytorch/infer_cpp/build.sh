@@ -1,1 +1,8 @@
-g++ -std=c++11 -O2 -Werror `pkg-config opencv --cflags` -I $PROJ_ROOT_PATH/infer_cpp -I $NEUWARE_HOME/include $PROJ_ROOT_PATH/infer_cpp/src/*.cpp -o $PROJ_ROOT_PATH/infer_cpp/infer -L$NEUWARE_HOME/lib64 -lmagicmind_runtime -lcnrt -lgflags `pkg-config opencv --libs`
+g++ -std=c++11 -O2 -Werror `pkg-config opencv --cflags` \
+    $PROJ_ROOT_PATH/infer_cpp/src/*.cpp $CPP_COMMON_PATH/*.cc \
+    -I $NEUWARE_HOME/include \
+    -I $PROJ_ROOT_PATH/infer_cpp/include \
+    -I $CPP_COMMON_PATH \
+    -L $NEUWARE_HOME/lib64 \
+    -o $PROJ_ROOT_PATH/infer_cpp/infer \
+    -lmagicmind_runtime -lcnrt -lcndrv -lgflags `pkg-config opencv --libs`

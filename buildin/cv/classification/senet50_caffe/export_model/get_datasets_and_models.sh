@@ -2,14 +2,14 @@
 set -e
 set -x
 
-if [ -d $MODEL_PATH ];
+if [ -d ${MODEL_PATH} ];
 then
-    echo "folder $MODEL_PATH already exists"
+    echo "folder ${MODEL_PATH} already exists"
 else
-    mkdir -p $MODEL_PATH
+    mkdir -p ${MODEL_PATH}
 fi
 
-cd $MODEL_PATH
+cd ${MODEL_PATH}
 if [ -f "SE-ResNet-50.caffemodel" ];
 then
   echo "senet50 caffemodel already exists."
@@ -18,7 +18,6 @@ else
   exit 1
 fi
 
-cd $MODEL_PATH
 if [ -f "SE-ResNet-50.prototxt" ];
 then
   echo "senet50 prototxt file already exists."
@@ -27,7 +26,7 @@ else
   exit 1
 fi
 
-cd $DATASETS_PATH
+cd ${ILSVRC2012_DATASETS_PATH}
 if [ ! -f ILSVRC2012_val_00000001.JPEG ];
 then
     echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/"
