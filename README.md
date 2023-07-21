@@ -64,7 +64,7 @@ docker run -it --shm_size 10G --name=dockername \
 | [SqueezeNet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [SqueezeNet_v1_1](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [VGG16](buildin/cv/classification/vgg16_caffe)                     | Caffe     | YES       | YES       | YES | YES    |
-| [SwinTransformer](buildin/cv/classification/SwinTransformer_pytorch)|PyTorch   | YES       | YES       | NO  | YES    |
+| [SwinTransformer](buildin/cv/classification/swintransformer_pytorch)|PyTorch   | YES       | YES       | NO  | YES    |
 | [3D-ResNet](buildin/cv/classification/3dresnet_pytorch)            | PyTorch   | YES       | YES       | NO  | YES    |
 
 
@@ -158,6 +158,10 @@ ModelZoo 仅提供公共数据集以及预训练模型的下载链接，公共�
 如果您不希望您的数据集或模型公布在 ModelZoo 上，或者您希望更新 ModelZoo 中属于您的数据集或模型，请您通过 Gitee 中提交 issue，您也可以联系ecosystem@cambricon.com告知我们。
 
 ## 9.Release Note
+### v1.5:
+- MagicMind支持版本1.5.0
+- 修复tacotron2_onnx perf测试中模型错误问题
+
 ### v1.4:
 - MagicMind支持版本1.3.0
 - 新增gen_model以及infer时的公共组件函数:python_common, cpp_common
