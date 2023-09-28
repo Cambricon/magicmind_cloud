@@ -2,9 +2,9 @@
 set -e
 set -x
 
-if [ ! -d $DATASETS_PATH ];
+if [ ! -d $AFLW2000_DATASETS_PATH ];
 then
-  mkdir -p $DATASETS_PATH
+  mkdir -p $AFLW2000_DATASETS_PATH
 fi 
 
 
@@ -21,9 +21,6 @@ then
 else
     echo "FSA_Net already exist !"
 fi
-
-cd $DATASETS_PATH
-cp $PROJ_ROOT_PATH/export_model/FSA-Net/data/type1/AFLW2000.npz .
 
 cd $MODEL_PATH
 cp $PROJ_ROOT_PATH/export_model/FSA-Net/pre-trained/converted-models/tf/* .

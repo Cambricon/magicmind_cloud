@@ -51,20 +51,20 @@ docker run -it --shm_size 10G --name=dockername \
 | [ArcFace](buildin/cv/classification/arcface_pytorch)               | PyTorch   | YES       | YES       | YES | NO     |
 | [CRNN](buildin/cv/classification/crnn_pytorch)                     | PyTorch   | YES       | YES       | NO  | YES    |
 | [DenseNet121](buildin/cv/classification/densenet121_caffe)         | Caffe     | YES       | YES       | YES | NO     |
+| [EfficientNet](buildin/cv/classification/efficientnet_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
 | [GoogleNet_bn](buildin/cv/classification/googlenet_bn_caffe)       | Caffe     | YES       | YES       | YES | YES    |
 | [MobileNetV2](buildin/cv/classification/mobilenetv2_caffe)         | Caffe     | YES       | YES       | YES | YES    |
 | [MobileNetV3](buildin/cv/classification/mobilenetv3_pytorch)       | PyTorch   | YES       | YES       | YES | NO     |
 | [ResNet50](buildin/cv/classification/resnet50_onnx)                | ONNX      | YES       | YES       | NO  | YES    |
 | [ResNet50](buildin/cv/classification/resnet50_pytorch)             | PyTorch   | YES       | YES       | NO  | YES    |
 | [ResNet50](buildin/cv/classification/resnet50_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
-| [Xception](buildin/cv/classification/xception_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
-| [EfficientNet](buildin/cv/classification/efficientnet_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
 | [ResNext50](buildin/cv/classification/resnext50_caffe)             | Caffe     | YES       | YES       | YES | YES    |
 | [SENet50](buildin/cv/classification/senet50_caffe)                 | Caffe     | YES       | YES       | YES | NO     |
 | [SqueezeNet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [SqueezeNet_v1_1](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe     | YES       | YES       | YES | NO     |
-| [VGG16](buildin/cv/classification/vgg16_caffe)                     | Caffe     | YES       | YES       | YES | YES    |
 | [SwinTransformer](buildin/cv/classification/swintransformer_pytorch)|PyTorch   | YES       | YES       | NO  | YES    |
+| [VGG16](buildin/cv/classification/vgg16_caffe)                     | Caffe     | YES       | YES       | YES | YES    |
+| [Xception](buildin/cv/classification/xception_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
 | [3D-ResNet](buildin/cv/classification/3dresnet_pytorch)            | PyTorch   | YES       | YES       | NO  | YES    |
 
 
@@ -75,49 +75,52 @@ docker run -it --shm_size 10G --name=dockername \
 | [C3D](buildin/cv/detection/c3d_caffe)                         | Caffe      | YES       | YES       | YES | NO     |
 | [CenterNet](buildin/cv/detection/centernet_pytorch)           | PyTorch    | YES       | YES       | YES | NO     |
 | [DBNet](buildin/cv/detection/dbnet_pytorch)                   | PyTorch    | YES       | YES       | NO  | YES    |
-| [Retinaface](buildin/cv/detection/retinaface_pytorch)         | PyTorch    | YES       | YES       | YES | NO     |
-| [Mask_R-CNN](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
-| [Faster_R-CNN](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
-| [SSD](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
-| [RetinaNet](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
-| [Cascade_R-CNN](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
-| [HRNet](buildin/cv/detection/mmdetection)         | Pytorch    | YES       | YES       | NO  | YES    |
-| [SSD](buildin/cv/detection/ssd_caffe)                         | Caffe      | YES       | YES       | YES | YES    |
-| [YOLOV3](buildin/cv/detection/yolov3_caffe)                   | Caffe      | YES       | YES       | YES | NO     |
-| [YOLOV3](buildin/cv/detection/yolov3_tensorflow)              | TensorFlow | YES       | YES       | YES | NO     |
-| [YOLOV3](buildin/cv/detection/yolov3_paddle)                  | Paddle     | YES       | YES       | NO  | YES     |
-| [YOLOV3 Tiny](buildin/cv/detection/yolov3_tiny_caffe)         | Caffe      | YES       | YES       | YES | NO     |
-| [YOLOV5](buildin/cv/detection/yolov5_v6_1_pytorch)            | PyTorch    | YES       | YES       | YES | YES    |
-| [YOLOV7](buildin/cv/detection/yolov7_pytorch)                 | PyTorch    | YES       | YES       | YES | YES    |
-| [HoiTransformer](buildin/cv/detection/hoitransformer_pytorch) | PyTorch    | YES       | YES       | NO  | YES    |
-| [YOLOV4](buildin/cv/detection/yolov4_caffe)           | Caffe      | YES       | YES       | YES | NO     |
+| [Faster_R-CNN](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
+| [Cascade_R-CNN](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
+| [HoiTransformer](buildin/cv/detection/hoitransformer_pyTorch) | PyTorch    | YES       | YES       | NO  | YES    |
+| [HRNet](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
+| [Mask_R-CNN](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
 | [PSENet](buildin/cv/detection/psenet_tensorflow)      | TensorFlow | YES       | YES       | NO  | YES    |
+| [Retinaface](buildin/cv/detection/retinaface_pytorch)         | PyTorch    | YES       | YES       | YES | NO     |
+| [RetinaNet](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
+| [SSD](buildin/cv/detection/ssd_caffe)                         | Caffe      | YES       | YES       | YES | YES    |
+| [SSD](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
+| [YOLOv3](buildin/cv/detection/yolov3_caffe)                   | Caffe      | YES       | YES       | YES | NO     |
+| [YOLOv3](buildin/cv/detection/yolov3_tensorflow)              | TensorFlow | YES       | YES       | YES | NO     |
+| [YOLOv3](buildin/cv/detection/yolov3_paddle)                  | Paddle     | YES       | YES       | NO  | YES     |
+| [YOLOv3 Tiny](buildin/cv/detection/yolov3_tiny_caffe)         | Caffe      | YES       | YES       | YES | NO     |
+| [YOLOv4](buildin/cv/detection/yolov4_caffe)           | Caffe      | YES       | YES       | YES | NO     |
+| [YOLOv5](buildin/cv/detection/yolov5_v6_1_pytorch)            | PyTorch    | YES       | YES       | YES | YES    |
+| [YOLOv5 without plugin](buildin/cv/detection/yolov5_v7_0_without_plugin_pytorch)            | PyTorch    | YES       | YES       | NO | YES    |
+| [YOLOv7](buildin/cv/detection/yolov7_pytorch)                 | PyTorch    | YES       | YES       | YES | YES    |
+| [YOLOv8](buildin/cv/detection/yolov8_pytorch)      | PyTorch | YES       | YES       | NO  | YES    |
 
 #### Segmentation:
 
 | MODELS                                                    | FRAMEWORK  | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | --------------------------------------------------------- | ---------- | --------- | --------- | --- | ------ |
-| [Deeplabv3](buildin/cv/segmentation/mmsegmentation)        | Pytorch    | YES       | YES       | NO  | YES    |
-| [UNet](buildin/cv/segmentation/mmsegmentation)        | Pytorch    | YES       | YES       | NO  | YES    |
-| [OCRNet](buildin/cv/segmentation/mmsegmentation)        | Pytorch    | YES       | YES       | NO  | YES    |
+| [Deeplabv3](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
 | [Deeplabv3](buildin/cv/segmentation/deeplabv3_tensorflow) | TensorFlow | YES       | YES       | YES | NO     |
 | [nnUnet](buildin/cv/segmentation/nnUNet_pytorch)          | PyTorch    | YES       | YES       | NO  | YES    |
-| [UNet](buildin/cv/segmentation/unet_pytorch)              | PyTorch    | YES       | YES       | NO  | YES    |
+| [OCRNet](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
 | [SegNet](buildin/cv/segmentation/segnet_caffe)            | Caffe      | YES       | YES       | YES | NO     |
+| [UNet](buildin/cv/segmentation/unet_pytorch)              | PyTorch    | YES       | YES       | NO  | YES    |
+| [UNet](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
 | [U2Net](buildin/cv/segmentation/u2net_pytorch)            | PyTorch    | YES       | YES       | NO  | YES    |
 
 #### Others:
 
 | MODELS                                      | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | ------------------------------------------- | --------- | --------- | --------- | --- | ------ |
-| [Openpose](buildin/cv/other/openpose_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [Clip](buildin/cv/other/clip_pytorch)       | PyTorch   | YES       | YES       | NO  | YES    |
 | [FSANet](buildin/cv/other/fsanet_tensorflow)| TensorFlow| YES       | YES       | NO  | YES    |
-| [I3D](buildin/cv/other/mmaction2)| Pytorch| YES       | YES       | NO  | YES    |
-| [TSM](buildin/cv/other/mmaction2)| Pytorch| YES       | YES       | NO  | YES    |
-| [HRNet](buildin/cv/other/mmpose)| Pytorch| YES       | YES       | NO  | YES    |
-| [ResNet50](buildin/cv/other/mmpose)| Pytorch| YES       | YES       | NO  | YES    |
-| [MobileNetv2](buildin/cv/other/mmpose)| Pytorch| YES       | YES       | NO  | YES    |
+| [HRNet](buildin/cv/other/mmpose)| PyTorch| YES       | YES       | NO  | YES    |
+| [I3D](buildin/cv/other/mmaction2)| PyTorch| YES       | YES       | NO  | YES    |
+| [MobileNetv2](buildin/cv/other/mmpose)| PyTorch| YES       | YES       | NO  | YES    |
+| [Openpose](buildin/cv/other/openpose_caffe) | Caffe     | YES       | YES       | YES | NO     |
+| [PaddleOCR](buildin/cv/other/paddleocr)| Paddle| YES       | YES       | NO  | YES    |
+| [ResNet50](buildin/cv/other/mmpose)| PyTorch| YES       | YES       | NO  | YES    |
+| [TSM](buildin/cv/other/mmaction2)| PyTorch| YES       | YES       | NO  | YES    |
 
 ### NLP:
 
@@ -128,8 +131,8 @@ docker run -it --shm_size 10G --name=dockername \
 | [BERT](buildin/nlp/LanguageModeling/bert_squad_pytorch)           | PyTorch    | YES       | YES       | NO  | YES    |
 | [BERT](buildin/nlp/LanguageModeling/bert_tensorflow)              | TensorFlow | YES       | NO        | NO  | YES    |
 | [ROBERTA](buildin/nlp/LanguageModeling/roberta_pytorch)           | PyTorch    | YES       | YES       | NO  | YES    |
-| [Transformers](buildin/nlp/LanguageModeling/transformers_pytorch) | PyTorch    | YES       | YES       | NO  | YES    |
 | [Roformer-sim](buildin/nlp/LanguageModeling/roformer-sim_tensorflow) | TensorFlow | YES       | YES    | NO  | YES    |
+| [Transformers](buildin/nlp/LanguageModeling/transformers_pytorch) | PyTorch    | YES       | YES       | NO  | YES    |
 
 #### SpeechSynthesis:
 
@@ -142,6 +145,12 @@ docker run -it --shm_size 10G --name=dockername \
 | MODELS                                                  | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
 | ------------------------------------------------------- | --------- | --------- | --------- | --- | ------ |
 | [WeNet](buildin/nlp/SpeechRecognition/wenet_pytorch)    | PyTorch   | YES       | YES       | NO  | YES    |
+
+#### Recommendation:
+| MODELS                                                  | FRAMEWORK | MLU370-X4 | MLU370-S4 | CPP | PYTHON |
+| ------------------------------------------------------- | --------- | --------- | --------- | --- | ------ |
+| [xDeepFM](buildin/nlp/Recommendation/xdeepfm_paddle)    | Paddle   | YES       | YES       | NO  | YES    |
+
 
 ## 5.issues/wiki/forum 跳转链接
 
@@ -158,6 +167,12 @@ ModelZoo 仅提供公共数据集以及预训练模型的下载链接，公共�
 如果您不希望您的数据集或模型公布在 ModelZoo 上，或者您希望更新 ModelZoo 中属于您的数据集或模型，请您通过 Gitee 中提交 issue，您也可以联系ecosystem@cambricon.com告知我们。
 
 ## 9.Release Note
+### v1.6:
+- MagicMind支持版本1.6.0
+- 整理代码格式，统一文件命名规则，修复部分网络README错误
+- CV : 新增yolov8_pytorch、yolov5_v7_1_non_detection_output_pytorch网络支持
+- NLP : 新增xdeepfm_paddle网络支持
+
 ### v1.5:
 - MagicMind支持版本1.5.0
 - 修复tacotron2_onnx perf测试中模型错误问题

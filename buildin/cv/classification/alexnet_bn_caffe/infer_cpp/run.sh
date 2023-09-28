@@ -27,7 +27,7 @@ fi
 
 bash build.sh
 $PROJ_ROOT_PATH/infer_cpp/infer   --magicmind_model $MAGICMIND_MODEL \
-                                  --image_dir $DATASETS_PATH \
+                                  --image_dir $ILSVRC2012_DATASETS_PATH \
                                   --image_num $IMAGE_NUM \
                                   --name_file $UTILS_PATH/imagenet_name.txt \
                                   --label_file $UTILS_PATH/ILSVRC2012_val.txt \

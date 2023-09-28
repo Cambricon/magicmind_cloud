@@ -19,6 +19,6 @@ echo "infer Magicmind model..."
 python infer.py --magicmind_model_1 $PROJ_ROOT_PATH/data/mm_model/fsanet_capsule_${PRECISION}_${SHAPE_MUTABLE}_1 \
                 --magicmind_model_2 $PROJ_ROOT_PATH/data/mm_model/fsanet_nos_capsule_${PRECISION}_${SHAPE_MUTABLE}_1 \
                 --magicmind_model_3 $PROJ_ROOT_PATH/data/mm_model/fsanet_var_capsule_${PRECISION}_${SHAPE_MUTABLE}_1 \
-                --image_dir $DATASETS_PATH/AFLW2000.npz \
+                --image_dir $AFLW2000_DATASETS_PATH/AFLW2000.npz \
                 --image_num ${IMAGE_NUM} \
                 2>& 1 | tee $PROJ_ROOT_PATH/data/output/fsanet_tf_output_${PRECISION}_${SHAPE_MUTABLE}_1_eval_log 

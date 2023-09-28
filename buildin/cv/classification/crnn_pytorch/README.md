@@ -49,10 +49,10 @@ cd magicmind_cloud/buildin/cv/classification/crnn_pytorch
 在开始运行代码前需要先安装依赖：
 
 ```baah
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
-在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `DATASETS_PATH`, 并且执行以下命令：
+在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `SYNTH_DATASETS_PATH`, 并且执行以下命令：
 
 ```bash
 source env.sh

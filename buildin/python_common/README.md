@@ -44,7 +44,7 @@
 | calibration_algo      | 否 | --calibration_algo linear/eqnm    | 量化统计算法 | 默认linear，选择量化校准时使用的量化算法。 |
 | device_id      | 否 | --device_id 0    | 量化时指定的MLU设备号 | 默认为0，即选择第0号MLU设备 |
 | weight_quant_granularity      | 否 | --weight_quant_granularity per_tensor/per_axis    | 量化粒度 | 1. 默认值为per_tensor。2. weight_quant_granularity 对 IConvDepthwiseNode 不适⽤。 |
-| symmetric_quant      | 否 | --symmetric_quant symmetric/asymmetric    | 量化算法 | 默认值为symmetric。|
+| activation_quant_algo      | 否 | --activation_quant_algo symmetric/asymmetric    | 量化算法 | 默认值为symmetric。|
 | input_dtypes          | 否 | --input_dtypes type1 type2 ...     | 模型输入类型 | 多输入之间以空格作为分隔符。|
 | magicmind_model       | 否 | --magicmind_model path/to/file    | 输出离线模型文件 | 默认为./converted.mm_model。 |
 | plugin_path                | 否 | --plugin_path /path/to/plugin_1 /path/to/plugin_1 ...        | 指定plugin算子的库地址 | 多plugin库之间以空格作为分隔符。 |

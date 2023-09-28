@@ -20,17 +20,17 @@ echo "infer Magicmind model..."
 cd ../export_model/HoiTransformer/data/
 if [ ! -d "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/hoia" ];
 then
-  ln -s "$DATASETS_PATH" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/" 
+  ln -s "$HOIA_DATASETS_PATH" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/" 
 fi
 
 if [ ! -d "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/hico" ];
 then
-  ln -s "$DATASETS_PATH/hico" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/"
+  ln -s "$HOIA_DATASETS_PATH/hico" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/"
 fi
   
 if [ ! -d "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/vcoco" ];
 then
-  ln -s "$DATASETS_PATH/vcoco" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/"
+  ln -s "$HOIA_DATASETS_PATH/vcoco" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/"
 fi
 
 echo "annotation file exists"
@@ -43,7 +43,7 @@ fi
 echo "images file exists"
 if [ ! -d "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/hoia/images/test" ];
 then
-  ln -s "$DATASETS_PATH/images/test" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/hoia/images/test"
+  ln -s "$HOIA_DATASETS_PATH/images/test" "$PROJ_ROOT_PATH/export_model/HoiTransformer/data/hoia/images/test"
 fi
 
 echo "test file exists"

@@ -19,7 +19,7 @@ else
     cd $PROJ_ROOT_PATH/gen_model/
     python gen_model.py --precision ${PRECISION}  --batch_size $BATCH_SIZE --shape_mutable ${SHAPE_MUTABLE} \
                                                     --onnx_model $PROJ_ROOT_PATH/data/models/yolov3_nonms.onnx \
-                                                    --datasets_dir $DATASETS_PATH/val2017 \
+                                                    --datasets_dir $COCO_DATASETS_PATH/val2017 \
                                                     --mm_model $PROJ_ROOT_PATH/data/mm_model/yolov3_onnx_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}
     echo "Generate model done, model save to $PROJ_ROOT_PATH/data/mm_model/yolov3_onnx_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}"
 fi

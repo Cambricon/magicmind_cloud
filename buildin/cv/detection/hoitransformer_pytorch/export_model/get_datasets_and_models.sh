@@ -3,7 +3,7 @@
 set -e
 set -x
 
-cd $DATASETS_PATH
+cd $HOIA_DATASETS_PATH
 cd ..
 if [ ! -d "hoia" ];
 then

@@ -27,7 +27,6 @@ if __name__ == "__main__":
     assert config.parse_from_string(precision_json_str).ok()
     assert config.parse_from_string("{\"opt_config\":{\"type64to32_conversion\":true}}").ok()
     assert config.parse_from_string("{\"opt_config\":{\"conv_scale_fold\":false}}").ok()
-    assert config.parse_from_string("{\"opt_config\":{\"clustering_launch_enable\":false}}").ok()
     if args.shape_mutable == 'true':
         assert config.parse_from_string('{"graph_shape_mutable": true}').ok()
         assert config.parse_from_string('{ \

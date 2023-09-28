@@ -19,22 +19,17 @@ else
 fi
 
 cd $MODEL_PATH
+
 if [ -f "deploy.prototxt" ];
 then
-  echo "ssd prototxt file already exists."
-  if grep -q "0.01" deploy.prototxt;
-  then
-    echo "ssd prototxt file has been modified"
-  else
-    patch -p0 deploy.prototxt < $PROJ_ROOT_PATH/export_model/prototxt.diff
-  fi
-else
-  echo "Downloading ssd prototxt file"
-  wget -c https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/97406996b1eee2d40eb0a00ae567cf41e23369f9/deploy.prototxt
-  patch -p0 deploy.prototxt < prototxt.diff
+  rm -rf deploy.prototxt
 fi
 
-cd $DATASETS_PATH
+echo "Downloading ssd prototxt file"
+wget -c https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/97406996b1eee2d40eb0a00ae567cf41e23369f9/deploy.prototxt
+patch -p0 deploy.prototxt < $PROJ_ROOT_PATH/export_model/prototxt.diff
+
+cd $VOC2007_DATASETS_PATH
 if [ -f "VOCtest_06-Nov-2007.tar" ];
 then
   echo "voc2007 test datasets already exists."

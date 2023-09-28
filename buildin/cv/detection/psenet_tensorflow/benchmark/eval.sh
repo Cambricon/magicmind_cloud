@@ -21,7 +21,7 @@ do
       bash run.sh $precision $shape_mutable 500
       #compute hmean
       THIS_OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/psenet_tf_result_${precision}_${shape_mutable}_${batch}.json
-      python $UTILS_PATH/compute_icdar_hmean.py  --label_file  $DATASETS_PATH/icdar2015/icdar2015_test_label.json \
+      python $UTILS_PATH/compute_icdar_hmean.py  --label_file  $ICDAR_DATASETS_PATH/icdar2015/icdar2015_test_label.json \
                                                  --result_dir $THIS_OUTPUT_DIR  \
                                                  2>&1 | tee $PROJ_ROOT_PATH/data/output/psenet_tf_${precision}_${shape_mutable}_${batch}_log_eval
       

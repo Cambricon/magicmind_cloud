@@ -89,8 +89,8 @@ if __name__ == "__main__":
             assert context.enqueue(input_tensors, output_tensors, queue).ok()
             assert queue.sync().ok()
             logits = output_tensors[0].asnumpy()
-            all_preds = logits if all_preds is None else nested_concat(all_preds, logits, padding_index=-100)
-            all_labels = inputs['labels'] if all_labels is None else nested_concat(all_labels, inputs['labels'],padding_index=-100)
+            all_preds = logits if all_preds is None else nested_concat(all_preds, logits)
+            all_labels = inputs['labels'] if all_labels is None else nested_concat(all_labels, inputs['labels'])
         end_time = time.time()
         raw_datasets.cleanup_cache_files() 
         # eval preds

@@ -1,0 +1,5 @@
+394c395
+<         return F.silu(input, inplace=self.inplace)
+---
+>         return input * torch.sigmoid(input)
+

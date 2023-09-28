@@ -48,7 +48,7 @@ cd magicmind_cloud/buildin/cv/classification/resnet50_paddle
 在开始运行代码前需要执行以下命令安装必要的库：
 
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 在开始运行代码前需要先检查 env.sh 里的环境变量，并且执行以下命令：
@@ -78,8 +78,9 @@ bash run.sh ${MODEL_PATH}/resnet50_paddle_model_force_float32_true force_float32
 ### 3.5 执行推理
 
 ```bash
-#bash run.sh <magicmind_model> <batch_size> <batch_size> <image_num>
-bash run.sh ${MODEL_PATH}/resnet50_paddle_model_force_float32_true force_float32 1 1000
+cd $PROJ_ROOT_PATH/infer_python
+#bash run.sh <magicmind_model> <batch_size> <image_num>
+bash run.sh ${MODEL_PATH}/resnet50_paddle_model_force_float32_true 1 1000
 ```
 
 结果:

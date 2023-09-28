@@ -12,16 +12,16 @@ else
   unzip Task002_Heart.zip
 fi
 
-if [ ! -d $nnUNet_raw_data_base ];
+if [ ! -d $NNUNET_nnUNet_raw_data_base ];
 then
-  mkdir $nnUNet_raw_data_base
+  mkdir $NNUNET_nnUNet_raw_data_base
 fi
 
-cd $nnUNet_raw_data_base
+cd $NNUNET_nnUNet_raw_data_base
 if [ -d "Task02_Heart" ];
 then
   echo "Task02_Heart already exist."
 else
-  echo "Please download Task02_Heart.tar from https://drive.google.com/uc?id=1wEB2I6S6tQBVEPxir8cA5kFB8gTQadYY to $nnUNet_raw_data_base and tar -xf Task02_Heart.tar."
+  echo "Please download Task02_Heart.tar from https://drive.google.com/uc?id=1wEB2I6S6tQBVEPxir8cA5kFB8gTQadYY to $NNUNET_nnUNet_raw_data_base and tar -xf Task02_Heart.tar."
   exit 1
 fi

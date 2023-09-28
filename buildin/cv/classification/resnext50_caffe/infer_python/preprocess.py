@@ -6,8 +6,8 @@ import cv2
 import logging
 
 def imagenet_dataset(
-    val_txt="/nfsdata/datasets/imageNet2012/labels.txt",
-    image_file_path="/nfsdata/datasets/imageNet2012/",
+    val_txt,
+    image_file_path,
     count=-1
 ):
     with open(val_txt, "r") as f:

@@ -46,7 +46,7 @@ git clone 本仓库
 cd magicmind_cloud/buildin/cv/classification/resnet50_onnx
 ```
 
-在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `DATASETS_PATH`, 并且执行以下命令：
+在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `ILSVRC2012_DATASETS_PATH`, 并且执行以下命令：
 
 ```bash
 source env.sh
@@ -70,8 +70,8 @@ bash run.sh ${MODEL_PATH}/resnet50_onnx_model_force_float32_true force_float32 1
 ### 3.5 执行推理
 ```bash
 cd $PROJ_ROOT_PATH/infer_python
-#bash run.sh <magicmind_model> <batch_size> <batch_size> <image_num>
-bash run.sh ${MODEL_PATH}/resnet50_onnx_model_force_float32_true force_float32 1 1000
+#bash run.sh <magicmind_model> <batch_size> <image_num>
+bash run.sh ${MODEL_PATH}/resnet50_onnx_model_force_float32_true 1 1000
 ```
 
 top1 和 top5 推理结果分别保存在输出目录的 `eval_result_1.txt` 和 `eval_result_5.txt` 文件中。

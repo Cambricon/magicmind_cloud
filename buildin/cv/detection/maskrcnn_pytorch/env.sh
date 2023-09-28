@@ -6,13 +6,13 @@ export MM_RUN_PATH=$NEUWARE_HOME/bin
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/detection/maskrcnn_pytorch
 #数据集路径
-export DATASETS_PATH=/nfsdata/modelzoo/datasets/coco
+#export COCO_DATASETS_PATH=/path/to/modelzoo/datasets/coco
 #cv类网络通用文件路径
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils
 #模型路径
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
-echo "check DATASETS_PATH before run the sample!!!"
-echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to the path you want to save the datasets"
+echo "check COCO_DATASETS_PATH before run the sample!!!"
+echo "COCO_DATASETS_PATH now is $COCO_DATASETS_PATH, please replace it to the path you want to save the datasets"
 echo "NEUWARE_HOME now is $NEUWARE_HOME"
 echo "MM_RUN_PATH now is $MM_RUN_PATH"
 echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"

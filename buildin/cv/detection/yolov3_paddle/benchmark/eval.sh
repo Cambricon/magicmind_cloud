@@ -7,7 +7,7 @@ COMPUTE_COCO(){
     SHAPE_MUTABLE=$2
     BATCH_SIZE=$3
     python $UTILS_PATH/compute_coco_keypoints.py --res_file $PROJ_ROOT_PATH/data/output/infer_python_output_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}/bbox.json \
-                                           --ann_file $DATASETS_PATH/annotations/instances_val2017.json \
+                                           --ann_file $COCO_DATASETS_PATH/annotations/instances_val2017.json \
                                            --iou_type bbox 2>&1 |tee $PROJ_ROOT_PATH/data/output/yolov3_paddle_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}_log_eval
 
 }

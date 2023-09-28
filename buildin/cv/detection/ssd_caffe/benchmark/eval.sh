@@ -7,7 +7,7 @@ COMPUTE_VOC(){
     SHAPE_MUTABLE=$2
     WAYS=$3
     python $UTILS_PATH/compute_voc_mAP.py --path $PROJ_ROOT_PATH/data/output/${WAYS}_output_${PRECISION}_${SHAPE_MUTABLE}_1/voc_preds/ \
-                                          --devkit_path $DATASETS_PATH/VOCdevkit 2>&1 |tee $PROJ_ROOT_PATH/data/output/${WAYS}_output_${PRECISION}_${SHAPE_MUTABLE}_1/voc_preds/log_eval
+                                          --devkit_path $VOC2007_DATASETS_PATH/VOCdevkit 2>&1 |tee $PROJ_ROOT_PATH/data/output/${WAYS}_output_${PRECISION}_${SHAPE_MUTABLE}_1/voc_preds/log_eval
 }
  
 cd $PROJ_ROOT_PATH/export_model

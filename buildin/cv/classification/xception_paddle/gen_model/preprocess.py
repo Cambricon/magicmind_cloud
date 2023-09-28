@@ -7,8 +7,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from operators import DecodeImage, ResizeImage, CropImage, NormalizeImage
 
 def imagenet_dataset(
-    val_txt="/nfsdata/datasets/imageNet2012/labels.txt",
-    image_file_path="/nfsdata/datasets/imageNet2012/",
+    val_txt="/path/to/modelzoo/datasets/imageNet2012/labels.txt",
+    image_file_path="/path/to/modelzoo/datasets/imageNet2012/",
     count=-1
 ):
     with open(val_txt, "r") as f:

@@ -7,7 +7,7 @@ FILE2="annotations"
 FILE3="coco.names"
 
 if [ ! -d ${CITYSCAPES_DATASETS_PATH} ];then
-    echo ${DATASETS_PATH}" not exist, please download cityscapes datasets. https://www.cityscapes-dataset.com/downloads/"    
+    echo ${CITYSCAPES_DATASETS_PATH}" not exist, please download cityscapes datasets. https://www.cityscapes-dataset.com/downloads/"    
     exit 1
 fi
 

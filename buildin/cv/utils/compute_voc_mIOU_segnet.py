@@ -7,7 +7,7 @@ import argparse
 sys.path.append(os.path.join(os.getenv("MAGICMIND_CLOUD"), "test"))
 from record_result import write_result
 
-VOC_DATASETS_PATH = os.environ.get("DATASETS_PATH")
+VOC_DATASETS_PATH = os.environ.get("VOC_DATASETS_PATH")
 PROJ_ROOT_PATH = os.environ.get("PROJ_ROOT_PATH")
 
 IMAGE_NAME_LIST = str(VOC_DATASETS_PATH) + '/VOCdevkit/VOC2012/ImageSets/Segmentation/val.txt'

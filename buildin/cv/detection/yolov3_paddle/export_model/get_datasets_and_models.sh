@@ -6,10 +6,10 @@ FILE1="val2017"
 FILE2="annotations"
 FILE3="coco.names"
 
-if [ ! -d $DATASETS_PATH ];then
-  mkdir -p $DATASETS_PATH
+if [ ! -d $COCO_DATASETS_PATH ];then
+  mkdir -p $COCO_DATASETS_PATH
 fi 
-cd $DATASETS_PATH
+cd $COCO_DATASETS_PATH
 
 if [ ! -d $FILE1 ];then 
   echo "Downloading val2017.zip"
@@ -33,9 +33,10 @@ if [ ! -d $MODEL_PATH ];then
 fi 
 cd $MODEL_PATH
 
-if [ ! -d "PaddleDetection" ];then
-  git clone https://github.com/PaddlePaddle/PaddleDetection.git
+if [ -d "PaddleDetection" ];then
+  rm -rf PaddleDetection
 fi
+git clone https://github.com/PaddlePaddle/PaddleDetection.git
 cd PaddleDetection
 git checkout v2.5.0
 if grep -q "#  nms:" /$MODEL_PATH/PaddleDetection/configs/yolov3/_base_/yolov3_darknet53.yml;

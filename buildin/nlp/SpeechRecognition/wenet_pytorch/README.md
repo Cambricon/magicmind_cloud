@@ -51,7 +51,10 @@ cd magicmind_cloud/buildin/nlp/SpeechRecognition/WeNet_pytorch
 ```
 
 在开始运行代码前需要执行以下命令安装必要的库：
-pip install -r requirement.txt
+
+```baah
+pip install -r requirements.txt
+```
 
 在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `AISHELL_DATASETS_PATH`, 并且执行以下命令：
 
@@ -86,8 +89,8 @@ bash run.sh ${magicmind_encoder_model} ${magicmind_decoder_model} force_float32 
 1. infer.py
 ```bash
 cd $PROJ_ROOT_PATH/infer_python
-# bash run.sh <magicmind_encoder_model> <magicmind_decoder_model> <precision> <batch_size>
-bash run.sh ${magicmind_encoder_model} ${magicmind_decoder_model} force_float32 32
+# bash run.sh <magicmind_encoder_model> <magicmind_decoder_model>
+bash run.sh ${magicmind_encoder_model} ${magicmind_decoder_model}
 ```
 2. 计算精度
 

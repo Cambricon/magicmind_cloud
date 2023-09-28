@@ -7,10 +7,10 @@ FILE2="annotations"
 FILE3="coco.names"
 FILE4="mask_rcnn_r50_fpn_1x_coco_20200205-d4b0c5d6.pth"
 
-if [ ! -d $DATASETS_PATH ];then
-  mkdir -p $DATASETS_PATH
+if [ ! -d $COCO_DATASETS_PATH ];then
+  mkdir -p $COCO_DATASETS_PATH
 fi
-cd $DATASETS_PATH
+cd $COCO_DATASETS_PATH
 
 if [ ! -d $FILE1 ];then 
   echo "Downloading val2017.zip"

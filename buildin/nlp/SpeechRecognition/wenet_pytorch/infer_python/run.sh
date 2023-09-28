@@ -6,7 +6,6 @@ set -x
 
 encoder_magicmind_model=$1
 decoder_magicmind_model=$2
-batch_size=$3
 s0_path=${PROJ_ROOT_PATH}/export_model/wenet/examples/aishell/s0
 
 infer_res_dir="$PROJ_ROOT_PATH/data/output/$(basename ${decoder_magicmind_model})_infer_res"

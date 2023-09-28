@@ -6,12 +6,12 @@ export MM_RUN_PATH=$NEUWARE_HOME/bin
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/detection/psenet_tensorflow
 #数据集路径
-export DATASETS_PATH=/nfsdata/modelzoo/datasets/icdar2015
+#export ICDAR_DATASETS_PATH=
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
 #cv类网络通用文件路径
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils
 
-echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to path where you want to save datasets"
+echo "ICDAR_DATASETS_PATH now is $ICDAR_DATASETS_PATH, please replace it to path where you want to save datasets"
 echo "NEUWARE_HOME now is $NEUWARE_HOME"
 echo "MM_RUN_PATH now is $MM_RUN_PATH"
 echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"

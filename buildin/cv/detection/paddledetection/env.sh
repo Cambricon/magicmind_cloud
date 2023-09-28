@@ -1,6 +1,6 @@
 # 开始运行本仓库前,先检查数据集路径是否存在
 # 若不存在则根据您的实际路径修改
-#export COCO_DATASETS_PATH=
+#export COCO_DATASETS_PATH=/path/to/modelzoo/datasets/coco/
 if [ -z ${COCO_DATASETS_PATH} ] || [ ! -d ${COCO_DATASETS_PATH} ];then
     echo "Error: COCO_DATASETS_PATH is not found, please set it and export it to env!"
 fi

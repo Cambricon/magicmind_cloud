@@ -47,7 +47,7 @@ git clone 本仓库
 cd magicmind_cloud/buildin/cv/segmentation/ocrnet_pytorch
 ```
 
-在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `DATASETS_PATH`, 并且执行以下命令：
+在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `CITYSCAPES_DATASETS_PATH`, 并且执行以下命令：
 
 ```bash
 source env.sh

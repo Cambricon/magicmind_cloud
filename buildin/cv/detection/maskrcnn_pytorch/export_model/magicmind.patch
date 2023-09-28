@@ -7,7 +7,7 @@ index 9901a858..e29d7bb6 100644
 +import os
  dataset_type = 'CocoDataset'
 -data_root = 'data/coco/'
-+data_root = os.environ.get("DATASETS_PATH")+'/'
++data_root = os.environ.get("COCO_DATASETS_PATH")+'/'
  img_norm_cfg = dict(
      mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
  train_pipeline = [

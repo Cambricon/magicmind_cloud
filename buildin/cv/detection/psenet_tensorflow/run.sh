@@ -23,7 +23,7 @@ echo "INFER SUCCESS!"
 
 ###4.compute accuracy
 THIS_OUTPUT_DIR=$PROJ_ROOT_PATH/data/output/psenet_tf_result_force_float32_false_1.json
-python $UTILS_PATH/compute_icdar_hmean.py   --label_file  $DATASETS_PATH/icdar2015/icdar2015_test_label.json \
+python $UTILS_PATH/compute_icdar_hmean.py   --label_file  $ICDAR_DATASETS_PATH/icdar2015/icdar2015_test_label.json \
                                             --result_dir $THIS_OUTPUT_DIR  \
                                             2>&1 | tee $PROJ_ROOT_PATH/data/output/psenet_tf_force_float32_false_1_log_eval
 echo "All has benn Finish!"

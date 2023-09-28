@@ -1,0 +1,129 @@
+diff --git a/ultralytics/cfg/__init__.py b/ultralytics/cfg/__init__.py
+index 05797e7..76a7b3f 100644
+--- a/ultralytics/cfg/__init__.py
++++ b/ultralytics/cfg/__init__.py
+@@ -75,6 +75,7 @@ CFG_BOOL_KEYS = ('save', 'exist_ok', 'verbose', 'deterministic', 'single_cls', '
+                  'save_json', 'save_hybrid', 'half', 'dnn', 'plots', 'show', 'save_txt', 'save_conf', 'save_crop',
+                  'show_labels', 'show_conf', 'visualize', 'augment', 'agnostic_nms', 'retina_masks', 'boxes', 'keras',
+                  'optimize', 'int8', 'dynamic', 'simplify', 'nms', 'profile')
++CFG_STRING_KEYS = ('mm_model')
+ 
+ 
+ def cfg2dict(cfg):
+@@ -311,7 +312,9 @@ def entrypoint(debug=''):
+         'cfg': lambda: yaml_print(DEFAULT_CFG_PATH),
+         'hub': lambda: handle_yolo_hub(args[1:]),
+         'login': lambda: handle_yolo_hub(args),
+-        'copy-cfg': copy_default_cfg}
++        'copy-cfg': copy_default_cfg,
++        'mm_model': "../../data/models/yolov8_onnx_model_force_float32_true"}
++
+     full_args_dict = {**DEFAULT_CFG_DICT, **{k: None for k in TASKS}, **{k: None for k in MODES}, **special}
+ 
+     # Define common mis-uses of special commands, i.e. -h, -help, --help
+diff --git a/ultralytics/cfg/default.yaml b/ultralytics/cfg/default.yaml
+index 5babd25..1b6b492 100644
+--- a/ultralytics/cfg/default.yaml
++++ b/ultralytics/cfg/default.yaml
+@@ -106,6 +106,7 @@ fliplr: 0.5  # (float) image flip left-right (probability)
+ mosaic: 1.0  # (float) image mosaic (probability)
+ mixup: 0.0  # (float) image mixup (probability)
+ copy_paste: 0.0  # (float) segment copy-paste (probability)
++mm_model: "yolov8_onnx_model_force_float32_true"
+ 
+ # Custom config.yaml ---------------------------------------------------------------------------------------------------
+ cfg:  # (str, optional) for overriding defaults.yaml
+diff --git a/ultralytics/engine/predictor.py b/ultralytics/engine/predictor.py
+index d6b8f69..c04c716 100644
+--- a/ultralytics/engine/predictor.py
++++ b/ultralytics/engine/predictor.py
+@@ -42,6 +42,7 @@ from ultralytics.utils import DEFAULT_CFG, LOGGER, MACOS, SETTINGS, WINDOWS, cal
+ from ultralytics.utils.checks import check_imgsz, check_imshow
+ from ultralytics.utils.files import increment_path
+ from ultralytics.utils.torch_utils import select_device, smart_inference_mode
++from mm_runner import MMRunner
+ 
+ STREAM_WARNING = """
+     WARNING ⚠️ stream/video/webcam/dir predict source will accumulate results in RAM unless `stream=True` is passed,
+@@ -106,6 +107,7 @@ class BasePredictor:
+         self.transforms = None
+         self.callbacks = _callbacks or callbacks.get_default_callbacks()
+         self.txt_path = None
++        self.mm_model = MMRunner(mm_file=self.args.mm_model, device_id=0)
+         callbacks.add_integration_callbacks(self)
+ 
+     def get_save_dir(self):
+@@ -135,7 +137,8 @@ class BasePredictor:
+     def inference(self, im, *args, **kwargs):
+         visualize = increment_path(self.save_dir / Path(self.batch[0][0]).stem,
+                                    mkdir=True) if self.args.visualize and (not self.source_type.tensor) else False
+-        return self.model(im, augment=self.args.augment, visualize=visualize)
++        #return self.model(im, augment=self.args.augment, visualize=visualize)
++        return self.mm_model([im.numpy()])
+ 
+     def pre_transform(self, im):
+         """Pre-transform input image before inference.
+diff --git a/ultralytics/engine/validator.py b/ultralytics/engine/validator.py
+index e1382cd..db44d7c 100644
+--- a/ultralytics/engine/validator.py
++++ b/ultralytics/engine/validator.py
+@@ -33,7 +33,7 @@ from ultralytics.utils.checks import check_imgsz
+ from ultralytics.utils.files import increment_path
+ from ultralytics.utils.ops import Profile
+ from ultralytics.utils.torch_utils import de_parallel, select_device, smart_inference_mode
+-
++from mm_runner import MMRunner
+ 
+ class BaseValidator:
+     """
+@@ -75,6 +75,7 @@ class BaseValidator:
+         self.training = True
+         self.speed = {'preprocess': 0.0, 'inference': 0.0, 'loss': 0.0, 'postprocess': 0.0}
+         self.jdict = None
++        self.mm_model = MMRunner(mm_file=self.args.mm_model, device_id=0)
+ 
+         project = self.args.project or Path(SETTINGS['runs_dir']) / self.args.task
+         name = self.args.name or f'{self.args.mode}'
+@@ -160,7 +161,8 @@ class BaseValidator:
+ 
+             # Inference
+             with dt[1]:
+-                preds = model(batch['img'], augment=augment)
++                #preds = model(batch['img'], augment=augment)
++                preds = self.mm_model([batch['img'].numpy()])
+ 
+             # Loss
+             with dt[2]:
+diff --git a/ultralytics/utils/ops.py b/ultralytics/utils/ops.py
+index 1e18258..17f8356 100644
+--- a/ultralytics/utils/ops.py
++++ b/ultralytics/utils/ops.py
+@@ -190,11 +190,12 @@ def non_max_suppression(
+     assert 0 <= iou_thres <= 1, f'Invalid IoU {iou_thres}, valid values are between 0.0 and 1.0'
+     if isinstance(prediction, (list, tuple)):  # YOLOv8 model in validation model, output = (inference_out, loss_out)
+         prediction = prediction[0]  # select only inference output
+-
+-    device = prediction.device
+-    mps = 'mps' in device.type  # Apple MPS
+-    if mps:  # MPS not fully supported yet, convert tensors to CPU before NMS
+-        prediction = prediction.cpu()
++    import torch
++    prediction = torch.from_numpy(prediction.astype(np.float32))
++    device = 'cpu'
++    #mps = 'mps' in device.type  # Apple MPS
++    #if mps:  # MPS not fully supported yet, convert tensors to CPU before NMS
++    prediction = prediction.cpu()
+     bs = prediction.shape[0]  # batch size
+     nc = nc or (prediction.shape[1] - 4)  # number of classes
+     nm = prediction.shape[1] - nc - 4
+@@ -269,8 +270,8 @@ def non_max_suppression(
+                 i = i[iou.sum(1) > 1]  # require redundancy
+ 
+         output[xi] = x[i]
+-        if mps:
+-            output[xi] = output[xi].to(device)
++        #if mps:
++        output[xi] = output[xi].to(device)
+         if (time.time() - t) > time_limit:
+             LOGGER.warning(f'WARNING ⚠️ NMS time limit {time_limit:.3f}s exceeded')
+             break  # time limit exceeded

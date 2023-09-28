@@ -23,7 +23,7 @@ else
 fi
 echo "infer Magicmind model..."
 python infer.py --magicmind_model $PROJ_ROOT_PATH/data/mm_model/psenet_tf_${PRECISION}_${SHAPE_MUTABLE}_1 \
-                --image_dir $DATASETS_PATH/icdar2015/images/ \
+                --image_dir $ICDAR_DATASETS_PATH/icdar2015/images/ \
                 --image_num ${IMAGE_NUM} \
                 --batch_size 1 \
                 --output_dir $PROJ_ROOT_PATH/data/output/psenet_tf_output_${PRECISION}_${SHAPE_MUTABLE}_1 \

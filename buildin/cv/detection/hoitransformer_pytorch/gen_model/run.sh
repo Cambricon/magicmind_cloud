@@ -12,7 +12,7 @@ if [ ! -f $PROJ_ROOT_PATH/data/models/hoitransformer_${PRECISION}_${BATCH_SIZE}.
     python gen_model.py \
         --onnx_model $MODEL_PATH/hoitransformer.onnx \
         --mm_model  $PROJ_ROOT_PATH/data/models/hoitransformer_${PRECISION}_${BATCH_SIZE}.mm \
-        --datasets_dir $DATASETS_PATH/test  \
+        --datasets_dir $HOIA_DATASETS_PATH/test  \
         --precision ${PRECISION} \
 	--shape_mutable true \
         --batch_size ${BATCH_SIZE}

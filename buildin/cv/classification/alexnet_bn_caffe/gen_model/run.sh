@@ -13,7 +13,7 @@ then
     python gen_model.py  --caffe_model $MODEL_PATH/AlexNet_cvgj/alexnet_cvgj_iter_320000.caffemodel \
                          --prototxt $MODEL_PATH/AlexNet_cvgj/deploy.prototxt \
                          --output_model $MAGICMIND_MODEL \
-                         --image_dir $DATASETS_PATH \
+                         --image_dir $ILSVRC2012_DATASETS_PATH \
                          --label_file $UTILS_PATH/ILSVRC2012_val.txt \
                          --precision $PRECISION \
                          --shape_mutable $SHAPE_MUTABLE \

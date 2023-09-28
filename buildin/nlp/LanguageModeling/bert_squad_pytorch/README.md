@@ -75,8 +75,8 @@ bash run.sh ${magicmind_model} force_float32 1 true
 
 ```bash
 cd $PROJ_ROOT_PATH/infer_python
-#bash run.sh <magicmind_model> <batch_size> <image_num>
-bash run.sh ${magicmind_model} 1 1000
+#bash run.sh <magicmind_model> <batch_size>
+bash run.sh ${magicmind_model} 1
 ```
 
 结果：

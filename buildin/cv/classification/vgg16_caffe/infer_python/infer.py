@@ -43,7 +43,7 @@ parser.add_argument(
     "--image_dir",
     dest="image_dir",
     type=str,
-    default="/nfsdata/datasets/imageNet2012/",
+    default="/path/to/modelzoo/datasets/imageNet2012/",
     help="imagenet val datasets",
 )
 parser.add_argument(
@@ -60,7 +60,7 @@ parser.add_argument(
     "--label_file",
     dest="label_file",
     type=str,
-    default="/nfsdata/datasets/imageNet2012/labels.txt",
+    default="/path/to/modelzoo/datasets/imageNet2012/labels.txt",
     help="imagenet val label txt",
 )
 parser.add_argument(

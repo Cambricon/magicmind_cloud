@@ -56,7 +56,7 @@ pip install nvidia-pyindex
 在开始运行代码前需要先安装依赖：
 
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 在开始运行代码前需要先检查 `env.sh` 里的环境变量, 并且执行以下命令：
@@ -88,16 +88,16 @@ if [ ${dynamic_shape} == 'false' ];then
     magicmind_waveglow_model="${magicmind_waveglow_model}_${batch_size}_${seq_len}"
 fi
 cd $PROJ_ROOT_PATH/gen_model
-# bash run.sh <magicmind_encoder_model> <magicmind_decoder_model> <magicmind_postnet_model> <magicmind_waveglow_model> <precision> <batch_size> <seq_len> <dynamic_shape>
-bash run.sh ${magicmind_encoder_model} ${magicmind_decoder_model} ${magicmind_postnet_model} ${magicmind_waveglow_model} force_float32 4 128 true
+# bash run.sh <magicmind_encoder_model> <magicmind_decoder_model> <magicmind_postnet_model> <magicmind_waveglow_model> <precision> <batch_size> <dynamic_shape>
+bash run.sh ${magicmind_encoder_model} ${magicmind_decoder_model} ${magicmind_postnet_model} ${magicmind_waveglow_model} force_float32 4 true
 ```
 
 ### 3.5 执行推理
 
 ```bash
 cd $PROJ_ROOT_PATH/infer_python
-# bash run.sh <magicmind_encoder_model> <magicmind_decoder_model> <magicmind_postnet_model> <magicmind_waveglow_model> <precision> <batch_size> <seq_len> 
-bash run.sh ${magicmind_encoder_model} ${magicmind_decoder_model} ${magicmind_postnet_model} ${magicmind_waveglow_model} force_float32 4 128
+# bash run.sh <magicmind_encoder_model> <magicmind_decoder_model> <magicmind_postnet_model> <magicmind_waveglow_model> <precision> <batch_size>
+bash run.sh ${magicmind_encoder_model} ${magicmind_decoder_model} ${magicmind_postnet_model} ${magicmind_waveglow_model} force_float32 4
 ```
 
 ### 3.6 一键运行
