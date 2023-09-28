@@ -22,5 +22,5 @@ bash run.sh force_float32 false 1 5000
 ### 3.eval
 
 python $UTILS_PATH/compute_coco_keypoints.py --res_file $PROJ_ROOT_PATH/data/output/infer_python_output_force_float32_false_1/bbox.json \
-                                           --ann_file $DATASETS_PATH/annotations/instances_val2017.json \
+                                           --ann_file $COCO_DATASETS_PATH/annotations/instances_val2017.json \
                                            --iou_type bbox 

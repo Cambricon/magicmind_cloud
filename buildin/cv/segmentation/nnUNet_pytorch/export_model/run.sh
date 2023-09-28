@@ -46,12 +46,20 @@ else
     fi
 
     # 4. 按照nnUNet格式要求对数据集进行预处理
-    cd $nnUNet_raw_data_base
-    nnUNet_convert_decathlon_task -i Task02_Heart
+    if [ ! -d $nnUNet_raw_data_base ];
+    then
+	    cp -r $NNUNET_nnUNet_raw_data_base/../nnUNet_raw_data_base $DATASETS_PATH
+    fi
+
+    nnUNet_convert_decathlon_task -i $nnUNet_raw_data_base/Task02_Heart
     nnUNet_plan_and_preprocess -t 2 --verify_dataset_integrity
 
     # 5.trace model
     cd $PROJ_ROOT_PATH/export_model
+    # FIXME: An error will be reported when executing the following command
+    # The specific error is as follows
+    # FileNotFoundError: [Errno 2] No such file or directory:
+    # magicmind_cloud/buildin/cv/segmentation/nnUNet_pytorch/data/models/2d/Task002_Heart/nnUNetTrainerV2__nnUNetPlansv2.1/plans.pkl
     python export.py -o $PROJ_ROOT_PATH/data/models/saved_pts \
                      -i $nnUNet_raw_data_base/nnUNet_raw_data/Task002_Heart/imagesTr \
                      -m $MODEL_PATH/2d/Task002_Heart/nnUNetTrainerV2__nnUNetPlansv2.1 \

@@ -5,7 +5,9 @@ export MM_RUN_PATH=$NEUWARE_HOME/bin
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/segmentation/nnUNet_pytorch
 #数据集路径
-export DATASETS_PATH=/nfsdata/modelzoo/datasets/nnUNet_dataset
+#export NNUNET_DATASETS_PATH=/path/to/modelzoo/datasets/nnUNet_dataset
+export NNUNET_nnUNet_raw_data_base=$NNUNET_DATASETS_PATH/nnUNet_raw_data_base
+export DATASETS_PATH=$PROJ_ROOT_PATH/data/
 export nnUNet_raw_data_base=$DATASETS_PATH/nnUNet_raw_data_base
 export nnUNet_preprocessed=$DATASETS_PATH/nnUNet_preprocessed
 # nnUNet模型保存路径
@@ -15,6 +17,8 @@ echo "NEUWARE_HOME now is $NEUWARE_HOME"
 echo "MM_RUN_PATH now is $MM_RUN_PATH"
 echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"
 echo "PROJ_ROOT_PATH is $PROJ_ROOT_PATH"
+echo "NNUNET_DATASETS_PATH now is $NNUNET_DATASETS_PATH, please replace it to path where you want to save datasets"
+echo "NNUNET_nnUNet_raw_data_base is $NNUNET_nnUNet_raw_data_base"
 echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to path where you want to save datasets"
 echo "nnUNet_raw_data_base is $nnUNet_raw_data_base"
 echo "nnUNet_preprocessed is $nnUNet_preprocessed"

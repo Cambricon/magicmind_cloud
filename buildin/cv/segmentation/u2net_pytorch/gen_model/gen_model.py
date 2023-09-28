@@ -8,7 +8,7 @@ from magicmind.python.common.types import get_numpy_dtype_by_datatype
 import cv2
 from magicmind.python.runtime.parser import Parser
 
-DATASETS_PATH = os.getenv("DATASETS_PATH")
+MSRA_B_DATASETS_PATH = os.getenv("MSRA_B_DATASETS_PATH")
 
 def torch_parser(args):
     # 创建MagicMind parser
@@ -60,7 +60,7 @@ def load_multi_image(data_paths, target_dtype: mm.DataType = mm.DataType.FLOAT32
     with open(data_paths[0]) as f:
         for line in f.readlines():
             line = line.strip('\n')
-            line = DATASETS_PATH + os.sep + line
+            line = MSRA_B_DATASETS_PATH + os.sep + line
             images.append(load_processed_image(line)[np.newaxis, :])
     ret = np.concatenate(tuple(images))
     return np.ascontiguousarray(ret.astype(dtype=get_numpy_dtype_by_datatype(target_dtype)))

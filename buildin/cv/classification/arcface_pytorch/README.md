@@ -78,13 +78,13 @@ bash run.sh ${magicmind_model} force_float32 1 true
 
 ```bash
 cd $PROJ_ROOT_PATH/infer_cpp
-#bash run.sh <magicmind_model> <batch_size> 
-bash run.sh ${magicmind_model} 1
+#bash run.sh <magicmind_model> <batch_size> <image_num>
+bash run.sh ${magicmind_model} 1 1000
 ```
 
 ### 3.6 一键运行
 
-以上 3.2~3.5 的步骤，均可以通过运行 `cd magicmind_cloud/buildin/cv/detection/yolov5_v6_1_pytorch && bash run.sh`实现一键执行。
+以上 3.2~3.5 的步骤，均可以通过运行 `cd magicmind_cloud/buildin/cv/classification/arcface_pytorch && bash run.sh`实现一键执行。
 
 ## 4.高级说明
 

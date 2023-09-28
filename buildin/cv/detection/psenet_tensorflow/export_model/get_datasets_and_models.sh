@@ -2,11 +2,11 @@
 set -e
 set -x
 
-if [ ! -d $DATASETS_PATH ];
+if [ ! -d $ICDAR_DATASETS_PATH ];
 then
-  mkdir -p $DATASETS_PATH
+  mkdir -p $ICDAR_DATASETS_PATH
 fi 
-cd $DATASETS_PATH
+cd $ICDAR_DATASETS_PATH
 
 DATA="icdar2015"
 if [ ! -d $DATA ];

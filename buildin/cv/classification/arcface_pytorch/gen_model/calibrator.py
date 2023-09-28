@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import magicmind.python.runtime as mm
 
-DATASETS_PATH = os.environ.get("IJB_DATASETS_PATH")
+IJB_DATASETS_PATH = os.environ.get("IJB_DATASETS_PATH")
 
 class CalibData(mm.CalibDataInterface):
     def __init__(self, shape: mm.Dims, img_dir: str):
@@ -12,7 +12,7 @@ class CalibData(mm.CalibDataInterface):
             image_paths = f.readlines()
         self.images = []
         for image_path in image_paths:
-            image = cv2.imread(str(DATASETS_PATH) + '/' + image_path.strip())
+            image = cv2.imread(str(IJB_DATASETS_PATH) + '/' + image_path.strip())
             assert image is not None, 'image [' + image_path.strip() + '] not exists!'
             self.images.append(image)
         nimages = len(self.images)

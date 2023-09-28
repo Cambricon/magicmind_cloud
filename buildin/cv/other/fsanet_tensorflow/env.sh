@@ -6,15 +6,15 @@ export MM_RUN_PATH=$NEUWARE_HOME/bin
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/cv/other/fsanet_tensorflow
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
-export DATASETS_PATH=/nfsdata/modelzoo/datasets/aflw2000
+#export ALFW2000_AFLW2000_DATASETS_PATH
 #cv类网络通用文件路径
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils
 
-echo "DATASETS_PATH now is $DATASETS_PATH, please replace it to path where you want to save datasets"
+echo "AFLW2000_DATASETS_PATH now is $AFLW2000_DATASETS_PATH, please replace it to path where you want to save datasets"
 echo "NEUWARE_HOME now is $NEUWARE_HOME"
 echo "MM_RUN_PATH now is $MM_RUN_PATH"
 echo "MAGICMIND_CLOUD is $MAGICMIND_CLOUD"
 echo "PROJ_ROOT_PATH is $PROJ_ROOT_PATH"
 echo "MODEL_PATH is $MODEL_PATH"
-echo "DATASETS_PATH is $DATASETS_PATH"
+echo "AFLW2000_DATASETS_PATH is $AFLW2000_DATASETS_PATH"
 echo "UTILS_PATH is $UTILS_PATH"

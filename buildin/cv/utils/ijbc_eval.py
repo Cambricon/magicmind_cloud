@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 from utils import Record
 
-IJB_DATASETS_PATH = os.environ.get("DATASETS_PATH")
+IJB_DATASETS_PATH = os.environ.get("IJB_DATASETS_PATH")
 
 def load_feature(features_dir, img_id):
     feature_file = features_dir + '/' + str(img_id) + '.feature'

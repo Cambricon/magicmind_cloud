@@ -28,6 +28,6 @@ else
 fi
 
 python infer.py --magicmind_model $MAGICMIND_MODEL \
-                --devkit_path $DATASETS_PATH/VOCdevkit \
+                --devkit_path $VOC2007_DATASETS_PATH/VOCdevkit \
                 --result_path $OUTPUT_DIR/voc_preds \
                 --save_img $SAVE_IMG

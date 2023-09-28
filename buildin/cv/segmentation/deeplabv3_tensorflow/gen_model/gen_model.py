@@ -11,8 +11,8 @@ from calibrator import CalibData, Calibrator
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--tf_model", type=str, default= "../data/models/frozen_inference_graph.pb", help="tf frozen pb model")
-parser.add_argument("--image_dir",  type=str, default=os.path.join(str(os.environ.get("DATASETS_PATH")), "VOC2012","JPEGImages"), help="VOC2012 datasets")
-parser.add_argument("--file_list", type=str, default=os.path.join(str(os.environ.get("DATASETS_PATH")), "VOC2012","ImageSets","Segmentation","val.txt"), help="val.txt path")
+parser.add_argument("--image_dir",  type=str, default=os.path.join(str(os.environ.get("VOC2012_DATASETS_PATH")), "VOC2012","JPEGImages"), help="VOC2012 datasets")
+parser.add_argument("--file_list", type=str, default=os.path.join(str(os.environ.get("VOC2012_DATASETS_PATH")), "VOC2012","ImageSets","Segmentation","val.txt"), help="val.txt path")
 parser.add_argument("--output_model_path", type=str, default= "../data/models/deeplabv3_tensorflow_model_force_float32_true_1", help="save mm model to this path")
 parser.add_argument("--precision", type=str, default="force_float32", help="qint8_mixed_float16, qint8_mixed_float32, qint16_mixed_float16, qint16_mixed_float32, force_float32, force_float16")
 def voc_dataset(file_list, image_file_path, count):

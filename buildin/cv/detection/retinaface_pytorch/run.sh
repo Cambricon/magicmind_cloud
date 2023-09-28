@@ -13,7 +13,7 @@ if [ ${dynamic_shape} == 'false' ];then
 fi
 
 # 0. export model
-pip install -r requirement.txt
+pip install -r requirements.txt
 cd ${PROJ_ROOT_PATH}/export_model 
 bash run.sh ${batch_size}
 

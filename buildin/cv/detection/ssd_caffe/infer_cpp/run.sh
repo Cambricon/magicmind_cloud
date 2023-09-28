@@ -30,6 +30,6 @@ fi
 
 bash build.sh
 $PROJ_ROOT_PATH/infer_cpp/infer --magicmind_model $MAGICMIND_MODEL \
-                                --image_dir $DATASETS_PATH/VOCdevkit \
+                                --image_dir $VOC2007_DATASETS_PATH/VOCdevkit \
                                 --output_dir $OUTPUT_DIR \
                                 --save_img $SAVE_IMG

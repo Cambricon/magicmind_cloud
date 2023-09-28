@@ -1,0 +1,8 @@
+torch==1.6.0+cpu
+inflect
+scipy
+Unidecode
+
+librosa
+git+https://github.com/NVIDIA/dllogger#egg=dllogger
+onnx-graphsurgeon

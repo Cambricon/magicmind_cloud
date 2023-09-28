@@ -7,7 +7,7 @@ then
     mkdir -p "$MODEL_PATH"
 fi
 
-if [ ! -d $DATASETS_PATH ];
+if [ ! -d $MSRA_B_DATASETS_PATH ];
 then
     echo "Please download MSRA-B datasets from https://mmcheng.net/msra10k/"
     exit -1

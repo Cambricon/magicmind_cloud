@@ -19,7 +19,7 @@ else
 fi
 python infer.py  --device_id 0 \
                  --magicmind_model $MODEL_PATH/${MODEL_NAME}_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-                 --image_dir $DATASETS_PATH \
+                 --image_dir $ILSVRC2012_DATASETS_PATH \
                  --image_num ${IMAGE_NUM} \
                  --name_file $UTILS_PATH/imagenet_name.txt \
                  --label_file $UTILS_PATH/ILSVRC2012_val.txt \

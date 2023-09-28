@@ -58,7 +58,7 @@ cd magicmind_cloud/buildin/cv/other/paddleocr
 在开始运行代码前需要先安装依赖：
 
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `ICDAR2015_DATASETS_PATH`, 还可以修改 `OCR_VERSION` 来选择模型版本，确认好参数后执行以下命令：

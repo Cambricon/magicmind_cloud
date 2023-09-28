@@ -10,6 +10,7 @@ terminaltables
 Cython
 pycocotools
 setuptools
+paddle2onnx
 
 # for MOT evaluation and inference
 lap

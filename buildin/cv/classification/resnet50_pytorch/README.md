@@ -71,8 +71,8 @@ bash run.sh ${MODEL_PATH}/resnet50_pytorch_model_force_float32_true force_float3
 ### 3.5 执行推理
 ```bash
 cd $PROJ_ROOT_PATH/infer_python
-#bash run.sh <magicmind_model> <batch_size> <batch_size> <image_num>
-bash run.sh ${MODEL_PATH}/resnet50_pytorch_model_force_float32_true force_float32 1 1000
+#bash run.sh <magicmind_model> <batch_size> <image_num>
+bash run.sh ${MODEL_PATH}/resnet50_pytorch_model_force_float32_true 1 1000
 ```
 
 结果：

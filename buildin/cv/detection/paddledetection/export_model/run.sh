@@ -4,15 +4,15 @@ set -x
 ## get model and datasets
 
 function gen_onnx_core(){
-	model_dir="${1}"
-	model_filename="${2}"
-	params="${3}"
-	onnx_model_name="${4}"
-    paddle2onnx --model_dir ${model_dir} \
-     --model_filename ${model_filename} \
-     --params ${params} \
+  model_dir="${1}"
+  model_filename="${2}"
+  params="${3}"
+  onnx_model_name="${4}"
+  paddle2onnx --model_dir ${model_dir} \
+   --model_filename ${model_filename} \
+   --params ${params} \
 	 --opset_version 11 \
-     --save_file ${onnx_model_name}
+   --save_file ${onnx_model_name}
 }
 
 function gen_onnx(){

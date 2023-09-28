@@ -19,7 +19,7 @@ else
   tar -zxvf deeplabv3_mnv2_pascal_train_aug_2018_01_29.tar.gz
 fi
 
-cd $DATASETS_PATH
+cd $VOC2012_DATASETS_PATH
 if [ ! -d VOCdevkit ];
 then
   echo "Downloading VOCtrainval_11-May-2012.tar"

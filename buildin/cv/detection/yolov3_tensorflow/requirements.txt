@@ -1,0 +1,4 @@
+torch==1.6.0+cpu
+easydict
+tensorflow-cpu==1.15
+prettytable

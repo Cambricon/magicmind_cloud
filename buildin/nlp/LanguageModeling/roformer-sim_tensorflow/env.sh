@@ -8,7 +8,7 @@ export MAGICMIND_CLOUD=${PROJ_ROOT_PATH%buildin*}
 export MODEL_PATH=${PROJ_ROOT_PATH}/data/models
 
 #数据集路径
-export DATASETS_PATH=/data/AE/modelzoo/datasets/roformer-sim
+#export ROFORMER_DATASETS_PATH=
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/cv/utils
 
@@ -31,4 +31,4 @@ pip uninstall -y keras-nightly
 pip uninstall -y tensorflow-cpu
 pip uninstall -y keras
 pip uninstall -y bert4keras
-pip install -r ${PROJ_ROOT_PATH}/export_model/requirement.txt
+pip install -r ${PROJ_ROOT_PATH}/export_model/requirements.txt

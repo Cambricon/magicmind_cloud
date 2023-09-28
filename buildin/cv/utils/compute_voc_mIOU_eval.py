@@ -8,7 +8,7 @@ import logging
 import argparse
 import sys
 sys.path.append(os.path.join(os.getenv("MAGICMIND_CLOUD"), "test"))
-VOC_DATASETS_PATH = os.environ.get("DATASETS_PATH")
+VOC_DATASETS_PATH = os.environ.get("VOC2012_DATASETS_PATH")
 PROJ_ROOT_PATH = os.environ.get("PROJ_ROOT_PATH")
 
 def voc_dataset(file_list, image_file_path, count):

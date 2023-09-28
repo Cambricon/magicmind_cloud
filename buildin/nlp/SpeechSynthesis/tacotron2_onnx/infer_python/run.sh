@@ -12,8 +12,8 @@ then
 fi
 
 python infer.py  --encoder_magicmind $magicmind_encoder_model \
-	         --decoder_magicmind $magicmind_decoder_model \
-		 --postnet_magicmind $magicmind_postnet_model \
-		 --waveglow_magicmind $magicmind_waveglow_model \
+                 --decoder_magicmind $magicmind_decoder_model \
+                 --postnet_magicmind $magicmind_postnet_model \
+                 --waveglow_magicmind $magicmind_waveglow_model \
                  --batch_size $batch_size \
                  --device_id 0 

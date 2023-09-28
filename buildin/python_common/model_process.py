@@ -29,7 +29,7 @@ MODEL_CONFIG_PARAMS = [
 MODEL_BUILDER_PARAMS = [
     "mlu_arch",
     "precision",
-    "symmetric_quant",
+    "activation_quant_algo",
     "weight_quant_granularity",
     "cluster_num",
     "means",
@@ -44,7 +44,6 @@ MODEL_BUILDER_PARAMS = [
     "computation_preference",
     "type64to32_conversion",
     "conv_scale_fold",
-    "clustering_launch_enable",
     "build_config",
 ]
 
@@ -317,19 +316,19 @@ def set_quant_granul_and_algori(config: BuilderConfig, args: dict) -> BuilderCon
 
     # set symmeteric quantization or assymmeteric quantization
     assert (
-        "symmetric_quant" in args.keys() and args["symmetric_quant"] is not None
+        "activation_quant_algo" in args.keys() and args["activation_quant_algo"] is not None
     ), "invalid quantization algorithm"
-    symmetric_quant = args["symmetric_quant"]
-    assert symmetric_quant in [
+    activation_quant_algo = args["activation_quant_algo"]
+    assert activation_quant_algo in [
         "symmetric",
         "asymmetric",
-    ], "invalid quantization algorithm: " + str(symmetric_quant)
+    ], "invalid quantization algorithm: " + str(activation_quant_algo)
     symmetric_qunat_str = (
-        '{"precision_config": {"activation_quant_algo":"' + symmetric_quant + '"}}'
+        '{"precision_config": {"activation_quant_algo":"' + activation_quant_algo + '"}}'
     )
     assert config.parse_from_string(symmetric_qunat_str).ok()
     log.info(
-        "get_build_config: set {} quantization successfully.".format(symmetric_quant)
+        "get_build_config: set {} quantization successfully.".format(activation_quant_algo)
     )
     return config
 
@@ -547,6 +546,7 @@ def set_dynamic_or_static_input_shape(
         else:
             log.info("Error:the val of shape_mutable is invalid.")
     #assert config.parse_from_string('{"debug_config": {"fusion_enable": false}}').ok()
+    #assert config.parse_from_string('{"debug_config": {"print_ir":  {"print_level": 1}}}').ok()
     return config
 
 
@@ -716,45 +716,9 @@ def set_conv_scale_fold(config: BuilderConfig, args: dict) -> BuilderConfig:
     return config
 
 
-def set_clustering_launch_enable(config: BuilderConfig, args: dict) -> BuilderConfig:
-    """Set clustering_launch_enable for the network.
-
-    Args:
-        config(BuilderConfig): Configuration for builder.
-        args(dict): All arguments.
-
-    Returns:
-        - Returns a configured BuilderConfig instance.
-    """
-
-    assert (
-        "clustering_launch_enable" in args.keys()
-        and args["clustering_launch_enable"] is not None
-    ), "opt.clustering_launch_enable is not specified."
-
-    clustering_launch_enable = args["clustering_launch_enable"]
-    assert clustering_launch_enable in [
-        "true",
-        "false",
-    ], "invalid clustering_launch_enable: " + str(clustering_launch_enable)
-
-    # example: {"opt_config":{"clustering_launch_enable":true}}
-    clustering_launch_enable_str = (
-        '{"opt_config":{"clustering_launch_enable":' + clustering_launch_enable + "}}"
-    )
-
-    assert config.parse_from_string(clustering_launch_enable_str).ok()
-    log.info(
-        "get_build_config: set opt.clustering_launch_enable {} successfully.".format(
-            clustering_launch_enable
-        )
-    )
-    return config
-
-
 def set_opt_config(config: BuilderConfig, args: dict) -> BuilderConfig:
     """Set opt_config for the network.
-       In detail, set opt.type64to32_conversion, opt.conv_scale_fold, opt.clustering_launch_enable
+       In detail, set opt.type64to32_conversion, opt.conv_scale_fold
 
     Args:
         config(BuilderConfig): Configuration for builder.
@@ -766,7 +730,6 @@ def set_opt_config(config: BuilderConfig, args: dict) -> BuilderConfig:
 
     set_type64to32_conversion(config, args)
     set_conv_scale_fold(config, args)
-    #set_clustering_launch_enable(config, args)
     return config
 
 
@@ -974,6 +937,7 @@ def build_and_serialize(net: Network, config: BuilderConfig, args: dict) -> bool
         "INT8": DataType.INT8,
         "INT16": DataType.INT16,
         "INT32": DataType.INT32,
+        "INT64": DataType.INT64,
         "UINT8": DataType.UINT8,
         "UINT16": DataType.UINT16,
         "UINT32": DataType.UINT32,

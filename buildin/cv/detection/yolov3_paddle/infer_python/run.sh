@@ -22,7 +22,7 @@ else
 fi
 echo "infer Magicmind model..."
 python infer.py --magicmind_model $PROJ_ROOT_PATH/data/mm_model/yolov3_onnx_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-                --image_dir $DATASETS_PATH/val2017 \
+                --image_dir $COCO_DATASETS_PATH/val2017 \
                 --image_num ${IMAGE_NUM} \
                 --file_list $UTILS_PATH/coco_file_list_5000.txt \
                 --label_path $UTILS_PATH/coco.names \

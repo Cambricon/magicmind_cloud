@@ -22,6 +22,6 @@ DEV_ID=0
 python infer.py --magicmind_model $PROJ_ROOT_PATH/data/mm_model/$MM_MODEL \
                 --dev_id $DEV_ID \
                 --batch_size ${BATCH_SIZE} \
-                --datasets_dir ${DATASETS_PATH} \
+                --datasets_dir $PROJ_ROOT_PATH/data/glue_data \
                 --acc_result $PROJ_ROOT_PATH/data/output/${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE}_acc_and_f1_result.txt \
                 --test_nums 1000

@@ -12,6 +12,11 @@ if [ ! -f $PROJ_ROOT_PATH/export_model/glue.py ];then
 fi
 
 python download_and_convert_model.py $PROJ_ROOT_PATH
-python download_datasets.py $DATASETS_PATH
+
+if [ ! -d $PROJ_ROOT_PATH/data/glue_data ];then
+  cp -r $GLUE_DATASETS_PATH $PROJ_ROOT_PATH/data
+fi
+
+python download_datasets.py $PROJ_ROOT_PATH/data/glue_data
 
 

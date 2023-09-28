@@ -37,7 +37,7 @@ parser.add_argument(
   "--image_dir", 
   dest="image_dir",  
   type=str, 
-  default="/nfsdata/modelzoo/datasets/cifar100/",
+  default="/path/to/datasets/cifar100/",
    help="cifar100 val datasets"
 )
 parser.add_argument(

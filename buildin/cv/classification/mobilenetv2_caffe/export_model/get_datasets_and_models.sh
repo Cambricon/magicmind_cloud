@@ -24,6 +24,6 @@ fi
 cd ${ILSVRC2012_DATASETS_PATH}
 if [ ! -f ILSVRC2012_val_00000001.JPEG ];
 then
-    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/ to $DATASETS_PATH"
+    echo "Please download LSVRC_2012_img_val datasets on https://image-net.org/challenges/LSVRC/ to $ILSVRC2012_DATASETS_PATH"
     exit 1
 fi

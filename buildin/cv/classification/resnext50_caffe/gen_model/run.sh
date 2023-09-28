@@ -9,7 +9,7 @@ then
     python gen_model.py  --caffe_model $MODEL_PATH/$CAFFEMODEL \
                          --prototxt $MODEL_PATH/$PROTOTXT \
                          --output_model $MODEL_PATH/${MODEL_NAME}_model_${PRECISION}_${SHAPE_MUTABLE}_${BATCH_SIZE} \
-                         --image_dir $DATASETS_PATH \
+                         --image_dir $ILSVRC2012_DATASETS_PATH \
                          --precision ${PRECISION} \
                          --shape_mutable ${SHAPE_MUTABLE} \
                          --batch_size ${BATCH_SIZE} \

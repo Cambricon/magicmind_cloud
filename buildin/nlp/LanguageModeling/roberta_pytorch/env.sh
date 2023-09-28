@@ -1,7 +1,7 @@
 ### 在开始运行本仓库前先检查以下路径：
 # 若不存在则根据您的实际路径修改
 if [ -z ${CHNSENTICORP_DATASETS_PATH} ] || [ ! -d ${CHNSENTICORP_DATASETS_PATH} ];then
-    echo "Error: DATASETS_PATH is not found, please set it and export it to env!"
+    echo "Error: CHNSENTICORP_DATASETS_PATH is not found, please set it and export it to env!"
 fi
 
 export NEUWARE_HOME=/usr/local/neuware

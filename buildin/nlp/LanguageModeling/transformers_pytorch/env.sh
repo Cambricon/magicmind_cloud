@@ -7,7 +7,7 @@ export MM_RUN_PATH=$NEUWARE_HOME/bin
 export MAGICMIND_CLOUD=${PWD}/../../../../../magicmind_cloud
 export PROJ_ROOT_PATH=$MAGICMIND_CLOUD/buildin/nlp/LanguageModeling/transformers_pytorch
 #数据集路径 
-export DATASETS_PATH=/nfsdata/modelzoo/datasets/glue_data
+#export GLUE_GLUE_DATASETS_PATH=
 #cv类网络通用文件路径
 export UTILS_PATH=$MAGICMIND_CLOUD/buildin/nlp/utils
 #模型路径

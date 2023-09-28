@@ -50,7 +50,7 @@ def get_args():
     )
     arg_parser.add_argument(
         "--label_file", "--label_file",  
-        type=str, default="/nfsdata/datasets/imageNet2012/labels.txt", 
+        type=str, default="/path/to/modelzoo/datasets/imageNet2012/labels.txt",
         help="imagenet val label txt")
     return arg_parser.parse_args()
 

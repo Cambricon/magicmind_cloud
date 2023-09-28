@@ -34,7 +34,7 @@ pushd mmsegmentation
 popd
 
 # 检查数据集
-if [ ! -d ${DATASETS_PATH} ];then
-    echo ${DATASETS_PATH}" not exist, please download cityscapes datasets. https://www.cityscapes-dataset.com/downloads/"    
+if [ ! -d ${CITYSCAPES_DATASETS_PATH} ];then
+    echo ${CITYSCAPES_DATASETS_PATH}" not exist, please download cityscapes datasets. https://www.cityscapes-dataset.com/downloads/"
     exit 1
 fi

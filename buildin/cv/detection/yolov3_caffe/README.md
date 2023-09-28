@@ -45,8 +45,8 @@ git clone 本仓库
 cd magicmind_cloud/buildin/cv/detection/yolov3_caffe
 ```
 在开始运行代码前需要安装依赖，并且执行以下命令：
-```
-pip install -r requirement.txt
+```bash
+pip install -r requirements.txt
 ```
 
 在开始运行代码前需要先检查 env.sh 里的环境变量，并且执行以下命令：

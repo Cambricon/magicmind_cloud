@@ -52,7 +52,7 @@ cd buildin/nlp/LanguageModeling/roformer-sim_tensorflow
 ```bash
 source env.sh
 pip uninstall keras-nightly
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 注意：在安装requirement之前需要先卸载keras-nightly。

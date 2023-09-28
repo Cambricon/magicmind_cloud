@@ -179,14 +179,6 @@ def get_argparser():
         choices=["false", "true"],
         help="Whether to prepend the multiplication and addition operations to the convolution weights after the convolution operation. This configuration is also valid for the quantization calibration. If you want to use this optimization for quantization, you need to set this option in in advance during the quantization calibration phase to ensure that the quantization parameters during the calibration process are consistent with the actual data distribution. Note that this optimization may have an impact on the range of the weight distribution and turning on this optimization in lower bit-width uniform quantization algorithms may cause the accuracy not to meet the requirements.",
     )
-    model_builder.add_argument(
-        "--clustering_launch_enable",
-        dest="clustering_launch_enable",
-        type=str,
-        default="false",
-        choices=["false", "true"],
-        help="Whether to enable clustering ops. If it is enabled, MagicMind will try to cluster and fuse operations in graph. With this option on, the cost of kernel will decrease while using more device memory. This is an experimental feature until now.",
-    )
 
     # parameters about model calibration
     calibration = parent_parser.add_argument_group(
@@ -253,8 +245,8 @@ def get_argparser():
         help="quantization granularity for weights.",
     )
     calibration.add_argument(
-        "--symmetric_quant",
-        dest="symmetric_quant",
+        "--activation_quant_algo",
+        dest="activation_quant_algo",
         type=str,
         default="symmetric",
         choices=["symmetric", "asymmetric"],
