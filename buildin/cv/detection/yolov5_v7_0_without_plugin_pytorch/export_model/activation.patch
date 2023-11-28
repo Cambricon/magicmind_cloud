@@ -1,6 +1,18 @@
-1214a1215,1219
-> 
-> class SiLU(Module):
+387,399c387,389
+<     __constants__ = ['inplace']
+<     inplace: bool
+< 
+<     def __init__(self, inplace: bool = False):
+<         super(SiLU, self).__init__()
+<         self.inplace = inplace
+< 
+<     def forward(self, input: Tensor) -> Tensor:
+<         return F.silu(input, inplace=self.inplace)
+< 
+<     def extra_repr(self) -> str:
+<         inplace_str = 'inplace=True' if self.inplace else ''
+<         return inplace_str
+---
 >     @staticmethod
 >     def forward(x):
 >         return x * torch.sigmoid(x)

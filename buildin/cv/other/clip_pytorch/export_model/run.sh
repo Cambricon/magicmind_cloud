@@ -10,7 +10,6 @@ then
   echo "clip already exists."
 else
   echo "git clone clip..."
-  pip install torchvision==0.8.2+cpu torch==1.7.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
   git clone https://github.com/openai/CLIP.git
   cd $PROJ_ROOT_PATH/export_model/CLIP
   git checkout d50d76daa670286dd6cacf3bcd80b5e4823fc8e1

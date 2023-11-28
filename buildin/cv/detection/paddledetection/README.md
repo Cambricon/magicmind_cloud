@@ -54,7 +54,7 @@ cd magicmind_cloud/buildin/cv/detection/paddledetection
 在开始运行代码前需要先安装依赖：
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `COCO_DATASETS_PATH`, 执行以下命令：

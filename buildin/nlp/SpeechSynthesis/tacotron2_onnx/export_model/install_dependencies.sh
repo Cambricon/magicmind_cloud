@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# The onnx-graphsurgeon package in the PyPI repository is merely a placeholder project
+# while the actual package is located in the NVIDIA Python Package Index.
+pip install nvidia-pyindex -i https://pypi.tuna.tsinghua.edu.cn/simple/
+pip install onnx-graphsurgeon -i https://pypi.tuna.tsinghua.edu.cn/simple/
 # install tensorrt for convert torch to ONNX IRs
 cd $PROJ_ROOT_PATH/export_model
 if [ -f tensorrt.tar.gz ]; then

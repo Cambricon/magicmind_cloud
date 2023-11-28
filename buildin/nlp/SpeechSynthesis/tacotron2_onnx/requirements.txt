@@ -1,8 +1,8 @@
 torch==1.6.0+cpu
+torchvision==0.7.0+cpu
+protobuf==3.19.6
 inflect
 scipy
 Unidecode
-
 librosa
 git+https://github.com/NVIDIA/dllogger#egg=dllogger
-onnx-graphsurgeon

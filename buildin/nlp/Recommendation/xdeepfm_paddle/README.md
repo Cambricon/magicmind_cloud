@@ -49,7 +49,7 @@ cd magicmind_cloud/buildin/nlp/Recommendation/xdeepfm_paddle
 在开始运行代码前需要先安装依赖：
 
 ```bash
-pip install -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -i https://mirror.baidu.com/pypi/simple -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 在开始运行代码前需要先检查 env.sh 里的环境变量，并且执行以下命令：   

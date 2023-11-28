@@ -50,7 +50,7 @@ cd magicmind_cloud/buildin/cv/other/openpose_caffe
 在开始运行代码前需要先安装依赖：
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html
 ```
 另外，如果您之前未安装过`rapidjson`，则您还需安装`rapidjson`:
 ```bash

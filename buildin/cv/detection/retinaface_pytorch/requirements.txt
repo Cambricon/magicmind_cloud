@@ -1,4 +1,5 @@
-torch==1.6.0+cpu
+torch==1.13.1+cpu
+torchvision==0.14.1+cpu
 seaborn>=0.11.0
 gdown
 ipython

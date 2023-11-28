@@ -117,7 +117,8 @@ img_idx = 0
 batch_counter = 0
 
 for i in range(max_iter):
-    data = val_iter.next()
+    #data = val_iter.next()
+    data = next(iter(val_iter))
     cpu_images, cpu_texts = data
     #batch_size = cpu_images.size(0)
     infer_batch_size = (

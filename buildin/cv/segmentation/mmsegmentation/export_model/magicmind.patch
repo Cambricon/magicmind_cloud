@@ -203,6 +203,37 @@ index cc4fcc9..44295e7 100644
  def multi_gpu_test(model,
                     data_loader,
                     tmpdir=None,
+diff --git a/tools/pytorch2onnx.py b/tools/pytorch2onnx.py
+index 060d187..c56bdd3 100644
+--- a/tools/pytorch2onnx.py
++++ b/tools/pytorch2onnx.py
+@@ -167,11 +167,11 @@ def pytorch2onnx(model,
+ 
+     # replace original forward function
+     origin_forward = model.forward
+-    model.forward = partial(
+-        model.forward,
+-        img_metas=img_meta_list,
+-        return_loss=False,
+-        rescale=True)
++    # model.forward = partial(
++    #     model.forward,
++    #     img_metas=img_meta_list,
++    #     return_loss=False,
++    #     rescale=True)
+     dynamic_axes = None
+     if dynamic_export:
+         if test_mode == 'slide':
+@@ -193,7 +193,8 @@ def pytorch2onnx(model,
+     register_extra_symbolics(opset_version)
+     with torch.no_grad():
+         torch.onnx.export(
+-            model, (img_list, ),
++            model,
++            (img_list, img_meta_list, False, dict(rescale=True)),
+             output_file,
+             input_names=['input'],
+             output_names=['output'],
 diff --git a/tools/test.py b/tools/test.py
 index a643b08..9f2c1d8 100644
 --- a/tools/test.py

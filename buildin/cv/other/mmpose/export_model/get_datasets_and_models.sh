@@ -82,6 +82,6 @@ else
 
     # install mmpose
     cd $PROJ_ROOT_PATH/export_model/mmpose
-    pip install -r requirements.txt
+    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html
     pip install -v -e .
 fi

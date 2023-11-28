@@ -1,4 +1,4 @@
-image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:1.6.0-x86_64-ubuntu18.04-py_3_7
+image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:1.7.0-x86_64-ubuntu18.04-py_3_7
 
 report-result:
     stage: .post
@@ -42,7 +42,7 @@ report-result:
 
         - ln -s /data/AE/modelzoo/models/${TEST_PROJ_DIR##*/}/* data/models
 
-        - if [ -f requirement*.txt ]; then pip install -r requirement*.txt -i  https://pypi.tuna.tsinghua.edu.cn/simple/; fi
+        - if [ -f requirement*.txt ]; then pip install -r requirement*.txt -i  https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html; fi
         #- if [ -f benchmark/perf.sh ]; then bash benchmark/perf.sh; fi
         #- if [ -f benchmark/eval.sh ]; then bash benchmark/eval.sh; fi
         - cat env.sh

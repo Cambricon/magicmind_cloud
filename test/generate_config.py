@@ -9,7 +9,8 @@ for search_dir in search_dirs:
     s_dir = os.listdir(search_dir)
     for d in s_dir:
         dir = os.path.join(search_dir, d)
-        if os.path.isdir(dir):
+        # MagicMind r1.7 and later versions do not support TensorFlow Parser.
+        if os.path.isdir(dir) and not d.endswith('_tensorflow'):
             dirs.append(dir)
 
 with open(template_file, "r") as f:

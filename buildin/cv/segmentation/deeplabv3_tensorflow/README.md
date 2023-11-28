@@ -50,7 +50,7 @@ cd magicmind_cloud/buildin/cv/segmentation/deeplabv3_tensorflow
 1.开始运行代码前需要先执行以下命令安装必要的依赖：
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 2.在开始运行代码前需要先检查 `env.sh` 里的环境变量，根据数据集实际路径修改 `env.sh` 内的 `VOC2012_DATASETS_PATH`, 并且执行以下命令：

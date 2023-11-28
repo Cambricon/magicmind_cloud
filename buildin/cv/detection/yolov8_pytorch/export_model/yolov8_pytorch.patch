@@ -1,5 +1,18 @@
+diff --git a/setup.cfg b/setup.cfg
+index 2cde6a49..34839119 100644
+--- a/setup.cfg
++++ b/setup.cfg
+@@ -1,6 +1,8 @@
+ # Project-wide configuration file, can be used for package metadata and other toll configurations
+ # Example usage: global configuration for PEP8 (via flake8) setting or default pytest arguments
+ # Local usage: pip install pre-commit, pre-commit run --all-files
++[easy_install]
++index_url = https://pypi.tuna.tsinghua.edu.cn/simple
+ 
+ [metadata]
+ license_files = LICENSE
 diff --git a/ultralytics/cfg/__init__.py b/ultralytics/cfg/__init__.py
-index 05797e7..76a7b3f 100644
+index 05797e7c..76a7b3f5 100644
 --- a/ultralytics/cfg/__init__.py
 +++ b/ultralytics/cfg/__init__.py
 @@ -75,6 +75,7 @@ CFG_BOOL_KEYS = ('save', 'exist_ok', 'verbose', 'deterministic', 'single_cls', '
@@ -22,7 +35,7 @@ index 05797e7..76a7b3f 100644
  
      # Define common mis-uses of special commands, i.e. -h, -help, --help
 diff --git a/ultralytics/cfg/default.yaml b/ultralytics/cfg/default.yaml
-index 5babd25..1b6b492 100644
+index 5babd254..1b6b4925 100644
 --- a/ultralytics/cfg/default.yaml
 +++ b/ultralytics/cfg/default.yaml
 @@ -106,6 +106,7 @@ fliplr: 0.5  # (float) image flip left-right (probability)
@@ -34,7 +47,7 @@ index 5babd25..1b6b492 100644
  # Custom config.yaml ---------------------------------------------------------------------------------------------------
  cfg:  # (str, optional) for overriding defaults.yaml
 diff --git a/ultralytics/engine/predictor.py b/ultralytics/engine/predictor.py
-index d6b8f69..c04c716 100644
+index d6b8f694..c04c7163 100644
 --- a/ultralytics/engine/predictor.py
 +++ b/ultralytics/engine/predictor.py
 @@ -42,6 +42,7 @@ from ultralytics.utils import DEFAULT_CFG, LOGGER, MACOS, SETTINGS, WINDOWS, cal
@@ -64,7 +77,7 @@ index d6b8f69..c04c716 100644
      def pre_transform(self, im):
          """Pre-transform input image before inference.
 diff --git a/ultralytics/engine/validator.py b/ultralytics/engine/validator.py
-index e1382cd..db44d7c 100644
+index e1382cd4..db44d7cd 100644
 --- a/ultralytics/engine/validator.py
 +++ b/ultralytics/engine/validator.py
 @@ -33,7 +33,7 @@ from ultralytics.utils.checks import check_imgsz
@@ -95,7 +108,7 @@ index e1382cd..db44d7c 100644
              # Loss
              with dt[2]:
 diff --git a/ultralytics/utils/ops.py b/ultralytics/utils/ops.py
-index 1e18258..17f8356 100644
+index 1e182581..17f8356d 100644
 --- a/ultralytics/utils/ops.py
 +++ b/ultralytics/utils/ops.py
 @@ -190,11 +190,12 @@ def non_max_suppression(

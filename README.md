@@ -60,7 +60,6 @@ docker run -it --shm_size 10G --name=dockername \
 | [ResNet50](buildin/cv/classification/resnet50_paddle)              | Paddle    | YES       | YES       | NO  | YES    |
 | [ResNext50](buildin/cv/classification/resnext50_caffe)             | Caffe     | YES       | YES       | YES | YES    |
 | [SENet50](buildin/cv/classification/senet50_caffe)                 | Caffe     | YES       | YES       | YES | NO     |
-| [SqueezeNet_v1_0](buildin/cv/classification/squeezenet_v1_0_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [SqueezeNet_v1_1](buildin/cv/classification/squeezenet_v1_1_caffe) | Caffe     | YES       | YES       | YES | NO     |
 | [SwinTransformer](buildin/cv/classification/swintransformer_pytorch)|PyTorch   | YES       | YES       | NO  | YES    |
 | [VGG16](buildin/cv/classification/vgg16_caffe)                     | Caffe     | YES       | YES       | YES | YES    |
@@ -79,8 +78,10 @@ docker run -it --shm_size 10G --name=dockername \
 | [Cascade_R-CNN](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
 | [HoiTransformer](buildin/cv/detection/hoitransformer_pyTorch) | PyTorch    | YES       | YES       | NO  | YES    |
 | [HRNet](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
-| [Mask_R-CNN](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
+| [Mask_R-CNN(Offical API)](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
+| [Mask_R-CNN](buildin/cv/detection/maskrcnn_pytorch)         | PyTorch    | YES       | YES       | NO  | YES    |
 | [PSENet](buildin/cv/detection/psenet_tensorflow)      | TensorFlow | YES       | YES       | NO  | YES    |
+| [PPYOLOE](buildin/cv/detection/paddledetection)      | Paddle | YES       | YES       | NO  | YES    |
 | [Retinaface](buildin/cv/detection/retinaface_pytorch)         | PyTorch    | YES       | YES       | YES | NO     |
 | [RetinaNet](buildin/cv/detection/mmdetection)         | PyTorch    | YES       | YES       | NO  | YES    |
 | [SSD](buildin/cv/detection/ssd_caffe)                         | Caffe      | YES       | YES       | YES | YES    |
@@ -102,10 +103,11 @@ docker run -it --shm_size 10G --name=dockername \
 | [Deeplabv3](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
 | [Deeplabv3](buildin/cv/segmentation/deeplabv3_tensorflow) | TensorFlow | YES       | YES       | YES | NO     |
 | [nnUnet](buildin/cv/segmentation/nnUNet_pytorch)          | PyTorch    | YES       | YES       | NO  | YES    |
-| [OCRNet](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
+| [OCRNet(Offical API)](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
+| [OCRNet](buildin/cv/segmentation/ocrnet_pytorch/)        | PyTorch    | YES       | YES       | NO  | YES    |
 | [SegNet](buildin/cv/segmentation/segnet_caffe)            | Caffe      | YES       | YES       | YES | NO     |
 | [UNet](buildin/cv/segmentation/unet_pytorch)              | PyTorch    | YES       | YES       | NO  | YES    |
-| [UNet](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
+| [UNet(MMSegmentation)](buildin/cv/segmentation/mmsegmentation)        | PyTorch    | YES       | YES       | NO  | YES    |
 | [U2Net](buildin/cv/segmentation/u2net_pytorch)            | PyTorch    | YES       | YES       | NO  | YES    |
 
 #### Others:
@@ -118,7 +120,8 @@ docker run -it --shm_size 10G --name=dockername \
 | [I3D](buildin/cv/other/mmaction2)| PyTorch| YES       | YES       | NO  | YES    |
 | [MobileNetv2](buildin/cv/other/mmpose)| PyTorch| YES       | YES       | NO  | YES    |
 | [Openpose](buildin/cv/other/openpose_caffe) | Caffe     | YES       | YES       | YES | NO     |
-| [PaddleOCR](buildin/cv/other/paddleocr)| Paddle| YES       | YES       | NO  | YES    |
+| [PaddleOCRv2](buildin/cv/other/paddleocr)| Paddle| YES       | YES       | NO  | YES    |
+| [PaddleOCRv3](buildin/cv/other/paddleocr)| Paddle| YES       | YES       | NO  | YES    |
 | [ResNet50](buildin/cv/other/mmpose)| PyTorch| YES       | YES       | NO  | YES    |
 | [TSM](buildin/cv/other/mmaction2)| PyTorch| YES       | YES       | NO  | YES    |
 
@@ -167,6 +170,11 @@ ModelZoo 仅提供公共数据集以及预训练模型的下载链接，公共�
 如果您不希望您的数据集或模型公布在 ModelZoo 上，或者您希望更新 ModelZoo 中属于您的数据集或模型，请您通过 Gitee 中提交 issue，您也可以联系ecosystem@cambricon.com告知我们。
 
 ## 9.Release Note
+### v1.7:
+- MagicMind支持版本1.7.0
+- 修复部分网络README错误
+- 删除对TensorFlow框架支持，详情见MagicMind r1.7.0 Release Note
+
 ### v1.6:
 - MagicMind支持版本1.6.0
 - 整理代码格式，统一文件命名规则，修复部分网络README错误

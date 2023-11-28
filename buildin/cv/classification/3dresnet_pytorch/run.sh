@@ -26,5 +26,4 @@ fi
 if [ ${infer_mode} == "infer_python" ];then
     cd ${PROJ_ROOT_PATH}/infer_python
     bash run.sh ${magicmind_model} ${batch_size}   
-    #bash run.sh ${magicmind_model} ${batch_size} ${image_num}  
 fi

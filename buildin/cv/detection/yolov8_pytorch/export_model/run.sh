@@ -15,6 +15,7 @@ bash get_datasets_and_models.sh
 
 # 2.下载yolov8源码
 cd ${PROJ_ROOT_PATH}/export_model
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 if [ -d "ultralytics" ];then
     echo "ultralytics already exists."
 else

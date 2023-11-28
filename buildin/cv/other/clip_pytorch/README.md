@@ -48,7 +48,7 @@ cd magicmind_cloud/buildin/cv/other/clip_pytorch
 在开始运行代码前需要执行以下命令安装必要的库：
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 在开始运行代码前需要先检查 env.sh 里的环境变量，并且执行以下命令：

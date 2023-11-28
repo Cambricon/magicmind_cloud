@@ -12,6 +12,7 @@ export nnUNet_raw_data_base=$DATASETS_PATH/nnUNet_raw_data_base
 export nnUNet_preprocessed=$DATASETS_PATH/nnUNet_preprocessed
 # nnUNet模型保存路径
 export MODEL_PATH=$PROJ_ROOT_PATH/data/models
+export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
 echo "check below paths before run this sample!!!"
 echo "NEUWARE_HOME now is $NEUWARE_HOME"
 echo "MM_RUN_PATH now is $MM_RUN_PATH"

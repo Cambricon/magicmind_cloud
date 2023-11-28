@@ -1,21 +1,36 @@
-image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:1.3.0-x86_64-ubuntu18.04-py_3_7
+image: yellow.hub.cambricon.com/magicmind/release/x86_64/magicmind:1.7.0-x86_64-ubuntu18.04-py_3_7
 
 gen-jobs:
-    stage: .pre
-    tags:
-        - bj_test_runner
-    script:
-        - python test/generate_config.py
-    artifacts:
-        paths:
-            - jobs.yml
-            - test/*report.csv
+  stage: .pre
+  tags:
+    - bj_test_runner
+  script:
+    - python test/generate_config.py
+  artifacts:
+    paths:
+      - jobs.yml
+      - test/*report.csv
+  rules:
+    - exists:
+      - CI_COMMIT_TITLE
+    - if: '$CI_COMMIT_TITLE !~ /-(\w+)/'
+      when: never
+    - if: '$CI_COMMIT_TITLE =~ /-skip_ci/'
+      when: never
+    - when: on_success
 
 model-test:
-    stage: test
-    trigger:
-        include:
-            - artifact: jobs.yml
-              job: gen-jobs
-        strategy: depend
-
+  stage: test
+  trigger:
+    include:
+      - artifact: jobs.yml
+        job: gen-jobs
+    strategy: depend
+  rules:
+    - exists:
+      - CI_COMMIT_TITLE
+    - if: '$CI_COMMIT_TITLE !~ /-(\w+)/'
+      when: never
+    - if: '$CI_COMMIT_TITLE =~ /-skip_ci/'
+      when: never
+    - when: on_success

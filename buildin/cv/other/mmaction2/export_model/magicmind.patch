@@ -1,5 +1,5 @@
 diff --git a/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py b/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py
-index aa0e523f..7a61c9a4 100644
+index aa0e523f..3a413c64 100644
 --- a/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py
 +++ b/configs/recognition/i3d/i3d_r50_32x2x1_100e_kinetics400_rgb.py
 @@ -3,13 +3,14 @@ _base_ = [
@@ -21,7 +21,7 @@ index aa0e523f..7a61c9a4 100644
      mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
  train_pipeline = [
 diff --git a/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py b/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py
-index 7e455a7c..223656be 100644
+index 7e455a7c..f17bc9d9 100644
 --- a/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py
 +++ b/configs/recognition/slowfast/slowfast_r50_4x16x1_256e_kinetics400_rgb.py
 @@ -2,12 +2,14 @@ _base_ = [
@@ -43,7 +43,7 @@ index 7e455a7c..223656be 100644
      mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
  train_pipeline = [
 diff --git a/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py b/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py
-index 76195eb8..8d376ca9 100644
+index 76195eb8..1197f0dc 100644
 --- a/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py
 +++ b/configs/recognition/tsm/tsm_r50_1x1x8_50e_kinetics400_rgb.py
 @@ -3,13 +3,15 @@ _base_ = [
@@ -104,6 +104,19 @@ index 8133e7c1..8e2784d1 100644
  
      def forward_gradcam(self, imgs):
          """Defines the computation performed at every call when using gradcam
+diff --git a/tools/deployment/pytorch2onnx.py b/tools/deployment/pytorch2onnx.py
+index 9b4cf5ca..8c1cbcb3 100644
+--- a/tools/deployment/pytorch2onnx.py
++++ b/tools/deployment/pytorch2onnx.py
+@@ -152,7 +152,7 @@ if __name__ == '__main__':
+     # onnx.export does not support kwargs
+     if hasattr(model, 'forward_dummy'):
+         from functools import partial
+-        model.forward = partial(model.forward_dummy, softmax=args.softmax)
++        model.forward = model.forward_dummy
+     elif hasattr(model, '_forward') and args.is_localizer:
+         model.forward = model._forward
+     else:
 diff --git a/tools/test.py b/tools/test.py
 index 6b52e9fd..98a8da9e 100644
 --- a/tools/test.py

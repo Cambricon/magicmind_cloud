@@ -14,6 +14,7 @@ pushd mmsegmentation
     if [ $? -eq 1 ];then
         # 切换分支
         git checkout -b v0.30.0 v0.30.0
+				git apply ../magicmind.patch
         # 安装mmseg
         python setup.py install
     fi

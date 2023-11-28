@@ -50,13 +50,11 @@ else
 fi
 
 # 4.patch-torch-cocodataset
-if grep -q "SiLU" /usr/lib/python3.7/site-packages/torch/nn/modules/__init__.py;
-then
-  echo "SiLU activation operator already exists.";
+if grep -q "torch.sigmoid(x)" /usr/lib/python3.7/site-packages/torch/nn/modules/activation.py;then
+    echo "SiLU activation operator already converted.";
 else
-  echo "add SiLU op in '/usr/lib/python3.7/site-packages/torch/nn/modules/__init__.py and activation.py'"
-  patch -p0 /usr/lib/python3.7/site-packages/torch/nn/modules/__init__.py < $PROJ_ROOT_PATH/export_model/init.patch
-  patch -p0 /usr/lib/python3.7/site-packages/torch/nn/modules/activation.py < $PROJ_ROOT_PATH/export_model/activation.patch
+    echo "replace SiLU op in '/usr/lib/python3.7/site-packages/torch/nn/modules/activation.py'"
+    patch -p0 -f /usr/lib/python3.7/site-packages/torch/nn/modules/activation.py < ${PROJ_ROOT_PATH}/export_model/activation.patch
 fi
 
 # 5.trace model

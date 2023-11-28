@@ -18,12 +18,17 @@ if __name__ == "__main__":
     pt_model = BertForSequenceClassification.from_pretrained(args.model_path, from_tf = False, config = os.path.join(args.model_path, "config.json"), num_labels=2, cache_dir = None)
     pt_model.eval()
 
-    tokens = torch.randint(0, 1, (args.batch_size, args.max_seq_length))
-    segments = torch.randint(0, 1, (args.batch_size, args.max_seq_length))
-    mask = torch.randint(0, 1, (args.batch_size, args.max_seq_length))
+    tokens = torch.randint(0, 1, (args.batch_size, args.max_seq_length), dtype=torch.long)
+    segments = torch.randint(0, 1, (args.batch_size, args.max_seq_length), dtype=torch.long)
+    mask = torch.randint(0, 1, (args.batch_size, args.max_seq_length), dtype=torch.long)
 
-    # 保存模型文件
-    input_names = ['input_ids','attention_mask','token_type_ids']
-    output_names = ["output"]
-    torch.onnx.export(pt_model, (tokens, segments, mask), args.onnx_model, verbose=True,opset_version=11,input_names=input_names,output_names=output_names) 
+    # 导出模型到 ONNX，指定可变维度的名称
+    input_names = ['input_ids', 'attention_mask', 'token_type_ids']
+    output_names = ['output']
+    dynamic_axes = {'input_ids': {0: 'batch_size', 1: 'seq_length'},
+                    'attention_mask': {0: 'batch_size', 1: 'seq_length'},
+                    'token_type_ids': {0: 'batch_size', 1: 'seq_length'},
+                    'output': {0: 'batch_size'}}
+
+    torch.onnx.export(pt_model, (tokens, segments, mask), args.onnx_model, verbose=True, opset_version=11, input_names=input_names, output_names=output_names, dynamic_axes=dynamic_axes)
     print("successfully save onnx")

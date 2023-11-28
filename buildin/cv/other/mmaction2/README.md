@@ -62,7 +62,7 @@ source env.sh
 ```
 随后，需要安装依赖项文件：
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 ### 3.3 准备数据集和模型

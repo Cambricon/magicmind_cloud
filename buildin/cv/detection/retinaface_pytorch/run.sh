@@ -13,7 +13,7 @@ if [ ${dynamic_shape} == 'false' ];then
 fi
 
 # 0. export model
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ -f https://download.pytorch.org/whl/torch_stable.html
 cd ${PROJ_ROOT_PATH}/export_model 
 bash run.sh ${batch_size}
 
